@@ -19,9 +19,10 @@ Class::Debug - Add Runtime Debugging to a Class
 
 our $VERSION = 0.01;
 
-=head1 SUBROUTINES/METHODS
+=head1 SYNOPSIS
 
-=head2 setup
+The C<Class::Debug> module is a lightweight utility designed to inject runtime debugging capabilities into other classes,
+primarily by layering configuration and logging support
 
 Add this to your constructor:
 
@@ -32,10 +33,30 @@ Add this to your constructor:
    	my $class = shift;
 	my $params = Params::Get(undef, \@_);
 
-	$params = Class::Debug::setup($params);
+	$params = Class::Debug::setup($class, $params);
 
 	return bless $params, $class;
     }
+
+=head1 SUBROUTINES/METHODS
+
+=head2 setup
+
+Configure your class for runtime debugging.
+
+Takes two arguments:
+
+=over 4
+
+=item * C<class>
+
+=item * C<params>
+
+The default parameters used in the constructor.
+
+=back
+
+Returns the new values for the constructor.
 
 Now you can set up a configuration file and environment variables to debug your module.
 
