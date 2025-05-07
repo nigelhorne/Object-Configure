@@ -19,6 +19,28 @@ Class::Debug - Add Runtime Debugging to a Class
 
 our $VERSION = 0.01;
 
+=head1 SUBROUTINES/METHODS
+
+=head2 setup
+
+Add this to your constructor:
+
+   use Class::Debug;
+   use Params::Get;
+
+   sub new {
+   	my $class = shift;
+	my $params = Params::Get(undef, \@_);
+
+	$params = Class::Debug::setup($params);
+
+	return bless $params, $class;
+    }
+
+Now you can set up a configuration file and environment variables to debug you module.
+
+=cut
+
 sub setup
 {
 	my $class = shift;
@@ -52,5 +74,33 @@ sub setup
 		$params->{'logger'} = Log::Abstraction->new(carp_on_warn => 1);
 	}
 }
+
+=head1 SEE ALSO
+
+=over 4
+
+=item * L<Config::Abstraction>
+
+=item * L<Log::Abstraction>
+
+=back
+
+=head1 SUPPORT
+
+This module is provided as-is without any warranty.
+
+Please report any bugs or feature requests to C<bug-class-debug at rt.cpan.org>,
+or through the web interface at
+L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Class-Debug>.
+I will be notified, and then you'll
+automatically be notified of progress on your bug as I make changes.
+
+You can find documentation for this module with the perldoc command.
+
+    perldoc Class::Debug
+
+You can also look for information at:
+
+=cut
 
 1;
