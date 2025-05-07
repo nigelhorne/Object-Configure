@@ -4,12 +4,12 @@ Class::Debug - Add Runtime Debugging to a Class
 
 # VERSION
 
-0.01
+0.02
 
 # SYNOPSIS
 
 The `Class::Debug` module is a lightweight utility designed to inject runtime debugging capabilities into other classes,
-primarily by layering configuration and logging support
+primarily by layering configuration and logging support.
 
 Add this to your constructor:
 
@@ -36,7 +36,7 @@ Takes two arguments:
 - `class`
 - `params`
 
-    The default parameters used in the constructor.
+    A hashref containing default parameters to be used in the constructor.
 
 Returns the new values for the constructor.
 
