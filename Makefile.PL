@@ -48,6 +48,7 @@ WriteMakefile(
 		'LWP::Protocol::https' => 0,
 		'JSON::MaybeXS'	=> 0
 	}, TEST_REQUIRES => {
+		'Test::Most' => 0,
 	}, dist => $dist,
 	clean	 => {
 		FILES => 'Class-Debug-*',
