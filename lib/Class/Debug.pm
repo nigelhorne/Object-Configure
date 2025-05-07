@@ -94,6 +94,8 @@ sub setup
 	} else {
 		$params->{'logger'} = Log::Abstraction->new(carp_on_warn => 1);
 	}
+
+	return $params;
 }
 
 =head1 SEE ALSO
