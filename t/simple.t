@@ -2,7 +2,8 @@ use strict;
 use warnings;
 
 use Test::Most;
-use Class::Debug;
+
+BEGIN { use_ok('Class::Debug') }
 
 # Fake class name for testing
 my $class = 'My::Test::Class';

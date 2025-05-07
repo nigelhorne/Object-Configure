@@ -5,7 +5,7 @@ use warnings;
 
 use Carp;
 use Config::Abstraction 0.20;
-use Log::Abstraction 0.11;
+use Log::Abstraction 0.10;
 
 =head1 NAME
 
