@@ -37,7 +37,7 @@ Add this to your constructor:
 	return bless $params, $class;
     }
 
-Now you can set up a configuration file and environment variables to debug you module.
+Now you can set up a configuration file and environment variables to debug your module.
 
 =cut
 
