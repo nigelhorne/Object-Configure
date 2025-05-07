@@ -22,7 +22,7 @@ our $VERSION = 0.01;
 =head1 SYNOPSIS
 
 The C<Class::Debug> module is a lightweight utility designed to inject runtime debugging capabilities into other classes,
-primarily by layering configuration and logging support
+primarily by layering configuration and logging support.
 
 Add this to your constructor:
 
@@ -52,7 +52,7 @@ Takes two arguments:
 
 =item * C<params>
 
-The default parameters used in the constructor.
+A hashref containing default parameters to be used in the constructor.
 
 =back
 
