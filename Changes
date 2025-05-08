@@ -1,5 +1,8 @@
 Revision history for Class-Debug - Runtime Debugging for a Class
 
+0.03
+	Added CI support
+
 0.02	Wed May  7 17:08:29 EDT 2025
 	Fix the return value
 	Added testing
