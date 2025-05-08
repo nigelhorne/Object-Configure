@@ -30,12 +30,12 @@ Add this to your constructor:
    use Params::Get;
 
    sub new {
-   	my $class = shift;
-	my $params = Params::Get(undef, \@_);
+        my $class = shift;
+        my $params = Params::Get(undef, \@_);
 
-	$params = Class::Debug::setup($class, $params);
+        $params = Class::Debug::setup($class, $params);
 
-	return bless $params, $class;
+        return bless $params, $class;
     }
 
 =head1 SUBROUTINES/METHODS
@@ -122,7 +122,23 @@ You can find documentation for this module with the perldoc command.
 
     perldoc Class::Debug
 
-You can also look for information at:
+=head1 LICENSE AND COPYRIGHT
+
+Copyright 2010-2025 Nigel Horne.
+
+Usage is subject to licence terms.
+
+The licence terms of this software are as follows:
+
+=over 4
+
+=item * Personal single user, single computer use: GPL2
+
+=item * All other users (including Commercial, Charity, Educational, Government)
+  must apply in writing for a licence for use from Nigel Horne at the
+  above e-mail.
+
+=back
 
 =cut
 
