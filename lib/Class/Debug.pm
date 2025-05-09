@@ -38,6 +38,20 @@ Add this to your constructor:
         return bless $params, $class;
     }
 
+Throughout your class, add code such as:
+
+    $self->{'logger'}->debug(ref($self), ': ', __LINE__, ' doing something I want to log');
+
+=head2 CHANGING BEHAVIOUR AT RUN TIME
+
+=head2 USING A CONFIGURATION FILE
+
+To be written.
+
+=head2 USING ENVIRONMENT VARIABLES
+
+To be written.
+
 =head1 SUBROUTINES/METHODS
 
 =head2 setup
