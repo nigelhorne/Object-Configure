@@ -46,7 +46,7 @@ Throughout your class, add code such as:
     {
         my $self = shift;
 
-        $self->{'trace'}->debug(ref($self), ': ', __LINE__, ' entering method');
+        $self->{'logger'}->trace(ref($self), ': ', __LINE__, ' entering method');
     }
 
 =head2 CHANGING BEHAVIOUR AT RUN TIME
