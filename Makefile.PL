@@ -49,6 +49,7 @@ WriteMakefile(
 		'JSON::MaybeXS'	=> 0
 	}, TEST_REQUIRES => {
 		'File::Temp' => 0,
+		'Test::DescribeMe' => 0,
 		'Test::Most' => 0,
 		'YAML::XS' => 0,
 	}, dist => $dist,
