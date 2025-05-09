@@ -29,7 +29,12 @@ Add this to your constructor:
 
 Throughout your class, add code such as:
 
-    $self->{'logger'}->debug(ref($self), ': ', __LINE__, ' doing something I want to log');
+    sub method
+    {
+        my $self = shift;
+
+        $self->{'trace'}->debug(ref($self), ': ', __LINE__, ' entering method');
+    }
 
 ## CHANGING BEHAVIOUR AT RUN TIME
 
