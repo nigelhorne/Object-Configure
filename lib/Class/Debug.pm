@@ -67,7 +67,7 @@ This mechanism allows dynamic tuning of logging behavior (or other parameters yo
 
 More details to be written.
 
-=head2 USING ENVIRONMENT VARIABLES
+=head3 USING ENVIRONMENT VARIABLES
 
 C<Class::Debug> also supports runtime configuration via environment variables,
 without requiring a configuration file.
@@ -179,7 +179,7 @@ You can find documentation for this module with the perldoc command.
 
 =head1 LICENSE AND COPYRIGHT
 
-Copyright 2010-2025 Nigel Horne.
+Copyright 2025 Nigel Horne.
 
 Usage is subject to licence terms.
 
