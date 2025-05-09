@@ -66,7 +66,7 @@ These variables should be prefixed with your class name, followed by a double co
 For example, to enable syslog logging for your `My::Module` class,
 you could set:
 
-    export My::Module::logger.file=/var/log/mymodule.log
+    export My::Module::logger__file=/var/log/mymodule.log
 
 This would be equivalent to passing the following in your constructor:
 

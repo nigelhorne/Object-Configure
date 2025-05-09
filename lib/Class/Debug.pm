@@ -79,7 +79,7 @@ These variables should be prefixed with your class name, followed by a double co
 For example, to enable syslog logging for your C<My::Module> class,
 you could set:
 
-    export My::Module::logger.file=/var/log/mymodule.log
+    export My::Module::logger__file=/var/log/mymodule.log
 
 This would be equivalent to passing the following in your constructor:
 
@@ -132,6 +132,8 @@ sub setup
 
 		if(my $config = Config::Abstraction->new(config_dirs => $config_dirs, config_file => $params->{'config_file'}, env_prefix => "${class}::")) {
 			$params = $config->merge_defaults(defaults => $params, section => $class);
+		} elsif($@) {
+			croak("$class: Can't load configuration from ", $params->{'config_file'}, ": $@");
 		} else {
 			croak("$class: Can't load configuration from ", $params->{'config_file'});
 		}
