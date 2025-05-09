@@ -51,6 +51,7 @@ WriteMakefile(
 		'File::Temp' => 0,
 		'Test::DescribeMe' => 0,
 		'Test::Most' => 0,
+		'Test::Needs' => 0,
 		'YAML::XS' => 0,
 	}, dist => $dist,
 	clean	 => {
