@@ -149,7 +149,7 @@ sub setup
 	# Load the default logger, which may have been defined in the config file or passed in
 	if(my $logger = $params->{'logger'}) {
 		if((ref($logger) eq 'HASH') && $logger->{'syslog'}) {
-			$params->{'logger'} = Log::Abstraction->new(carp_on_warn => 1, syslog => $logger->{'syslog'});
+			$params->{'logger'} = Log::Abstraction->new(carp_on_warn => 1, syslog => $logger->{'syslog'}, logger => $logger);
 		} else {
 			$params->{'logger'} = Log::Abstraction->new(carp_on_warn => 1, logger => $logger);
 		}
