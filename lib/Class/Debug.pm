@@ -136,7 +136,7 @@ sub setup
 		}
 
 		if(my $config = Config::Abstraction->new(config_dirs => $config_dirs, config_file => $params->{'config_file'}, env_prefix => "${class}::")) {
-			$params = $config->merge_defaults(defaults => $params, section => $class);
+			$params = $config->merge_defaults(defaults => $params, section => $class, merge => 1, deep => 1);
 		} elsif($@) {
 			croak("$class: Can't load configuration from ", $params->{'config_file'}, ": $@");
 		} else {
