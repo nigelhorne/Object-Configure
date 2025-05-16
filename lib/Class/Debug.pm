@@ -4,7 +4,7 @@ use strict;
 use warnings;
 
 use Carp;
-use Config::Abstraction 0.20;
+use Config::Abstraction 0.25;
 use Log::Abstraction 0.11;
 
 =head1 NAME
@@ -143,7 +143,7 @@ sub setup
 			croak("$class: Can't load configuration from ", $params->{'config_file'});
 		}
 	} elsif(my $config = Config::Abstraction->new(env_prefix => "${class}::")) {
-		$params = $config->merge_defaults(defaults => $params, section => $class);
+		$params = $config->merge_defaults(defaults => $params, section => $class, merge => 1, deep => 1);
 	}
 
 	# Load the default logger, which may have been defined in the config file or passed in
