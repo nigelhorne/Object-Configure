@@ -5,7 +5,7 @@ use warnings;
 
 use Carp;
 use Config::Abstraction 0.25;
-use Log::Abstraction 0.11;
+use Log::Abstraction 0.15;
 
 =head1 NAME
 
@@ -13,11 +13,11 @@ Class::Debug - Add Runtime Debugging to a Class
 
 =head1 VERSION
 
-0.03
+0.04
 
 =cut
 
-our $VERSION = 0.03;
+our $VERSION = 0.04;
 
 =head1 SYNOPSIS
 
