@@ -24,6 +24,25 @@ our $VERSION = 0.03;
 The C<Class::Debug> module is a lightweight utility designed to inject runtime debugging capabilities into other classes,
 primarily by layering configuration and logging support.
 
+L<Log::Abstraction> and L<Config::Abstraction> are modules developed to solve a specific need:
+runtime configurability without needing to rewrite or hardcode behaviours.
+The goal is to allow individual modules to enable or disable features on the fly, and to do it using whatever configuration system the user prefers.
+
+Although the initial aim was general configurability,
+the primary use case that’s emerged has been fine-grained logging control,
+more flexible and easier to manage than what you'd typically do with L<Log::Log4perl>.
+For example,
+you might want one module to log verbosely while another stays quiet,
+and be able to toggle that dynamically - without making invasive changes to each module.
+
+To tie it all together,
+there is C<Class::Debug>.
+It sits on L<Log::Abstraction> and L<Config::Abstraction>,
+and with just a couple of extra lines in a class constructor,
+you can hook in this behaviour seamlessly.
+The intent is to keep things modular and reusable,
+especially across larger systems or in situations where you want user-selectable behaviour.
+
 Add this to your constructor:
 
    package My::Module;

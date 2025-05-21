@@ -39,6 +39,9 @@ isa_ok($obj_with_file->{logger}, 'Log::Abstraction');
 ok($obj_with_file->{logger}->can('debug'), 'Logger has debug method');
 $obj_with_file->{'logger'}->debug('Hello, World');
 
+# use Data::Dumper;
+# diag(Data::Dumper->new([$obj_with_file])->Dump());
+
 ok(-r 'foo.log');
 ok(open my $log_fh, '<', 'foo.log');
 my @log_lines = <$log_fh>;
