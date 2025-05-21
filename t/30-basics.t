@@ -25,8 +25,10 @@ BEGIN { use_ok('Class::Debug') }
 # Create a temporary config file
 my ($fh, $filename) = tempfile();
 print $fh <<'EOF';
-[My::Module]
-logger = foo.log
+My::Module:
+  logger:
+    file: foo.log
+    level: debug
 EOF
 close $fh;
 
@@ -38,9 +40,6 @@ isa_ok($obj_with_file, 'My::Module');
 isa_ok($obj_with_file->{logger}, 'Log::Abstraction');
 ok($obj_with_file->{logger}->can('debug'), 'Logger has debug method');
 $obj_with_file->{'logger'}->debug('Hello, World');
-
-# use Data::Dumper;
-# diag(Data::Dumper->new([$obj_with_file])->Dump());
 
 ok(-r 'foo.log');
 ok(open my $log_fh, '<', 'foo.log');
@@ -59,6 +58,7 @@ unlink 'foo.log';
 
 ($fh, $filename) = tempfile();
 $ENV{'My::Module::logger__file'} = $filename;
+$ENV{'My::Module::logger__level'} = 'debug';
 close $fh;
 
 my $obj_with_env = My::Module->new();
