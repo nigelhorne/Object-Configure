@@ -13,11 +13,11 @@ Class::Debug - Add Runtime Debugging to a Class
 
 =head1 VERSION
 
-0.06
+0.07
 
 =cut
 
-our $VERSION = 0.06;
+our $VERSION = 0.07;
 
 =head1 SYNOPSIS
 
