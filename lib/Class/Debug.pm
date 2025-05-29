@@ -9,7 +9,7 @@ use Log::Abstraction 0.15;
 
 =head1 NAME
 
-Class::Debug - Add Runtime Debugging to a Class
+Class::Debug - Add Runtime Configuration to a Class
 
 =head1 VERSION
 
@@ -54,7 +54,7 @@ Add this to your constructor:
         my $class = shift;
         my $params = Params::Get(undef, \@_);
 
-        $params = Class::Debug::setup($class, $params);
+        $params = Class::Debug::setup($class, $params);	# Reads in the runtime configuration settings
 
         return bless $params, $class;
     }
@@ -194,6 +194,10 @@ sub setup
 	}
 	return $params;
 }
+
+=head1 BUGS
+
+I should rename it to Class::Configure since it now does more than set up debugging.
 
 =head1 SEE ALSO
 

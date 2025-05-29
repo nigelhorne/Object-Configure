@@ -3,7 +3,7 @@
 
 # NAME
 
-Class::Debug - Add Runtime Debugging to a Class
+Class::Debug - Add Runtime Configuration to a Class
 
 # VERSION
 
@@ -44,7 +44,7 @@ Add this to your constructor:
          my $class = shift;
          my $params = Params::Get(undef, \@_);
 
-         $params = Class::Debug::setup($class, $params);
+         $params = Class::Debug::setup($class, $params); # Reads in the runtime configuration settings
 
          return bless $params, $class;
      }
@@ -123,6 +123,10 @@ Takes two arguments:
 Returns the new values for the constructor.
 
 Now you can set up a configuration file and environment variables to debug your module.
+
+# BUGS
+
+I should rename it to Class::Configure since it now does more than set up debugging.
 
 # SEE ALSO
 
