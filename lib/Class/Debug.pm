@@ -156,7 +156,7 @@ sub setup
 		# my $config = YAML::XS::LoadFile($params->{'config_file'});
 		my $config_dirs = $params->{'config_dirs'};
 		if((!$config_dirs) && (!-r $params->{'config_file'})) {
-			croak("$class: ", $params->{'config_file'}, ': File not readable');
+			croak("$class: ", $params->{'config_file'}, ": $!");
 		}
 
 		if(my $config = Config::Abstraction->new(config_dirs => $config_dirs, config_file => $params->{'config_file'}, env_prefix => "${class}::")) {
