@@ -5,16 +5,16 @@ use File::Temp qw(tempfile);
 use Test::Most;
 use YAML::XS;
 
-BEGIN { use_ok('Class::Debug') }
+BEGIN { use_ok('Object::Configure') }
 
-# Fake class that uses Class::Debug
+# Fake class that uses Object::Configure
 {
 	package My::Debuggable::Class;
-	use Class::Debug;
+	use Object::Configure;
 
 	sub new {
 		my ($class, %args) = @_;
-		my $params = Class::Debug::setup($class, \%args);
+		my $params = Object::Configure::configure($class, \%args);
 		return bless $params, $class;
 	}
 }

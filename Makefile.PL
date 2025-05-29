@@ -20,10 +20,10 @@ if($^O eq 'darwin') {
 }
 
 WriteMakefile(
-	NAME	 => 'Class::Debug',		# Name of the module
-	VERSION_FROM => 'lib/Class/Debug.pm',	# Automatically fetch version from the module
+	NAME	 => 'Object::Configure',		# Name of the module
+	VERSION_FROM => 'lib/Object/Configure.pm',	# Automatically fetch version from the module
 	AUTHOR	=> 'Nigel Horne <njh@nigelhorne.com>', # Author information
-	ABSTRACT_FROM	=> 'lib/Class/Debug.pm',
+	ABSTRACT_FROM	=> 'lib/Object/Configure.pm',
 	((defined($ExtUtils::MakeMaker::VERSION) && ($ExtUtils::MakeMaker::VERSION >= 6.3002))
 		? ('LICENSE'=> 'GPL')
 		: ()),
@@ -44,21 +44,21 @@ WriteMakefile(
 		'YAML::XS' => 0,
 	}, dist => $dist,
 	clean	 => {
-		FILES => 'Class-Debug-*',
+		FILES => 'Object-Configure-*',
 	}, META_MERGE => {	# https://perldoc.perl.org/CPAN::Meta::Spec
 		'meta-spec' => { version => 2 },
 		resources => {
-			homepage => 'https://metacpan.org/pod/Class::Debug',
+			homepage => 'https://metacpan.org/pod/Object::Configure',
 			repository => {
-				repository => 'https://github.com/nigelhorne/Class-Debug',
+				repository => 'https://github.com/nigelhorne/Object-Configure',
 				type => 'git',
-				url => 'git://github.com/nigelhorne/Class-Debug.git',
-				web => 'https://github.com/nigelhorne/Class-Debug'
+				url => 'git://github.com/nigelhorne/Object-Configure.git',
+				web => 'https://github.com/nigelhorne/Object-Configure'
 			}, bugtracker => {
-				mailto => 'bug-Class-Debug@rt.cpan.org',
-				url => 'https://github.com/nigelhorne/Class-Debug/issues',
-				# web => 'https://rt.cpan.org/Public/Dist/Display.html?Name=Class-Debug',
-				web => 'https://github.com/nigelhorne/Class-Debug/issues'
+				mailto => 'bug-Object-Configure@rt.cpan.org',
+				url => 'https://github.com/nigelhorne/Object-Configure/issues',
+				# web => 'https://rt.cpan.org/Public/Dist/Display.html?Name=Object-Configure',
+				web => 'https://github.com/nigelhorne/Object-Configure/issues'
 			}
 		},
 	},

@@ -3,16 +3,16 @@ use warnings;
 
 use Test::Most;
 
-BEGIN { use_ok('Class::Debug') }
+BEGIN { use_ok('Object::Configure') }
 
 # Define our test class
 {
 	package My::EnvTest::Class;
-	use Class::Debug;
+	use Object::Configure;
 
 	sub new {
 		my ($class, %args) = @_;
-		my $params = Class::Debug::setup($class, \%args);
+		my $params = Object::Configure::configure($class, \%args);
 		return bless $params, $class;
 	}
 }

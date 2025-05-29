@@ -5,16 +5,16 @@ use Test::Most;
 use File::Temp qw(tempfile);
 use Config::Abstraction;
 
-BEGIN { use_ok('Class::Debug') }
+BEGIN { use_ok('Object::Configure') }
 
-# Mock class to test setup
+# Mock class to test configure
 {
 	package My::Module;
-	use Class::Debug;
+	use Object::Configure;
 
 	sub new {
 		my ($class, %args) = @_;
-		my $self = Class::Debug::setup($class, \%args);
+		my $self = Object::Configure::configure($class, \%args);
 		bless $self, $class;
 		return $self;
 	}

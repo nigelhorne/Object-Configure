@@ -1,4 +1,4 @@
-package Class::Debug;
+package Object::Configure;
 
 use strict;
 use warnings;
@@ -9,7 +9,7 @@ use Log::Abstraction 0.15;
 
 =head1 NAME
 
-Class::Debug - Add Runtime Configuration to a Class
+Object::Configure - Runtime Configuration for an Object
 
 =head1 VERSION
 
@@ -21,7 +21,7 @@ our $VERSION = 0.07;
 
 =head1 SYNOPSIS
 
-The C<Class::Debug> module is a lightweight utility designed to inject runtime debugging capabilities into other classes,
+The C<Object::Configure> module is a lightweight utility designed to inject runtime parameters into other classes,
 primarily by layering configuration and logging support.
 
 L<Log::Abstraction> and L<Config::Abstraction> are modules developed to solve a specific need:
@@ -36,7 +36,7 @@ you might want one module to log verbosely while another stays quiet,
 and be able to toggle that dynamically - without making invasive changes to each module.
 
 To tie it all together,
-there is C<Class::Debug>.
+there is C<Object::Configure>.
 It sits on L<Log::Abstraction> and L<Config::Abstraction>,
 and with just a couple of extra lines in a class constructor,
 you can hook in this behaviour seamlessly.
@@ -47,14 +47,14 @@ Add this to your constructor:
 
    package My::Module;
 
-   use Class::Debug;
+   use Object::Configure;
    use Params::Get;
 
    sub new {
         my $class = shift;
         my $params = Params::Get(undef, \@_);
 
-        $params = Class::Debug::setup($class, $params);	# Reads in the runtime configuration settings
+        $params = Object::Configure::configure($class, $params);	# Reads in the runtime configuration settings
 
         return bless $params, $class;
     }
@@ -72,7 +72,7 @@ Throughout your class, add code such as:
 
 =head3 USING A CONFIGURATION FILE
 
-To control debug behavior at runtime, C<Class::Debug> supports loading settings from a configuration file via L<Config::Abstraction>.
+To control behavior at runtime, C<Object::Configure> supports loading settings from a configuration file via L<Config::Abstraction>.
 
 A minimal example of a config file (C<~/.conf/local.conf>) might look like:
 
@@ -80,7 +80,7 @@ A minimal example of a config file (C<~/.conf/local.conf>) might look like:
 
    logger.file = /var/log/mymodule.log
 
-The C<setup()> function will read this file,
+The C<configure()> function will read this file,
 overlay it onto your default parameters,
 and initialize the logger accordingly.
 
@@ -93,10 +93,10 @@ More details to be written.
 
 =head3 USING ENVIRONMENT VARIABLES
 
-C<Class::Debug> also supports runtime configuration via environment variables,
+C<Object::Configure> also supports runtime configuration via environment variables,
 without requiring a configuration file.
 
-Environment variables are read automatically when you use the C<setup()> function,
+Environment variables are read automatically when you use the C<configure()> function,
 thanks to its integration with L<Config::Abstraction>.
 These variables should be prefixed with your class name, followed by a double colon.
 
@@ -110,18 +110,18 @@ This would be equivalent to passing the following in your constructor:
      My::Module->new(logger => Log::Abstraction->new({ file => '/var/log/mymodule.log' });
 
 All environment variables are read and merged into the default parameters under the section named after your class.
-This allows centralized and temporary control of debug settings (e.g., for production diagnostics or ad hoc testing) without modifying code or files.
+This allows centralized and temporary control of settings (e.g., for production diagnostics or ad hoc testing) without modifying code or files.
 
 Note that environment variable settings take effect regardless of whether a configuration file is used,
-and are applied during the call to C<setup()>.
+and are applied during the call to C<configure()>.
 
 More details to be written.
 
 =head1 SUBROUTINES/METHODS
 
-=head2 setup
+=head2 configure
 
-Configure your class for runtime debugging.
+Configure your class at runtime.
 
 Takes two arguments:
 
@@ -137,11 +137,11 @@ A hashref containing default parameters to be used in the constructor.
 
 Returns the new values for the constructor.
 
-Now you can set up a configuration file and environment variables to debug your module.
+Now you can set up a configuration file and environment variables to configure your object.
 
 =cut
 
-sub setup
+sub configure
 {
 	my $class = shift;	# Name of the calling class
 	my $params = shift;	# Variables passed to the calling class's constructor
@@ -195,10 +195,6 @@ sub setup
 	return $params;
 }
 
-=head1 BUGS
-
-I should rename it to Class::Configure since it now does more than set up debugging.
-
 =head1 SEE ALSO
 
 =over 4
@@ -213,15 +209,15 @@ I should rename it to Class::Configure since it now does more than set up debugg
 
 This module is provided as-is without any warranty.
 
-Please report any bugs or feature requests to C<bug-class-debug at rt.cpan.org>,
+Please report any bugs or feature requests to C<bug-object-configure at rt.cpan.org>,
 or through the web interface at
-L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Class-Debug>.
+L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Object-Configure>.
 I will be notified, and then you'll
 automatically be notified of progress on your bug as I make changes.
 
 You can find documentation for this module with the perldoc command.
 
-    perldoc Class::Debug
+    perldoc Object::Configure
 
 =head1 LICENSE AND COPYRIGHT
 

@@ -3,7 +3,7 @@ use warnings;
 
 use Test::Most;
 
-BEGIN { use_ok('Class::Debug') }
+BEGIN { use_ok('Object::Configure') }
 
 # Fake class name for testing
 my $class = 'My::Test::Class';
@@ -13,9 +13,9 @@ my $params = {
 	foo => 'bar',
 };
 
-my $result = Class::Debug::setup($class, $params);
+my $result = Object::Configure::configure($class, $params);
 
-ok(ref $result eq 'HASH', 'setup returned a hashref');
+ok(ref $result eq 'HASH', 'configure returned a hashref');
 is($result->{foo}, 'bar', 'original param preserved');
 
 ok($result->{logger}, 'logger initialized');
@@ -24,7 +24,7 @@ is(ref $result->{logger}, 'Log::Abstraction', 'logger is a Log::Abstraction obje
 # Provide a dummy logger
 my $custom_logger = sub { warn "log: @_" };
 
-$result = Class::Debug::setup($class, {
+$result = Object::Configure::configure($class, {
 	foo => 'bar',
 	logger => $custom_logger,
 });
@@ -32,7 +32,7 @@ $result = Class::Debug::setup($class, {
 isa_ok($result->{logger}, 'Log::Abstraction', 'custom logger wrapped in Log::Abstraction');
 
 # Provide a syslog logger hash
-$result = Class::Debug::setup($class, {
+$result = Object::Configure::configure($class, {
 	foo => 'bar',
 	logger => { syslog => 'local0' },
 });
@@ -42,7 +42,7 @@ isa_ok($result->{logger}, 'Log::Abstraction', 'syslog logger also wrapped');
 # Test bad config file (file not readable or missing)
 my $bad_file = '/nonexistent/config.yml';
 throws_ok {
-	Class::Debug::setup($class, {
+	Object::Configure::configure($class, {
 		config_file => $bad_file,
 	});
 } qr/No such file or directory/, 'throws on unreadable config file';
