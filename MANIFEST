@@ -3,7 +3,6 @@ lib/Object/Configure.pm
 LICENSE
 Makefile.PL
 MANIFEST			This list of files
-Object-Configure-0.07.tar.gz
 README.md
 t/30-basics.t
 t/complex.t
@@ -13,4 +12,5 @@ t/eol.t
 t/instantiate.t
 t/pod-cm.t
 t/pod-synopsis.t
+t/pod.t
 t/simple.t
