@@ -3,7 +3,7 @@
 
 # NAME
 
-Object::Configure - Add Runtime Configuration to a Class
+Object::Configure - Runtime Configuration for an Object
 
 # VERSION
 
@@ -124,6 +124,11 @@ Returns the new values for the constructor.
 
 Now you can set up a configuration file and environment variables to configure your object.
 
+## instantiate($class,...)
+
+Create and configure an object of the given class.
+This is a quick and dirty way of making third-party classes configurable at runtime.
+
 # SEE ALSO
 
 - [Config::Abstraction](https://metacpan.org/pod/Config%3A%3AAbstraction)
@@ -160,6 +165,6 @@ The licence terms of this software are as follows:
 
 Hey! **The above document had some coding errors, which are explained below:**
 
-- Around line 32:
+- Around line 33:
 
     Non-ASCII character seen before =encoding in 'that’s'. Assuming UTF-8

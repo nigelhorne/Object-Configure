@@ -6,6 +6,7 @@ use warnings;
 use Carp;
 use Config::Abstraction 0.25;
 use Log::Abstraction 0.15;
+use Params::Get;
 
 =head1 NAME
 
@@ -193,6 +194,24 @@ sub configure
 		$params->{'logger'}->{'array'} = $array;
 	}
 	return $params;
+}
+
+=head2 instantiate($class,...)
+
+Create and configure an object of the given class.
+This is a quick and dirty way of making third-party classes configurable at runtime.
+
+=cut
+
+sub instantiate
+{
+	my $params = Params::Get::get_params('class', \@_);
+
+	my $class = $params->{'class'};
+
+	$params = configure($class, $params);
+
+	return bless $class->new($params), $class;
 }
 
 =head1 SEE ALSO
