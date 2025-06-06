@@ -205,7 +205,7 @@ This is a quick and dirty way of making third-party classes configurable at runt
 
 sub instantiate
 {
-	my $params = Params::Get::get_params('class', \@_);
+	my $params = Params::Get::get_params('class', @_);
 
 	my $class = $params->{'class'};
 
