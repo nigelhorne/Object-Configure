@@ -77,7 +77,7 @@ TODO: {
 unlink $filename;
 
 # Set environment variable
-local $ENV{'My::Dummy::custom'} = 'from_env_var';
+local $ENV{'My__Dummy__custom'} = 'from_env_var';
 
 my $from_env = Object::Configure::instantiate(class => 'My::Dummy');
 

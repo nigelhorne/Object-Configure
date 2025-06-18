@@ -1,5 +1,8 @@
 Revision history for Object::Configure - Runtime Configuration for an Object
 
+0.10	Wed Jun 18 14:54:59 EDT 2025
+	Use Config::Abstraction 0.10 to test environment settings
+
 0.09	Wed Jun 18 09:09:58 EDT 2025
 	Fix tests in other languages
 
