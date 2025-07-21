@@ -22,14 +22,14 @@ if($^O eq 'darwin') {
 WriteMakefile(
 	NAME	 => 'Object::Configure',		# Name of the module
 	VERSION_FROM => 'lib/Object/Configure.pm',	# Automatically fetch version from the module
-	AUTHOR	=> 'Nigel Horne <njh@nigelhorne.com>', # Author information
+	AUTHOR	=> 'Nigel Horne <njh@nigelhorne.com>',	# Author information
 	ABSTRACT_FROM	=> 'lib/Object/Configure.pm',
 	((defined($ExtUtils::MakeMaker::VERSION) && ($ExtUtils::MakeMaker::VERSION >= 6.3002))
 		? ('LICENSE'=> 'GPL')
 		: ()),
 	CONFIGURE_REQUIRES => {
 		'ExtUtils::MakeMaker' => 6.64,	# Minimum version for TEST_REQUIRES
-	}, PREREQ_PM => {						# Dependencies (with versions)
+	}, PREREQ_PM => {			# Dependencies (with versions)
 		'Carp' => 0,
 		'ExtUtils::MakeMaker' => 6.64,	# Minimum version for TEST_REQUIRES
 		'Config::Abstraction' => 0.32,

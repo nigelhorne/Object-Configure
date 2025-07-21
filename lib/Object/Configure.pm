@@ -181,7 +181,7 @@ sub configure
 			} else {
 				$params->{'logger'} = Log::Abstraction->new({ carp_on_warn => 1, %{$logger} });
 			}
-		} else {
+		} elsif(!Scalar::Util::blessed($logger) || (ref($logger) ne 'Log::Abstraction')) {
 			$params->{'logger'} = Log::Abstraction->new({ carp_on_warn => 1, logger => $logger });
 		}
 	} elsif($array) {
