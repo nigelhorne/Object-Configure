@@ -14,11 +14,11 @@ Object::Configure - Runtime Configuration for an Object
 
 =head1 VERSION
 
-0.10
+0.11
 
 =cut
 
-our $VERSION = 0.10;
+our $VERSION = 0.11;
 
 =head1 SYNOPSIS
 
