@@ -7,6 +7,7 @@ use Carp;
 use Config::Abstraction 0.32;
 use Log::Abstraction 0.15;
 use Params::Get;
+use Return::Set;
 
 =head1 NAME
 
@@ -195,7 +196,7 @@ sub configure
 		# Put it back
 		$params->{'logger'}->{'array'} = $array;
 	}
-	return $params;
+	return Return::Set::set_return($params, { 'type' => 'hashref', min => 1 });
 }
 
 =head2 instantiate($class,...)
