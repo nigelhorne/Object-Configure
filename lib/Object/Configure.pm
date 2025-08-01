@@ -15,11 +15,11 @@ Object::Configure - Runtime Configuration for an Object
 
 =head1 VERSION
 
-0.11
+0.12
 
 =cut
 
-our $VERSION = 0.11;
+our $VERSION = 0.12;
 
 =head1 SYNOPSIS
 
@@ -125,7 +125,7 @@ More details to be written.
 
 Configure your class at runtime.
 
-Takes two arguments:
+Takes arguments:
 
 =over 4
 
@@ -135,9 +135,15 @@ Takes two arguments:
 
 A hashref containing default parameters to be used in the constructor.
 
+=item * C<carp_on_warn>
+
+If set to 1, call C<Carp:carp> on C<warn()>.
+This value is also read from the configuration file, which will take precendence.
+
 =back
 
-Returns the new values for the constructor.
+Returns a hash ref conntaining the new values for the constructor.
+The hash ref will have at least one element - the logger.
 
 Now you can set up a configuration file and environment variables to configure your object.
 
@@ -174,22 +180,24 @@ sub configure
 		$params = $config->merge_defaults(defaults => $params, section => $class, merge => 1, deep => 1);
 	}
 
+	my $carp_on_warn = $params->{'carp_on_warn'} || 0;
+
 	# Load the default logger, which may have been defined in the config file or passed in
 	if(my $logger = $params->{'logger'}) {
 		if(ref($logger) eq 'HASH') {
 			if($logger->{'syslog'}) {
-				$params->{'logger'} = Log::Abstraction->new({ carp_on_warn => 1, syslog => $logger->{'syslog'}, %{$logger} });
+				$params->{'logger'} = Log::Abstraction->new({ carp_on_warn => $carp_on_warn, syslog => $logger->{'syslog'}, %{$logger} });
 			} else {
-				$params->{'logger'} = Log::Abstraction->new({ carp_on_warn => 1, %{$logger} });
+				$params->{'logger'} = Log::Abstraction->new({ carp_on_warn => $carp_on_warn, %{$logger} });
 			}
 		} elsif(!Scalar::Util::blessed($logger) || (ref($logger) ne 'Log::Abstraction')) {
-			$params->{'logger'} = Log::Abstraction->new({ carp_on_warn => 1, logger => $logger });
+			$params->{'logger'} = Log::Abstraction->new({ carp_on_warn => $carp_on_warn, logger => $logger });
 		}
 	} elsif($array) {
-		$params->{'logger'} = Log::Abstraction->new(array => $array, carp_on_warn => 1);
+		$params->{'logger'} = Log::Abstraction->new(array => $array, carp_on_warn => $carp_on_warn);
 		undef $array;
 	} else {
-		$params->{'logger'} = Log::Abstraction->new(carp_on_warn => 1);
+		$params->{'logger'} = Log::Abstraction->new(carp_on_warn => $carp_on_warn);
 	}
 
 	if($array && !$params->{'logger'}->{'array'}) {
