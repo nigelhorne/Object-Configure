@@ -34,7 +34,7 @@ WriteMakefile(
 		'ExtUtils::MakeMaker' => 6.64,	# Minimum version for TEST_REQUIRES
 		'Config::Abstraction' => 0.32,
 		'Log::Abstraction' => 0.25,
-		'Params::Get' => 0,
+		'Params::Get' => 0.13,
 		'Return::Set' => 0,
 	}, TEST_REQUIRES => {
 		'File::Temp' => 0,
