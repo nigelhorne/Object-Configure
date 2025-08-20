@@ -5,7 +5,7 @@ use warnings;
 
 use Carp;
 use Config::Abstraction 0.32;
-use Log::Abstraction 0.15;
+use Log::Abstraction 0.25;
 use Params::Get;
 use Return::Set;
 
