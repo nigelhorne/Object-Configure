@@ -15,11 +15,11 @@ Object::Configure - Runtime Configuration for an Object
 
 =head1 VERSION
 
-0.13
+0.14
 
 =cut
 
-our $VERSION = 0.13;
+our $VERSION = 0.14;
 
 =head1 SYNOPSIS
 
@@ -55,9 +55,7 @@ Add this to your constructor:
 
    sub new {
         my $class = shift;
-        my $params = Params::Get(undef, \@_);
-
-        $params = Object::Configure::configure($class, $params);	# Reads in the runtime configuration settings
+        my $params = Object::Configure::configure($class, @_ ? \@_ : undef);	# Reads in the runtime configuration settings
 
         return bless $params, $class;
     }
@@ -155,7 +153,7 @@ sub configure
 	my $params = $_[1] || {}; 	# Variables passed to the calling class's constructor
 	my $array;
 
-	if(ref($params->{'logger'}) eq 'ARRAY') {
+	if(exists($params->{'logger'}) && (ref($params->{'logger'}) eq 'ARRAY')) {
 		$array = delete $params->{'logger'};	# The merge seems to lose this
 	}
 
