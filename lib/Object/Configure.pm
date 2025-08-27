@@ -24,7 +24,8 @@ our $VERSION = 0.13;
 =head1 SYNOPSIS
 
 The C<Object::Configure> module is a lightweight utility designed to inject runtime parameters into other classes,
-primarily by layering configuration and logging support.
+primarily by layering configuration and logging support,
+when instatiating objects.
 
 L<Log::Abstraction> and L<Config::Abstraction> are modules developed to solve a specific need:
 runtime configurability without needing to rewrite or hardcode behaviours.
@@ -79,7 +80,6 @@ To control behavior at runtime, C<Object::Configure> supports loading settings f
 A minimal example of a config file (C<~/.conf/local.conf>) might look like:
 
    [My__Module]
-
    logger.file = /var/log/mymodule.log
 
 The C<configure()> function will read this file,
@@ -151,8 +151,8 @@ Now you can set up a configuration file and environment variables to configure y
 
 sub configure
 {
-	my $class = shift;	# Name of the calling class
-	my $params = shift;	# Variables passed to the calling class's constructor
+	my $class = $_[0];	# Name of the calling class
+	my $params = $_[1] || {}; 	# Variables passed to the calling class's constructor
 	my $array;
 
 	if(ref($params->{'logger'}) eq 'ARRAY') {
