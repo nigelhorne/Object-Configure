@@ -19,6 +19,9 @@ our %_object_registry = ();
 our %_config_watchers = ();
 our %_config_file_stats = ();
 
+# Keep track of the original USR1 handler for chaining
+our $_original_usr1_handler;
+
 =head1 NAME
 
 Object::Configure - Runtime Configuration for an Object
@@ -259,6 +262,10 @@ sub configure {
 			merge => 1,
 			deep => 1
 		);
+		# Track this config file for hot reload
+		if ($params->{config_path} && -f $params->{config_path}) {
+			$_config_file_stats{$config_file} = stat($config_file);
+		}
 	}
 
 	my $carp_on_warn = $params->{'carp_on_warn'} || 0;
@@ -425,7 +432,7 @@ sub _run_config_watcher {
 
 	# Set up signal handlers for clean shutdown
 	local $SIG{TERM} = sub { exit 0 };
-	local $SIG{INT}  = sub { exit 0 };
+	local $SIG{INT} = sub { exit 0 };
 
 	while (1) {
 		sleep($interval);
@@ -439,7 +446,7 @@ sub _run_config_watcher {
 				my $stored_stat = $_config_file_stats{$config_file};
 
 				# Compare modification times
-				if (!$stored_stat || $current_stat->mtime > $stored_stat->mtime) {
+				if ((!$stored_stat) || ($current_stat->mtime > $stored_stat->mtime)) {
 					$_config_file_stats{$config_file} = $current_stat;
 					$changes_detected = 1;
 				}
@@ -481,11 +488,17 @@ sub _reload_object_config {
 	);
 
 	if ($config) {
-		my $new_params = $config->get_section($class) || {};
+		# Use merge_defaults with empty defaults to get just the config values
+		my $new_params = $config->merge_defaults(
+			defaults => {},
+			section => $class,
+			merge => 1,
+			deep => 1
+		);
 
 		# Update object properties, preserving non-config data
 		foreach my $key (keys %$new_params) {
-			next if $key =~ /^_/;  # Skip private properties
+			next if $key =~ /^_/;	# Skip private properties
 
 			if ($key eq 'logger' && $new_params->{$key} ne 'NULL') {
 				# Handle logger reconfiguration specially
@@ -530,8 +543,17 @@ sub _reconfigure_logger {
 	}
 }
 
+=head2 register_object
 
-# Internal function to register objects for hot reload
+Register an object for hot reload monitoring.
+
+    Object::Configure::register_object($class, $obj);
+
+This is automatically called by the configure() function when a config file is used,
+but can also be called manually to register objects for hot reload.
+
+=cut
+
 sub register_object {
 	my ($class, $obj) = @_;
 
@@ -542,19 +564,78 @@ sub register_object {
 	push @{$_object_registry{$class}}, $obj_ref;
 
 	# Set up signal handler for hot reload (only once)
-	if(!$SIG{USR1}) {
+	if (!defined $_original_usr1_handler) {
+		# Store the existing handler (could be DEFAULT, IGNORE, or a code ref)
+		$_original_usr1_handler = $SIG{USR1} || 'DEFAULT';
+
 		$SIG{USR1} = sub {
+			# Handle our hot reload first
 			reload_config();
 			if ($_config_watchers{callback}) {
 				$_config_watchers{callback}->();
+			}
+
+			# Chain to the original handler if it exists and is callable
+			if (ref($_original_usr1_handler) eq 'CODE') {
+				$_original_usr1_handler->();
+			} elsif ($_original_usr1_handler eq 'DEFAULT') {
+				# Let the default handler run (which typically does nothing for USR1)
+				# We don't need to explicitly call it
+			} elsif ($_original_usr1_handler eq 'IGNORE') {
+				# Do nothing - the signal was being ignored
+			}
+			# Note: If it was some other string, it was probably a custom handler name
+			# but we can't easily call those, so we'll just warn
+			elsif ($_original_usr1_handler ne 'DEFAULT' && $_original_usr1_handler ne 'IGNORE') {
+				warn "Object::Configure: Cannot chain to non-code USR1 handler: $_original_usr1_handler";
 			}
 		};
 	}
 }
 
+=head2 restore_signal_handlers
+
+Restore original signal handlers and disable hot reload integration.
+Useful when you want to cleanly shut down the hot reload system.
+
+    Object::Configure::restore_signal_handlers();
+
+=cut
+
+sub restore_signal_handlers
+{
+	if (defined $_original_usr1_handler) {
+		$SIG{USR1} = $_original_usr1_handler;
+		$_original_usr1_handler = undef;
+	}
+}
+
+=head2 get_signal_handler_info
+
+Get information about the current signal handler setup.
+Useful for debugging signal handler chains.
+
+    my $info = Object::Configure::get_signal_handler_info();
+    print "Original USR1 handler: ", $info->{original_usr1} || 'none', "\n";
+    print "Hot reload active: ", $info->{hot_reload_active} ? 'yes' : 'no', "\n";
+
+=cut
+
+sub get_signal_handler_info {
+	return {
+		original_usr1 => $_original_usr1_handler,
+		current_usr1 => $SIG{USR1},
+		hot_reload_active => defined $_original_usr1_handler,
+		watcher_pid => $_config_watchers{pid},
+	};
+}
+
 # Cleanup on module destruction
 END {
 	disable_hot_reload();
+
+	# Restore original USR1 handler if we modified it
+	restore_signal_handlers();
 }
 
 =head1 SEE ALSO

@@ -118,7 +118,7 @@ More details to be written.
         my $self = bless $params, $class;
 
         # Register for hot reload
-        Object::Configure::_register_object($class, $self) if $params->{_config_file};
+        Object::Configure::register_object($class, $self) if $params->{_config_file};
 
         return $self;
     }
