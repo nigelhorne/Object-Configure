@@ -138,10 +138,14 @@ A hashref containing default parameters to be used in the constructor.
 If set to 1, call C<Carp:carp> on C<warn()>.
 This value is also read from the configuration file, which will take precendence.
 
+=item * C<logger>
+
+The logger to use.
+If none is given, an instatiation of L<Log::Abstraction> will be created, unless the logger is set to NULL.
+
 =back
 
-Returns a hash ref conntaining the new values for the constructor.
-The hash ref will have at least one element - the logger.
+Returns a hash ref containing the new values for the constructor.
 
 Now you can set up a configuration file and environment variables to configure your object.
 
@@ -182,14 +186,16 @@ sub configure
 
 	# Load the default logger, which may have been defined in the config file or passed in
 	if(my $logger = $params->{'logger'}) {
-		if(ref($logger) eq 'HASH') {
-			if($logger->{'syslog'}) {
-				$params->{'logger'} = Log::Abstraction->new({ carp_on_warn => $carp_on_warn, syslog => $logger->{'syslog'}, %{$logger} });
-			} else {
-				$params->{'logger'} = Log::Abstraction->new({ carp_on_warn => $carp_on_warn, %{$logger} });
+		if($params->{'logger'} ne 'NULL') {
+			if(ref($logger) eq 'HASH') {
+				if($logger->{'syslog'}) {
+					$params->{'logger'} = Log::Abstraction->new({ carp_on_warn => $carp_on_warn, syslog => $logger->{'syslog'}, %{$logger} });
+				} else {
+					$params->{'logger'} = Log::Abstraction->new({ carp_on_warn => $carp_on_warn, %{$logger} });
+				}
+			} elsif(!Scalar::Util::blessed($logger) || (ref($logger) ne 'Log::Abstraction')) {
+				$params->{'logger'} = Log::Abstraction->new({ carp_on_warn => $carp_on_warn, logger => $logger });
 			}
-		} elsif(!Scalar::Util::blessed($logger) || (ref($logger) ne 'Log::Abstraction')) {
-			$params->{'logger'} = Log::Abstraction->new({ carp_on_warn => $carp_on_warn, logger => $logger });
 		}
 	} elsif($array) {
 		$params->{'logger'} = Log::Abstraction->new(array => $array, carp_on_warn => $carp_on_warn);
@@ -202,7 +208,7 @@ sub configure
 		# Put it back
 		$params->{'logger'}->{'array'} = $array;
 	}
-	return Return::Set::set_return($params, { 'type' => 'hashref', min => 1 });
+	return Return::Set::set_return($params, { 'type' => 'hashref' });
 }
 
 =head2 instantiate($class,...)
