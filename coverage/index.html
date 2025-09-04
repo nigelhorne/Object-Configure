@@ -46,15 +46,21 @@
 	<a href="https://github.com/nigelhorne/Object-Configure">
 		<img src="https://img.shields.io/github/stars/nigelhorne/Object-Configure?style=social" alt="GitHub stars">
 	</a>
-	<img src="https://img.shields.io/badge/coverage-80%25-yellow" alt="Coverage badge">
+	<img src="https://img.shields.io/badge/coverage-79%25-yellow" alt="Coverage badge">
 </div>
 <h1>Object::Configure</h1><h2>Coverage Report</h2>
 <table>
 <tr><th>File</th><th>Stmt</th><th>Branch</th><th>Cond</th><th>Sub</th><th>Total</th><th>&Delta;</th></tr>
-<tr class="med"><td><a href="blib-lib-Object-Configure-pm.html" title="View coverage line by line">blib/lib/Object/Configure.pm</a> <a href="https://github.com/nigelhorne/Object-Configure/blob/bccc20a4e8061ad10b1e8a54dd8b1789c59265e4/blib/lib/Object/Configure.pm" class="icon-link" title="View source on GitHub">&#128269;</a></td><td>89.8</td><td>69.2</td><td>50.0</td><td>100.0</td><td><span class="coverage-badge badge-warn" title="Moderate coverage">80.2%</span></td><td class="neutral" title="No previous data">&#9679;</td></tr>
-<tr class="summary-row"><td colspan="2"><strong>Summary</strong></td><td colspan="2">1 files</td><td colspan="3">Avg: 80%, Low: 0</td></tr>
-<tr class="high"><td><strong>Total</strong></td><td>89.8</td><td>69.2</td><td>50.0</td><td>100.0</td><td colspan="2"><strong>80.2</strong></td></tr>
+<tr class="med"><td><a href="blib-lib-Object-Configure-pm.html" title="View coverage line by line">blib/lib/Object/Configure.pm</a> <a href="https://github.com/nigelhorne/Object-Configure/blob/17f64502b3c7088377230638b1312d0188e64b0c/blib/lib/Object/Configure.pm" class="icon-link" title="View source on GitHub">&#128269;</a></td><td>89.8</td><td>67.9</td><td>50.0</td><td>100.0</td><td><span class="coverage-badge badge-warn" title="Moderate coverage">79.6%</span></td><td class="negative" title="Previous: 80.2%">&#9660; 0.5%</td></tr>
+<tr class="summary-row"><td colspan="2"><strong>Summary</strong></td><td colspan="2">1 files</td><td colspan="3">Avg: 79%, Low: 0</td></tr>
+<tr class="med"><td><strong>Total</strong></td><td>89.8</td><td>67.9</td><td>50.0</td><td>100.0</td><td colspan="2"><strong>79.6</strong></td></tr>
 </table>
+<p>
+	<label>
+		<input type="checkbox" id="toggleTrend" checked>
+		Show regression trend
+	</label>
+</p>
 <canvas id="coverageTrend" width="600" height="300"></canvas>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
@@ -78,7 +84,7 @@ function linearRegression(data) {
 	}));
 }
 
-const dataPoints = [  ];
+const dataPoints = [ { x: "2025-09-04T13:32:08-04:00", y: 80.1801801801802, delta: 0, url: "https://github.com/nigelhorne/Object-Configure/commit/bccc20a", label: "2025-09-04T13:32:08-04:00", pointBackgroundColor: "gray", comment: "Added script to configure the GitHub Pages dashboard" } ];
 const regressionPoints = linearRegression(dataPoints);
 const ctx = document.getElementById('coverageTrend').getContext('2d');
 const chart = new Chart(ctx, {
@@ -161,7 +167,7 @@ document.getElementById('toggleTrend').addEventListener('change', function(e) {
 </script>
 <footer>
 	<p>Project: <a href="https://github.com/nigelhorne/Object-Configure">Object-Configure</a></p>
-	<p><em>Last updated: 2025-09-04 17:35:19 - <a href="https://github.com/nigelhorne/Object-Configure/commit/bccc20a4e8061ad10b1e8a54dd8b1789c59265e4">commit <code>bccc20a</code></a></em></p>
+	<p><em>Last updated: 2025-09-04 17:48:32 - <a href="https://github.com/nigelhorne/Object-Configure/commit/17f64502b3c7088377230638b1312d0188e64b0c">commit <code>17f6450</code></a></em></p>
 </footer>
 </body>
 </html>
