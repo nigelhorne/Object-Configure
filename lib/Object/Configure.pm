@@ -194,7 +194,8 @@ A hashref containing default parameters to be used in the constructor.
 =item * C<carp_on_warn>
 
 If set to 1, call C<Carp:carp> on C<warn()>.
-This value is also read from the configuration file, which will take precendence.
+This value is also read from the configuration file,
+which will take precedence.
 
 =item * C<logger>
 

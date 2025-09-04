@@ -44,6 +44,7 @@ Add this to your constructor:
     sub new {
          my $class = shift;
          my $params = Object::Configure::configure($class, @_ ? \@_ : undef);    # Reads in the runtime configuration settings
+         # or my $params = Object::Configure::configure($class, { @_ });
 
          return bless $params, $class;
      }
@@ -165,7 +166,8 @@ Takes arguments:
 - `carp_on_warn`
 
     If set to 1, call `Carp:carp` on `warn()`.
-    This value is also read from the configuration file, which will take precendence.
+    This value is also read from the configuration file,
+    which will take precedence.
 
 - `logger`
 
@@ -207,6 +209,31 @@ Disable hot reloading and stop the background watcher.
 Manually trigger a configuration reload for all registered objects.
 
     Object::Configure::reload_config();
+
+## register\_object
+
+Register an object for hot reload monitoring.
+
+    Object::Configure::register_object($class, $obj);
+
+This is automatically called by the configure() function when a config file is used,
+but can also be called manually to register objects for hot reload.
+
+## restore\_signal\_handlers
+
+Restore original signal handlers and disable hot reload integration.
+Useful when you want to cleanly shut down the hot reload system.
+
+    Object::Configure::restore_signal_handlers();
+
+## get\_signal\_handler\_info
+
+Get information about the current signal handler setup.
+Useful for debugging signal handler chains.
+
+    my $info = Object::Configure::get_signal_handler_info();
+    print "Original USR1 handler: ", $info->{original_usr1} || 'none', "\n";
+    print "Hot reload active: ", $info->{hot_reload_active} ? 'yes' : 'no', "\n";
 
 # SEE ALSO
 
