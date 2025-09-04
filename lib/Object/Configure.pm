@@ -69,6 +69,7 @@ Add this to your constructor:
    sub new {
         my $class = shift;
         my $params = Object::Configure::configure($class, @_ ? \@_ : undef);	# Reads in the runtime configuration settings
+        # or my $params = Object::Configure::configure($class, { @_ });
 
         return bless $params, $class;
     }
@@ -500,9 +501,9 @@ sub _reload_object_config {
 		foreach my $key (keys %$new_params) {
 			next if $key =~ /^_/;	# Skip private properties
 
-			if ($key eq 'logger' && $new_params->{$key} ne 'NULL') {
+			if($key =~ /^logger/ && $new_params->{$key} ne 'NULL') {
 				# Handle logger reconfiguration specially
-				_reconfigure_logger($obj, $new_params->{$key});
+				_reconfigure_logger($obj, $key, $new_params->{$key});
 			} else {
 				$obj->{$key} = $new_params->{$key};
 			}
@@ -521,25 +522,28 @@ sub _reload_object_config {
 }
 
 # Internal function to reconfigure the logger
-sub _reconfigure_logger {
-	my ($obj, $logger_config) = @_;
+sub _reconfigure_logger
+{
+	my ($obj, $key, $logger_config) = @_;
 
 	if (ref($logger_config) eq 'HASH') {
 		# Create new logger with new config
 		my $carp_on_warn = $obj->{carp_on_warn} || 0;
 
 		if ($logger_config->{syslog}) {
-			$obj->{logger} = Log::Abstraction->new({
+			$obj->{$key} = Log::Abstraction->new({
 				carp_on_warn => $carp_on_warn,
 				syslog => $logger_config->{syslog},
 				%$logger_config
 			});
 		} else {
-			$obj->{logger} = Log::Abstraction->new({
+			$obj->{$key} = Log::Abstraction->new({
 				carp_on_warn => $carp_on_warn,
 				%$logger_config
 			});
 		}
+	} else {
+		$obj->{$key} = $logger_config;
 	}
 }
 
