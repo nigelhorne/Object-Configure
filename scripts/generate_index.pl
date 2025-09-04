@@ -284,6 +284,8 @@ foreach my $file (@history_files) {
 	push @data_points, qq{{ x: "$timestamp", y: $pct, delta: $delta, url: "$url", label: "$timestamp", pointBackgroundColor: "$color", comment: "$comment" }};
 }
 
+@data_points = sort { $a->{'x'} <=> $b->{'x'} } @data_points;
+
 my $js_data = join(",\n", @data_points);
 
 if(scalar(@data_points)) {
