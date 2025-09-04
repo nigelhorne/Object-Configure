@@ -238,6 +238,8 @@ sub instantiate
 
 =item * L<Log::Abstraction>
 
+=item * Test coverage report: L<https://nigelhorne.github.io/Object-Configure/coverage/>
+
 =back
 
 =head1 SUPPORT
