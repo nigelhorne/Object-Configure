@@ -123,8 +123,16 @@ Takes arguments:
     If set to 1, call `Carp:carp` on `warn()`.
     This value is also read from the configuration file, which will take precendence.
 
-Returns a hash ref conntaining the new values for the constructor.
-The hash ref will have at least one element - the logger.
+- `logger`
+
+    The logger to use.
+    If none is given, an instatiation of [Log::Abstraction](https://metacpan.org/pod/Log%3A%3AAbstraction) will be created, unless the logger is set to NULL.
+
+- `schema`
+
+    A [Params::Validate::Strict](https://metacpan.org/pod/Params%3A%3AValidate%3A%3AStrict) compatible schema to validate the configuration file against.
+
+Returns a hash ref containing the new values for the constructor.
 
 Now you can set up a configuration file and environment variables to configure your object.
 
@@ -137,6 +145,7 @@ This is a quick and dirty way of making third-party classes configurable at runt
 
 - [Config::Abstraction](https://metacpan.org/pod/Config%3A%3AAbstraction)
 - [Log::Abstraction](https://metacpan.org/pod/Log%3A%3AAbstraction)
+- Test coverage report: [https://nigelhorne.github.io/Object-Configure/coverage/](https://nigelhorne.github.io/Object-Configure/coverage/)
 
 # SUPPORT
 

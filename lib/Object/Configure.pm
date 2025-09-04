@@ -1,5 +1,8 @@
 package Object::Configure;
 
+# TODO: configuration inheritance from parents
+# TODO: configuration reloading without restarting the application
+
 use strict;
 use warnings;
 
