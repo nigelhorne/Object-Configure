@@ -1,7 +1,6 @@
 package Object::Configure;
 
 # TODO: configuration inheritance from parents
-# TODO: configuration reloading without restarting the application
 
 use strict;
 use warnings;
@@ -11,7 +10,14 @@ use Config::Abstraction 0.32;
 use Log::Abstraction 0.25;
 use Params::Get 0.13;
 use Return::Set;
-use Scalar::Util qw(blessed);
+use Scalar::Util qw(blessed weaken);
+use Time::HiRes qw(time);
+use File::stat;
+
+# Global registry to track configured objects for hot reload
+our %_object_registry = ();
+our %_config_watchers = ();
+our %_config_file_stats = ();
 
 =head1 NAME
 
@@ -121,11 +127,55 @@ and are applied during the call to C<configure()>.
 
 More details to be written.
 
+=head1 HOT RELOAD USAGE EXAMPLES
+
+=head2 Basic Hot Reload Setup
+
+    package My::App;
+    use Object::Configure;
+
+    sub new {
+        my $class = shift;
+        my $params = Object::Configure::configure($class, @_ ? \@_ : undef);
+        my $self = bless $params, $class;
+
+        # Register for hot reload
+        Object::Configure::_register_object($class, $self) if $params->{_config_file};
+
+        return $self;
+    }
+
+    # Optional: Define a reload hook
+    sub _on_config_reload {
+        my ($self, $new_config) = @_;
+        print "My::App config was reloaded!\n";
+        # Custom reload logic here
+    }
+
+=head2 Enable Hot Reload in Your Main Application
+
+    # Enable hot reload with custom callback
+    Object::Configure::enable_hot_reload(
+        interval => 5,  # Check every 5 seconds
+        callback => sub {
+            print "Configuration files have been reloaded!\n";
+        }
+    );
+
+    # Your application continues running...
+    # Config changes will be automatically detected and applied
+
+=head2 Manual Reload
+
+    # Manually trigger a reload
+    my $count = Object::Configure::reload_config();
+    print "Reloaded configuration for $count objects\n";
+
 =head1 SUBROUTINES/METHODS
 
 =head2 configure
 
-Configure your class at runtime.
+Configure your class at runtime with hot reload support.
 
 Takes arguments:
 
@@ -159,63 +209,100 @@ Now you can set up a configuration file and environment variables to configure y
 
 =cut
 
-sub configure
-{
-	my $class = $_[0];	# Name of the calling class
-	my $params = $_[1] || {}; 	# Variables passed to the calling class's constructor
+sub configure {
+	my $class = $_[0];
+	my $params = $_[1] || {};
 	my $array;
 
-	if(exists($params->{'logger'}) && (ref($params->{'logger'}) eq 'ARRAY')) {
-		$array = delete $params->{'logger'};	# The merge seems to lose this
+	if (exists($params->{'logger'}) && (ref($params->{'logger'}) eq 'ARRAY')) {
+		$array = delete $params->{'logger'};
 	}
 
+	my $original_class = $class;
 	$class =~ s/::/__/g;
 
+	# Store config file path for hot reload
+	my $config_file = $params->{'config_file'};
+
 	# Load the configuration from a config file, if provided
-	if(exists($params->{'config_file'})) {
-		# my $config = YAML::XS::LoadFile($params->{'config_file'});
+	if ($config_file) {
 		my $config_dirs = $params->{'config_dirs'};
-		if((!$config_dirs) && (!-r $params->{'config_file'})) {
-			croak("$class: ", $params->{'config_file'}, ": $!");
+		if ((!$config_dirs) && (!-r $config_file)) {
+			croak("$class: ", $config_file, ": $!");
 		}
 
-		if(my $config = Config::Abstraction->new(config_dirs => $config_dirs, config_file => $params->{'config_file'}, env_prefix => "${class}__", ($params->{'schema'} ? (schema => $params->{'schema'}) : ()))) {
-			$params = $config->merge_defaults(defaults => $params, section => $class, merge => 1, deep => 1);
-		} elsif($@) {
-			croak("$class: Can't load configuration from ", $params->{'config_file'}, ": $@");
-		} else {
-			croak("$class: Can't load configuration from ", $params->{'config_file'});
+		# Track this config file for hot reload
+		if (-f $config_file) {
+			$_config_file_stats{$config_file} = stat($config_file);
 		}
-	} elsif(my $config = Config::Abstraction->new(env_prefix => "${class}__")) {
-		$params = $config->merge_defaults(defaults => $params, section => $class, merge => 1, deep => 1);
+
+		if (my $config = Config::Abstraction->new(
+			config_dirs => $config_dirs,
+			config_file => $config_file,
+			env_prefix => "${class}__"
+		)) {
+			$params = $config->merge_defaults(
+				defaults => $params,
+				section => $class,
+				merge => 1,
+				deep => 1
+			);
+		} elsif ($@) {
+			croak("$class: Can't load configuration from ", $config_file, ": $@");
+		} else {
+			croak("$class: Can't load configuration from ", $config_file);
+		}
+	} elsif (my $config = Config::Abstraction->new(env_prefix => "${class}__")) {
+		$params = $config->merge_defaults(
+			defaults => $params,
+			section => $class,
+			merge => 1,
+			deep => 1
+		);
 	}
 
 	my $carp_on_warn = $params->{'carp_on_warn'} || 0;
 
-	# Load the default logger, which may have been defined in the config file or passed in
-	if(my $logger = $params->{'logger'}) {
-		if($params->{'logger'} ne 'NULL') {
-			if(ref($logger) eq 'HASH') {
-				if($logger->{'syslog'}) {
-					$params->{'logger'} = Log::Abstraction->new({ carp_on_warn => $carp_on_warn, syslog => $logger->{'syslog'}, %{$logger} });
+	# Load the default logger
+	if (my $logger = $params->{'logger'}) {
+		if ($params->{'logger'} ne 'NULL') {
+			if (ref($logger) eq 'HASH') {
+				if ($logger->{'syslog'}) {
+					$params->{'logger'} = Log::Abstraction->new({
+						carp_on_warn => $carp_on_warn,
+						syslog => $logger->{'syslog'},
+						%{$logger}
+					});
 				} else {
-					$params->{'logger'} = Log::Abstraction->new({ carp_on_warn => $carp_on_warn, %{$logger} });
+					$params->{'logger'} = Log::Abstraction->new({
+						carp_on_warn => $carp_on_warn,
+						%{$logger}
+					});
 				}
-			} elsif(!Scalar::Util::blessed($logger) || (ref($logger) ne 'Log::Abstraction')) {
-				$params->{'logger'} = Log::Abstraction->new({ carp_on_warn => $carp_on_warn, logger => $logger });
+			} elsif (!blessed($logger) || !$logger->isa('Log::Abstraction')) {
+				$params->{'logger'} = Log::Abstraction->new({
+					carp_on_warn => $carp_on_warn,
+					logger => $logger
+				});
 			}
 		}
-	} elsif($array) {
-		$params->{'logger'} = Log::Abstraction->new(array => $array, carp_on_warn => $carp_on_warn);
+	} elsif ($array) {
+		$params->{'logger'} = Log::Abstraction->new(
+			array => $array,
+			carp_on_warn => $carp_on_warn
+		);
 		undef $array;
 	} else {
 		$params->{'logger'} = Log::Abstraction->new(carp_on_warn => $carp_on_warn);
 	}
 
-	if($array && !$params->{'logger'}->{'array'}) {
-		# Put it back
+	if ($array && !$params->{'logger'}->{'array'}) {
 		$params->{'logger'}->{'array'} = $array;
 	}
+
+	# Store config file path in params for hot reload
+	$params->{_config_file} = $config_file if $config_file;
+
 	return Return::Set::set_return($params, { 'type' => 'hashref' });
 }
 
@@ -231,10 +318,243 @@ sub instantiate
 	my $params = Params::Get::get_params('class', @_);
 
 	my $class = $params->{'class'};
-
 	$params = configure($class, $params);
 
-	return $class->new($params);
+	my $obj = $class->new($params);
+
+	# Register object for hot reload if config file is used
+	if ($params->{_config_file}) {
+		_register_object($class, $obj);
+	}
+
+	return $obj;
+}
+
+=head1 HOT RELOAD FEATURES
+
+=head2 enable_hot_reload
+
+Enable hot reloading for configuration files.
+
+    Object::Configure::enable_hot_reload(
+        interval => 5,  # Check every 5 seconds (default: 10)
+        callback => sub { print "Config reloaded!\n"; }  # Optional callback
+    );
+
+=cut
+
+sub enable_hot_reload {
+	my %params = @_;
+
+	my $interval = $params{interval} || 10;
+	my $callback = $params{callback};
+
+	# Don't start multiple watchers
+	return if %_config_watchers;
+
+	# Fork a background process to watch config files
+	if (my $pid = fork()) {
+		# Parent process - store the watcher PID
+		$_config_watchers{pid} = $pid;
+		$_config_watchers{callback} = $callback;
+		return $pid;
+	} elsif (defined $pid) {
+		# Child process - run the file watcher
+		_run_config_watcher($interval, $callback);
+		exit 0;
+	} else {
+		croak("Failed to fork config watcher: $!");
+	}
+}
+
+=head2 disable_hot_reload
+
+Disable hot reloading and stop the background watcher.
+
+    Object::Configure::disable_hot_reload();
+
+=cut
+
+sub disable_hot_reload {
+	if (my $pid = $_config_watchers{pid}) {
+		kill('TERM', $pid);
+		waitpid($pid, 0);
+		%_config_watchers = ();
+	}
+}
+
+=head2 reload_config
+
+Manually trigger a configuration reload for all registered objects.
+
+    Object::Configure::reload_config();
+
+=cut
+
+sub reload_config {
+	my $reloaded_count = 0;
+
+	foreach my $class_key (keys %_object_registry) {
+		my $objects = $_object_registry{$class_key};
+
+		# Clean up dead object references
+		@$objects = grep { defined $_ } @$objects;
+
+		foreach my $obj_ref (@$objects) {
+			if (my $obj = $$obj_ref) {
+				eval {
+					_reload_object_config($obj);
+					$reloaded_count++;
+				};
+				if ($@) {
+					warn "Failed to reload config for object: $@";
+				}
+			}
+		}
+
+		# Remove empty entries
+		delete $_object_registry{$class_key} unless @$objects;
+	}
+
+	return $reloaded_count;
+}
+
+# Internal function to run the config file watcher
+sub _run_config_watcher {
+	my ($interval, $callback) = @_;
+
+	# Set up signal handlers for clean shutdown
+	local $SIG{TERM} = sub { exit 0 };
+	local $SIG{INT}  = sub { exit 0 };
+
+	while (1) {
+		sleep($interval);
+
+		my $changes_detected = 0;
+
+		# Check each monitored config file
+		foreach my $config_file (keys %_config_file_stats) {
+			if (-f $config_file) {
+				my $current_stat = stat($config_file);
+				my $stored_stat = $_config_file_stats{$config_file};
+
+				# Compare modification times
+				if (!$stored_stat || $current_stat->mtime > $stored_stat->mtime) {
+					$_config_file_stats{$config_file} = $current_stat;
+					$changes_detected = 1;
+				}
+			} else {
+				# File was deleted
+				delete $_config_file_stats{$config_file};
+				$changes_detected = 1;
+			}
+		}
+
+		if ($changes_detected) {
+			# Reload configurations in the main process
+			# Use a signal or shared memory mechanism
+			if (my $parent_pid = getppid()) {
+				kill('USR1', $parent_pid);
+			}
+		}
+	}
+}
+
+# Internal function to reload a single object's configuration
+sub _reload_object_config {
+	my ($obj) = @_;
+
+	return unless blessed($obj);
+
+	my $class = ref($obj);
+	my $original_class = $class;
+	$class =~ s/::/__/g;
+
+	# Get the original config file path if it exists
+	my $config_file = $obj->{_config_file} || $obj->{config_file};
+	return unless $config_file && -f $config_file;
+
+	# Reload the configuration
+	my $config = Config::Abstraction->new(
+		config_file => $config_file,
+		env_prefix => "${class}__"
+	);
+
+	if ($config) {
+		my $new_params = $config->get_section($class) || {};
+
+		# Update object properties, preserving non-config data
+		foreach my $key (keys %$new_params) {
+			next if $key =~ /^_/;  # Skip private properties
+
+			if ($key eq 'logger' && $new_params->{$key} ne 'NULL') {
+				# Handle logger reconfiguration specially
+				_reconfigure_logger($obj, $new_params->{$key});
+			} else {
+				$obj->{$key} = $new_params->{$key};
+			}
+		}
+
+		# Call object's reload hook if it exists
+		if ($obj->can('_on_config_reload')) {
+			$obj->_on_config_reload($new_params);
+		}
+
+		# Log the reload if logger exists
+		if ($obj->{logger} && $obj->{logger}->can('info')) {
+			$obj->{logger}->info("Configuration reloaded for $original_class");
+		}
+	}
+}
+
+# Internal function to reconfigure the logger
+sub _reconfigure_logger {
+	my ($obj, $logger_config) = @_;
+
+	if (ref($logger_config) eq 'HASH') {
+		# Create new logger with new config
+		my $carp_on_warn = $obj->{carp_on_warn} || 0;
+
+		if ($logger_config->{syslog}) {
+			$obj->{logger} = Log::Abstraction->new({
+				carp_on_warn => $carp_on_warn,
+				syslog => $logger_config->{syslog},
+				%$logger_config
+			});
+		} else {
+			$obj->{logger} = Log::Abstraction->new({
+				carp_on_warn => $carp_on_warn,
+				%$logger_config
+			});
+		}
+	}
+}
+
+
+# Internal function to register objects for hot reload
+sub _register_object {
+	my ($class, $obj) = @_;
+
+	# Use weak references to avoid memory leaks
+	my $obj_ref = \$obj;
+	weaken($$obj_ref);
+
+	push @{$_object_registry{$class}}, $obj_ref;
+
+	# Set up signal handler for hot reload (only once)
+	if(!$SIG{USR1}) {
+		$SIG{USR1} = sub {
+			reload_config();
+			if ($_config_watchers{callback}) {
+				$_config_watchers{callback}->();
+			}
+		};
+	}
+}
+
+# Cleanup on module destruction
+END {
+	disable_hot_reload();
 }
 
 =head1 SEE ALSO

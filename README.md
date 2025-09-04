@@ -105,11 +105,55 @@ and are applied during the call to `configure()`.
 
 More details to be written.
 
+# HOT RELOAD USAGE EXAMPLES
+
+## Basic Hot Reload Setup
+
+    package My::App;
+    use Object::Configure;
+
+    sub new {
+        my $class = shift;
+        my $params = Object::Configure::configure($class, @_ ? \@_ : undef);
+        my $self = bless $params, $class;
+
+        # Register for hot reload
+        Object::Configure::_register_object($class, $self) if $params->{_config_file};
+
+        return $self;
+    }
+
+    # Optional: Define a reload hook
+    sub _on_config_reload {
+        my ($self, $new_config) = @_;
+        print "My::App config was reloaded!\n";
+        # Custom reload logic here
+    }
+
+## Enable Hot Reload in Your Main Application
+
+    # Enable hot reload with custom callback
+    Object::Configure::enable_hot_reload(
+        interval => 5,  # Check every 5 seconds
+        callback => sub {
+            print "Configuration files have been reloaded!\n";
+        }
+    );
+
+    # Your application continues running...
+    # Config changes will be automatically detected and applied
+
+## Manual Reload
+
+    # Manually trigger a reload
+    my $count = Object::Configure::reload_config();
+    print "Reloaded configuration for $count objects\n";
+
 # SUBROUTINES/METHODS
 
 ## configure
 
-Configure your class at runtime.
+Configure your class at runtime with hot reload support.
 
 Takes arguments:
 
@@ -140,6 +184,29 @@ Now you can set up a configuration file and environment variables to configure y
 
 Create and configure an object of the given class.
 This is a quick and dirty way of making third-party classes configurable at runtime.
+
+# HOT RELOAD FEATURES
+
+## enable\_hot\_reload
+
+Enable hot reloading for configuration files.
+
+    Object::Configure::enable_hot_reload(
+        interval => 5,  # Check every 5 seconds (default: 10)
+        callback => sub { print "Config reloaded!\n"; }  # Optional callback
+    );
+
+## disable\_hot\_reload
+
+Disable hot reloading and stop the background watcher.
+
+    Object::Configure::disable_hot_reload();
+
+## reload\_config
+
+Manually trigger a configuration reload for all registered objects.
+
+    Object::Configure::reload_config();
 
 # SEE ALSO
 
