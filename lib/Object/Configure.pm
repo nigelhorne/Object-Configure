@@ -144,6 +144,10 @@ This value is also read from the configuration file, which will take precendence
 The logger to use.
 If none is given, an instatiation of L<Log::Abstraction> will be created, unless the logger is set to NULL.
 
+=item * C<schema>
+
+A L<Params::Validate::Strict> compatible schema to validate the configuration file against.
+
 =back
 
 Returns a hash ref containing the new values for the constructor.
@@ -172,7 +176,7 @@ sub configure
 			croak("$class: ", $params->{'config_file'}, ": $!");
 		}
 
-		if(my $config = Config::Abstraction->new(config_dirs => $config_dirs, config_file => $params->{'config_file'}, env_prefix => "${class}__")) {
+		if(my $config = Config::Abstraction->new(config_dirs => $config_dirs, config_file => $params->{'config_file'}, env_prefix => "${class}__", ($params->{'schema'} ? (schema => $params->{'schema'}) : ()))) {
 			$params = $config->merge_defaults(defaults => $params, section => $class, merge => 1, deep => 1);
 		} elsif($@) {
 			croak("$class: Can't load configuration from ", $params->{'config_file'}, ": $@");
