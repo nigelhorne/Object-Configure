@@ -572,6 +572,8 @@ sub register_object {
 		# Store the existing handler (could be DEFAULT, IGNORE, or a code ref)
 		$_original_usr1_handler = $SIG{USR1} || 'DEFAULT';
 
+		return if($^O eq 'MSWin32');	# There is no SIGUSR1 on Windows
+
 		$SIG{USR1} = sub {
 			# Handle our hot reload first
 			reload_config();
