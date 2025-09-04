@@ -36,6 +36,7 @@ WriteMakefile(
 		'Log::Abstraction' => 0.25,
 		'Params::Get' => 0.13,
 		'Return::Set' => 0,
+		'Scalar::Util' => 0,
 	}, TEST_REQUIRES => {
 		'File::Temp' => 0,
 		'Test::DescribeMe' => 0,

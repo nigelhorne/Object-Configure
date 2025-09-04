@@ -1,6 +1,5 @@
 ---
-
-name: Perl CI
+name: Ubuntu
 
 on:
   push:

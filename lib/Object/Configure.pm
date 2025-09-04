@@ -8,6 +8,7 @@ use Config::Abstraction 0.32;
 use Log::Abstraction 0.25;
 use Params::Get 0.13;
 use Return::Set;
+use Scalar::Util qw(blessed);
 
 =head1 NAME
 
