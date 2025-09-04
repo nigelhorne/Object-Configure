@@ -227,7 +227,7 @@ sub instantiate
 
 	$params = configure($class, $params);
 
-	return bless $class->new($params), $class;
+	return $class->new($params);
 }
 
 =head1 SEE ALSO
