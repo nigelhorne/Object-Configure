@@ -105,9 +105,9 @@ and are applied during the call to `configure()`.
 
 More details to be written.
 
-# HOT RELOAD USAGE EXAMPLES
+## HOT RELOAD USAGE EXAMPLES
 
-## Basic Hot Reload Setup
+### Basic Hot Reload Setup
 
     package My::App;
     use Object::Configure;
@@ -130,7 +130,7 @@ More details to be written.
         # Custom reload logic here
     }
 
-## Enable Hot Reload in Your Main Application
+### Enable Hot Reload in Your Main Application
 
     # Enable hot reload with custom callback
     Object::Configure::enable_hot_reload(
@@ -143,7 +143,7 @@ More details to be written.
     # Your application continues running...
     # Config changes will be automatically detected and applied
 
-## Manual Reload
+### Manual Reload
 
     # Manually trigger a reload
     my $count = Object::Configure::reload_config();

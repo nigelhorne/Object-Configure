@@ -127,9 +127,9 @@ and are applied during the call to C<configure()>.
 
 More details to be written.
 
-=head1 HOT RELOAD USAGE EXAMPLES
+=head2 HOT RELOAD USAGE EXAMPLES
 
-=head2 Basic Hot Reload Setup
+=head3 Basic Hot Reload Setup
 
     package My::App;
     use Object::Configure;
@@ -140,7 +140,7 @@ More details to be written.
         my $self = bless $params, $class;
 
         # Register for hot reload
-        Object::Configure::_register_object($class, $self) if $params->{_config_file};
+        Object::Configure::register_object($class, $self) if $params->{_config_file};
 
         return $self;
     }
@@ -152,7 +152,7 @@ More details to be written.
         # Custom reload logic here
     }
 
-=head2 Enable Hot Reload in Your Main Application
+=head3 Enable Hot Reload in Your Main Application
 
     # Enable hot reload with custom callback
     Object::Configure::enable_hot_reload(
@@ -165,7 +165,7 @@ More details to be written.
     # Your application continues running...
     # Config changes will be automatically detected and applied
 
-=head2 Manual Reload
+=head3 Manual Reload
 
     # Manually trigger a reload
     my $count = Object::Configure::reload_config();
@@ -324,7 +324,7 @@ sub instantiate
 
 	# Register object for hot reload if config file is used
 	if ($params->{_config_file}) {
-		_register_object($class, $obj);
+		register_object($class, $obj);
 	}
 
 	return $obj;
@@ -532,7 +532,7 @@ sub _reconfigure_logger {
 
 
 # Internal function to register objects for hot reload
-sub _register_object {
+sub register_object {
 	my ($class, $obj) = @_;
 
 	# Use weak references to avoid memory leaks
