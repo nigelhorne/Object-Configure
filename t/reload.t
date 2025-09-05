@@ -129,9 +129,11 @@ subtest 'Object registration' => sub {
 
 # Test signal handler chaining
 subtest 'Signal handler chaining' => sub {
+	Object::Configure::restore_signal_handlers();
+
+	plan({ skip_all => 'Windows does not support SIGUSR1' }) if($^O eq 'MSWin32');
+
 	my $original_called = 0;
-	$SIG{USR1} = $Object::Configure::_original_usr1_handler;
-	undef $Object::Configure::_original_usr1_handler;
 	my $original_handler = sub { $original_called++ };
 
 	# Set up original handler
