@@ -312,7 +312,7 @@ sub configure {
 	}
 
 	# Store config file path in params for hot reload
-	$params->{_config_file} = $config_file if $config_file;
+	$params->{_config_file} = $config_file if(defined($config_file));
 
 	return Return::Set::set_return($params, { 'type' => 'hashref' });
 }

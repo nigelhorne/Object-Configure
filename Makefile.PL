@@ -44,6 +44,7 @@ WriteMakefile(
 		'Test::DescribeMe' => 0,
 		'Test::Most' => 0,
 		'Test::Needs' => 0,
+		'Test::NoWarnings' => 0,
 		'Time::HiRes' => 0,
 		'YAML::XS' => 0,
 	}, dist => $dist,
