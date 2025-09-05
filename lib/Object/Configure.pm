@@ -612,7 +612,7 @@ Useful when you want to cleanly shut down the hot reload system.
 sub restore_signal_handlers
 {
 	if (defined $_original_usr1_handler) {
-		$SIG{USR1} = $_original_usr1_handler;
+		$SIG{USR1} = $_original_usr1_handler if($^O ne 'MSWin32');	# There is no SIGUSR1 on Windows
 		$_original_usr1_handler = undef;
 	}
 }
