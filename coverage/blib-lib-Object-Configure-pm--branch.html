@@ -40,7 +40,7 @@ https://pjcj.net
 <tr><td class="h"></td><td class="c0">50</td><td class="c3">T</td><td class="c0">F</td><td class="s">elsif (not &amp;blessed($logger) &amp;&amp; $logger-&gt;isa(&#39;Log::Abstraction&#39;)) { }</td></tr>
 <tr><td class="h"><a id="L281">281</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if ($$logger{&#39;syslog&#39;}) { }</td></tr>
 <tr><td class="h"><a id="L310">310</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if ($array and not $$params{&quot;logger&quot;}{&quot;array&quot;})</td></tr>
-<tr><td class="h"><a id="L315">315</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if $config_file</td></tr>
+<tr><td class="h"><a id="L315">315</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if defined $config_file</td></tr>
 <tr><td class="h"><a id="L337">337</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if ($$params{&quot;_config_file&quot;})</td></tr>
 <tr><td class="h"><a id="L364">364</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if %_config_watchers</td></tr>
 <tr><td class="h"><a id="L367">367</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (my $pid = fork) { }</td></tr>
