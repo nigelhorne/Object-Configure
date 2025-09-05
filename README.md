@@ -106,7 +106,9 @@ and are applied during the call to `configure()`.
 
 More details to be written.
 
-## HOT RELOAD USAGE EXAMPLES
+## HOT RELOAD
+
+Hot reload is not supported on Windows.
 
 ### Basic Hot Reload Setup
 

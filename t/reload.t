@@ -168,6 +168,7 @@ subtest 'Signal handler chaining' => sub {
 
 # Test hot reload enable/disable
 subtest 'Hot reload enable/disable' => sub {
+	plan(skip_all => 'Windows does not support SIGUSR1') if($^O eq 'MSWin32');
 	my $callback_called = 0;
 	my $callback = sub { $callback_called++ };
 

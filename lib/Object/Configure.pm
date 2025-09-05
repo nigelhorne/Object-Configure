@@ -131,7 +131,9 @@ and are applied during the call to C<configure()>.
 
 More details to be written.
 
-=head2 HOT RELOAD USAGE EXAMPLES
+=head2 HOT RELOAD
+
+Hot reload is not supported on Windows.
 
 =head3 Basic Hot Reload Setup
 
@@ -459,11 +461,13 @@ sub _run_config_watcher {
 			}
 		}
 
-		if ($changes_detected) {
-			# Reload configurations in the main process
-			# Use a signal or shared memory mechanism
-			if (my $parent_pid = getppid()) {
-				kill('USR1', $parent_pid);
+		if($changes_detected) {
+			if($^O ne 'MSWin32') {
+				# Reload configurations in the main process
+				# Use a signal or shared memory mechanism
+				if(my $parent_pid = getppid()) {
+					kill('USR1', $parent_pid);
+				}
 			}
 		}
 	}
