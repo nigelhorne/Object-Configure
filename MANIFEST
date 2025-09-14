@@ -21,3 +21,4 @@ t/pod-synopsis.t
 t/pod.t
 t/reload.t
 t/simple.t
+t/strict.t
