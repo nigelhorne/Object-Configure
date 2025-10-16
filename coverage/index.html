@@ -84,27 +84,31 @@
 
 <tbody>
 
-<tr class="med"><td><a href="blib-lib-Object-Configure-pm.html" title="View coverage line by line" target="_blank">blib/lib/Object/Configure.pm</a> <a href="https://github.com/nigelhorne/Object-Configure/blob/6d64942de9c475e71fbeab32e05371b78acf7cbd/blib/lib/Object/Configure.pm" class="icon-link" title="View source on GitHub">&#128269;</a><canvas class="sparkline" width="80" height="20" data-points="79.6,42.5,42.2,77.6,79.6,42.5,80.2,77.5,77.2,77.5,77.5,77.5"></canvas></td><td>89.6</td><td>63.3</td><td>48.8</td><td>96.0</td><td><span class="coverage-badge badge-warn" title="Moderate coverage">77.4%</span></td><td class="negative" title="Previous: 77.5%">&#9660; 0.1%</td></tr>
+<tr class="med"><td><a href="blib-lib-Object-Configure-pm.html" title="View coverage line by line" target="_blank">blib/lib/Object/Configure.pm</a> <a href="https://github.com/nigelhorne/Object-Configure/blob/190c5fc7c845ba6ac186e138cf2da91ca602075e/blib/lib/Object/Configure.pm" class="icon-link" title="View source on GitHub">&#128269;</a><canvas class="sparkline" width="80" height="20" data-points="79.6,42.5,42.2,77.6,79.6,42.5,80.2,77.5,77.2,77.5,77.5,77.5"></canvas></td><td>89.6</td><td>63.3</td><td>48.8</td><td>96.0</td><td><span class="coverage-badge badge-warn" title="Moderate coverage">77.4%</span></td><td class="negative" title="Previous: 77.5%">&#9660; 0.1%</td></tr>
 
 <tr class="summary-row nosort"><td colspan="2"><strong>Summary</strong></td><td colspan="2">1 files</td><td colspan="3">Avg: 77%, Low: 0</td></tr>
 
 <tr class="med nosort"><td><strong>Total</strong></td><td>89.6</td><td>63.3</td><td>48.8</td><td>96.0</td><td colspan="2"><strong>77.4</strong></td></tr>
 
 </tbody></table>
-<p>
-	<h2>Coverage Trend</h2>
-	<label>
-		<input type="checkbox" id="toggleTrend" checked>
-		Show regression trend
-	</label>
-</p>
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1em;">
+	<div>
+		<h2>Coverage Trend</h2>
+		<label>
+			<input type="checkbox" id="toggleTrend" checked>
+			Show regression trend
+		</label>
+		<div>
+		</div>
+	</div>
+	<div id="zoomControls" style="margin-top:8px;">
+		<input type="button" value="Refresh" onClick="refresh(this)">
+		<button id="resetZoomBtn" type="button">Reset Zoom</button>
+	</div>
+</div>
 
 <canvas id="coverageTrend" width="600" height="300"></canvas>
 <!-- Zoom controls for the trend chart -->
-<div id="zoomControls" style="margin-top:8px;">
-	<button id="resetZoomBtn" type="button">Reset Zoom</button>
-	<span style="margin-left:8px;color:#666;font-size:0.9em;">Use mouse wheel or pinch to zoom; drag to pan</span>
-</div>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <!-- Add chartjs-plugin-zoom (required for wheel/pinch/drag zoom & pan) -->
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.1.1/dist/chartjs-plugin-zoom.min.js"></script>
@@ -389,11 +393,15 @@ document.addEventListener("DOMContentLoaded", () => {
 	});
 });
 
+function refresh(){
+	window.location.reload("Refresh")
+}
 </script>
 
 <footer>
+	<p><span style="margin-left:8px;color:#666;font-size:0.9em;">Use mouse wheel or pinch to zoom; drag to pan</span></p>
 	<p>Project: <a href="https://github.com/nigelhorne/Object-Configure">Object-Configure</a></p>
-	<p><em>Last updated: 2025-10-16 23:06:44 - <a href="https://github.com/nigelhorne/Object-Configure/commit/6d64942de9c475e71fbeab32e05371b78acf7cbd">commit <code>6d64942</code></a></em></p>
+	<p><em>Last updated: 2025-10-16 23:08:25 - <a href="https://github.com/nigelhorne/Object-Configure/commit/190c5fc7c845ba6ac186e138cf2da91ca602075e">commit <code>190c5fc</code></a></em></p>
 </footer>
 </body>
 </html>
