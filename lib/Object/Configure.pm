@@ -6,7 +6,7 @@ use strict;
 use warnings;
 
 use Carp;
-use Config::Abstraction 0.32;
+use Config::Abstraction 0.36;
 use Log::Abstraction 0.26;
 use Params::Get 0.13;
 use Return::Set;
@@ -28,11 +28,11 @@ Object::Configure - Runtime Configuration for an Object
 
 =head1 VERSION
 
-0.15
+0.16
 
 =cut
 
-our $VERSION = 0.15;
+our $VERSION = 0.16;
 
 =head1 SYNOPSIS
 
