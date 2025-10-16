@@ -33,7 +33,7 @@ WriteMakefile(
 		'Carp' => 0,
 		'ExtUtils::MakeMaker' => 6.64,	# Minimum version for TEST_REQUIRES
 		'Config::Abstraction' => 0.32,
-		'Log::Abstraction' => 0.25,
+		'Log::Abstraction' => 0.26,
 		'Params::Get' => 0.13,
 		'Return::Set' => 0,
 		'Scalar::Util' => 0,
