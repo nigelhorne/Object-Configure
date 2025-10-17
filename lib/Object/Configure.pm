@@ -282,7 +282,7 @@ sub configure {
 	}
 
 	my $croak_on_error = exists($params->{'croak_on_error'}) ? $params->{'croak_on_error'} : 1;
-	my $carp_on_warn = exists($params->{'carp_on_warn'}) ? $params->{'carp_on_warn'} : 1;
+	my $carp_on_warn = exists($params->{'carp_on_warn'}) ? $params->{'carp_on_warn'} : 0;
 
 	# Load the default logger
 	if (my $logger = $params->{'logger'}) {
