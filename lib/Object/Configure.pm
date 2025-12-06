@@ -257,24 +257,80 @@ sub configure {
 			config_file => $config_file,
 			env_prefix => "${class}__"
 		)) {
+			# Get inheritance chain
+			my @inheritance_chain = _get_inheritance_chain($original_class);
+
+			# Start with empty config and merge from most general to most specific
+			my $merged_config = {};
+
+			# Merge ancestor configurations first (from root to child)
+			foreach my $ancestor_class (reverse @inheritance_chain) {
+				my $section_name = $ancestor_class;
+				$section_name =~ s/::/__/g;
+
+				# Try to get config for this ancestor
+				my $ancestor_config = $config->merge_defaults(
+					defaults => {},
+					section => $section_name,
+					merge => 1,
+					deep => 1
+				);
+
+				# Deep merge ancestor config into accumulated config
+				$merged_config = _deep_merge($merged_config, $ancestor_config);
+			}
+
+			# Finally merge with defaults and current class config
 			$params = $config->merge_defaults(
 				defaults => $params,
 				section => $class,
 				merge => 1,
 				deep => 1
 			);
+
+			# Apply inherited config (defaults < inherited < current)
+			$params = _deep_merge($merged_config, $params);
+
 		} elsif ($@) {
 			croak("$class: Can't load configuration from ", $config_file, ": $@");
 		} else {
 			croak("$class: Can't load configuration from ", $config_file);
 		}
 	} elsif (my $config = Config::Abstraction->new(env_prefix => "${class}__")) {
+		# Handle environment variables with inheritance
+		my @inheritance_chain = _get_inheritance_chain($original_class);
+		my $merged_config = {};
+
+		# Merge ancestor configurations from environment
+		foreach my $ancestor_class (reverse @inheritance_chain) {
+			my $section_name = $ancestor_class;
+			$section_name =~ s/::/__/g;
+
+			my $ancestor_env_config = Config::Abstraction->new(
+				env_prefix => "${section_name}__"
+			);
+
+			if ($ancestor_env_config) {
+				my $ancestor_config = $ancestor_env_config->merge_defaults(
+					defaults => {},
+					section => $section_name,
+					merge => 1,
+					deep => 1
+				);
+				$merged_config = _deep_merge($merged_config, $ancestor_config);
+			}
+		}
+
 		$params = $config->merge_defaults(
 			defaults => $params,
 			section => $class,
 			merge => 1,
 			deep => 1
 		);
+
+		# Apply inherited config
+		$params = _deep_merge($merged_config, $params);
+
 		# Track this config file for hot reload
 		if ($params->{config_path} && -f $params->{config_path}) {
 			$_config_file_stats{$config_file} = stat($config_file);
@@ -325,6 +381,63 @@ sub configure {
 	$params->{_config_file} = $config_file if(defined($config_file));
 
 	return Return::Set::set_return($params, { 'type' => 'hashref' });
+}
+
+# Helper function to get the inheritance chain for a class
+sub _get_inheritance_chain
+{
+	my $class = $_[0];
+	my @chain = ();
+	my %seen = ();
+
+	_walk_isa($class, \@chain, \%seen);
+
+	return @chain;
+}
+
+# Recursive function to walk the @ISA hierarchy
+sub _walk_isa {
+	my ($class, $chain, $seen) = @_;
+
+	return if $seen->{$class}++;
+
+	# Get the @ISA array for this class
+	no strict 'refs';
+	my @isa = @{"${class}::ISA"};
+	use strict 'refs';
+
+	# Recursively process parent classes first
+	foreach my $parent (@isa) {
+		# Skip common base classes that won't have configs
+		next if $parent eq 'Exporter';
+		next if $parent eq 'DynaLoader';
+
+		_walk_isa($parent, $chain, $seen);
+	}
+
+	# Add current class to chain (after parents)
+	push @$chain, $class;
+}
+
+# Deep merge two hash references
+# Second hash takes precedence over first
+sub _deep_merge {
+	my ($base, $overlay) = @_;
+
+	return $overlay unless ref($base) eq 'HASH';
+	return $base unless ref($overlay) eq 'HASH';
+
+	my $result = { %$base };
+
+	foreach my $key (keys %$overlay) {
+		if (ref($overlay->{$key}) eq 'HASH' && ref($result->{$key}) eq 'HASH') {
+			$result->{$key} = _deep_merge($result->{$key}, $overlay->{$key});
+		} else {
+			$result->{$key} = $overlay->{$key};
+		}
+	}
+
+	return $result;
 }
 
 =head2 instantiate($class,...)
