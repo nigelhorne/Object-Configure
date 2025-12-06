@@ -91,7 +91,9 @@ Example:
 
     # Result: Child class gets timeout=60, retries=3, log_level=info
 
-Parent configuration files are optional. If a parent class's configuration file doesn't exist, the module simply skips it and continues up the inheritance chain. All discovered configuration files are tracked in the `_config_files` array for hot reload support.
+Parent configuration files are optional.
+If a parent class's configuration file doesn't exist, the module simply skips it and continues up the inheritance chain.
+All discovered configuration files are tracked in the `_config_files` array for hot reload support.
 
 ## CHANGING BEHAVIOUR AT RUN TIME
 
@@ -110,6 +112,7 @@ and initialize the logger accordingly.
 
 If the file is not readable and no config\_dirs are provided,
 the module will throw an error.
+To be clear, in this case, inheritance is not followed.
 
 This mechanism allows dynamic tuning of logging behavior (or other parameters you expose) without modifying code.
 
