@@ -1,5 +1,8 @@
 Revision history for Object::Configure - Runtime Configuration for an Object
 
+0.17
+	Load in parents classes as well
+
 0.16	Thu Oct 16 19:10:49 EDT 2025
 	Set croak_on_error
 	Latest testing console
