@@ -84,6 +84,46 @@ Throughout your class, add code such as:
         $self->{'logger'}->trace(ref($self), ': ', __LINE__, ' entering method');
     }
 
+=head3 CONFIGURATION INHERITANCE
+
+C<Object::Configure> supports configuration inheritance, allowing child classes to inherit and override configuration settings from their parent classes. When a class is configured, the module automatically traverses the inheritance hierarchy (using C<@ISA>) and loads configuration files for each ancestor class in the chain.
+
+Configuration files are loaded in order from the most general (base class) to the most specific (child class), with later files overriding earlier ones. For example, if C<My::Child::Class> inherits from C<My::Parent::Class>, which inherits from C<My::Base::Class>, the module will:
+
+=over 4
+
+=item 1. Load C<my-base-class.yml> (or .conf, .json, etc.) if it exists
+
+=item 2. Load C<my-parent-class.yml> if it exists, overriding base settings
+
+=item 3. Load C<my-child-class.yml>, overriding both parent and base settings
+
+=back
+
+The configuration files should be named using lowercase versions of the class name with C<::> replaced by hyphens (C<->).
+For example, C<My::Parent::Class> would use C<my-parent-class.yml>.
+
+This allows you to define common settings in a base class configuration file and selectively override them in child class configurations, promoting DRY (Don't Repeat Yourself) principles and making it easier to manage configuration across class hierarchies.
+
+Example:
+
+    # File: config/my-base-class.yml
+    ---
+    My__Base__Class:
+      timeout: 30
+      retries: 3
+      log_level: info
+
+    # File: config/my-child-class.yml
+    ---
+    My__Child__Class:
+      timeout: 60
+      # Inherits retries: 3 and log_level: info from parent
+
+    # Result: Child class gets timeout=60, retries=3, log_level=info
+
+Parent configuration files are optional. If a parent class's configuration file doesn't exist, the module simply skips it and continues up the inheritance chain. All discovered configuration files are tracked in the C<_config_files> array for hot reload support.
+
 =head2 CHANGING BEHAVIOUR AT RUN TIME
 
 =head3 USING A CONFIGURATION FILE
@@ -255,6 +295,7 @@ sub configure {
 		}
 
 		# Find config files for each class in the hierarchy
+		# Important: iterate in reverse order (base -> parent -> child)
 		foreach my $ancestor_class (reverse @inheritance_chain) {
 			my $ancestor_config_file = _find_class_config_file(
 				$ancestor_class,
@@ -262,7 +303,13 @@ sub configure {
 				$config_dirs
 			);
 
-			if ($ancestor_config_file && -r $ancestor_config_file) {
+			# Skip if this is the primary config file - it will be added at the end
+			if ($ancestor_config_file && $ancestor_config_file eq $config_file) {
+				next;
+			}
+
+			# Only add if we found a file and haven't already added it
+			if ($ancestor_config_file && -r $ancestor_config_file && !$tracked_files{$ancestor_config_file}) {
 				push @config_files_to_load, {
 					file => $ancestor_config_file,
 					class => $ancestor_class
@@ -276,17 +323,31 @@ sub configure {
 			}
 		}
 
-		# Ensure the primary config file is included if not already
+		# Ensure the primary config file is included LAST (highest priority)
+		# This handles the case where the primary file doesn't match the class name pattern
 		if ($config_file && !$tracked_files{$config_file} && -r $config_file) {
 			push @config_files_to_load, {
 				file => $config_file,
 				class => $original_class
 			};
+			$tracked_files{$config_file} = 1;
 
 			if (-f $config_file) {
 				$_config_file_stats{$config_file} = stat($config_file);
 			}
 		}
+	}
+
+	# Sort by class hierarchy to ensure correct order (base -> parent -> child)
+	# This must happen AFTER all files are collected
+	if (@config_files_to_load) {
+		my %class_order;
+		for my $i (0..$#inheritance_chain) {
+			$class_order{$inheritance_chain[$i]} = $i;
+		}
+		@config_files_to_load = sort {
+			($class_order{$a->{class}} // 999) <=> ($class_order{$b->{class}} // 999)
+		} @config_files_to_load;
 	}
 
 	# Load and merge configurations from all files
@@ -300,20 +361,24 @@ sub configure {
 			my $section_name = $cfg_class;
 			$section_name =~ s/::/__/g;
 
+			# When loading individual config files for inheritance,
+			# don't pass config_dirs - just load the specific file
 			my $config = Config::Abstraction->new(
-				config_dirs => $config_dirs,
 				config_file => $cfg_file,
 				env_prefix => "${section_name}__"
 			);
 
 			if ($config) {
-				# Merge this config file's values
-				$merged_params = $config->merge_defaults(
-					defaults => $merged_params,
+				# Get this config file's values for the section
+				my $this_config = $config->merge_defaults(
+					defaults => {},
 					section => $section_name,
 					merge => 1,
 					deep => 1
 				);
+
+				# Deep merge: later configs override earlier ones
+				$merged_params = _deep_merge($merged_params, $this_config);
 			} elsif ($@) {
 				carp("Warning: Can't load configuration from $cfg_file: $@");
 			}
@@ -403,7 +468,7 @@ sub configure {
 
 	# Store config file path in params for hot reload
 	$params->{_config_file} = $config_file if(defined($config_file));
-	$params->{_config_files} = [keys %tracked_files] if %tracked_files;
+	$params->{_config_files} = [map { $_->{file} } @config_files_to_load] if @config_files_to_load;
 
 	return Return::Set::set_return($params, { 'type' => 'hashref' });
 }
@@ -442,6 +507,8 @@ sub _find_class_config_file {
 	# Also try with config_dirs if provided
 	if ($config_dirs && ref($config_dirs) eq 'ARRAY') {
 		foreach my $dir (@$config_dirs) {
+			# Remove trailing slash if present
+			$dir =~ s{/$}{};
 			push @patterns, (
 				"${dir}/${class_file}${base_ext}",
 				"${dir}/${class_file}.conf",
@@ -454,7 +521,9 @@ sub _find_class_config_file {
 
 	# Return the first file that exists and is readable
 	foreach my $pattern (@patterns) {
-		return $pattern if -r $pattern;
+		if (-r $pattern && -f $pattern) {
+			return $pattern;
+		}
 	}
 
 	return undef;
@@ -462,7 +531,7 @@ sub _find_class_config_file {
 
 # Helper function to get the inheritance chain for a class
 sub _get_inheritance_chain {
-	my $class = $_[0];
+	my ($class) = @_;
 	my @chain = ();
 	my %seen = ();
 
@@ -516,6 +585,7 @@ sub _deep_merge {
 
 	return $result;
 }
+
 
 =head2 instantiate($class,...)
 
