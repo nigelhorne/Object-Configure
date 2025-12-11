@@ -1,6 +1,6 @@
 Revision history for Object::Configure - Runtime Configuration for an Object
 
-0.18
+0.18	Thu Dec 11 11:58:01 EST 2025
 	If a parent class hierachy can't be found, ensure we still load the given path/file
 
 0.17	Sat Dec  6 21:31:58 EST 2025
