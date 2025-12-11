@@ -20,78 +20,80 @@ https://pjcj.net
 <h1>Branch Coverage</h1>
 <table>
 <tr><td class="h" align="right">File:</td><td align="left">blib/lib/Object/Configure.pm</td></tr>
-<tr><td class="h" align="right">Coverage:</td><td align="left" class="c0">64.9%</td></tr>
+<tr><td class="h" align="right">Coverage:</td><td align="left" class="c0">63.0%</td></tr>
 </table>
 <div><br/></div>
 <table>
 <tr><th>line</th><th>%</th><th colspan="2">coverage</th><th>branch</th></tr>
-<tr><td class="h"><a id="L276">276</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if (exists $params-&gt;{&#39;logger&#39;} and ref $params-&gt;{&#39;logger&#39;} eq &quot;ARRAY&quot;)</td></tr>
-<tr><td class="h"><a id="L294">294</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if ($config_file)</td></tr>
-<tr><td class="h"><a id="L296">296</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless ($config_dirs or -r $config_file)</td></tr>
-<tr><td class="h"><a id="L310">310</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if ($ancestor_config_file and $ancestor_config_file eq $config_file)</td></tr>
-<tr><td class="h"><a id="L315">315</a></td><td class="c0">50</td><td class="c3">T</td><td class="c0">F</td><td class="s">if ($ancestor_config_file and -r $ancestor_config_file and not $tracked_files{$ancestor_config_file})</td></tr>
-<tr><td class="h"><a id="L323">323</a></td><td class="c0">50</td><td class="c3">T</td><td class="c0">F</td><td class="s">if (-f $ancestor_config_file)</td></tr>
-<tr><td class="h"><a id="L331">331</a></td><td class="c0">50</td><td class="c3">T</td><td class="c0">F</td><td class="s">if ($config_file and not $tracked_files{$config_file} and -r $config_file)</td></tr>
-<tr><td class="h"><a id="L338">338</a></td><td class="c0">50</td><td class="c3">T</td><td class="c0">F</td><td class="s">if (-f $config_file)</td></tr>
-<tr><td class="h"><a id="L346">346</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (@config_files_to_load)</td></tr>
-<tr><td class="h"><a id="L357">357</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (@config_files_to_load) { }</td></tr>
+<tr><td class="h"><a id="L277">277</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if (exists $params-&gt;{&#39;logger&#39;} and ref $params-&gt;{&#39;logger&#39;} eq &quot;ARRAY&quot;)</td></tr>
+<tr><td class="h"><a id="L295">295</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if ($config_file)</td></tr>
+<tr><td class="h"><a id="L297">297</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless ($config_dirs or -r $config_file)</td></tr>
+<tr><td class="h"><a id="L311">311</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if ($ancestor_config_file and $ancestor_config_file eq $config_file)</td></tr>
+<tr><td class="h"><a id="L316">316</a></td><td class="c0">50</td><td class="c3">T</td><td class="c0">F</td><td class="s">if ($ancestor_config_file and -r $ancestor_config_file and not $tracked_files{$ancestor_config_file})</td></tr>
+<tr><td class="h"><a id="L324">324</a></td><td class="c0">50</td><td class="c3">T</td><td class="c0">F</td><td class="s">if (-f $ancestor_config_file)</td></tr>
+<tr><td class="h"><a id="L332">332</a></td><td class="c0">50</td><td class="c3">T</td><td class="c0">F</td><td class="s">if ($config_file and not $tracked_files{$config_file} and -r $config_file)</td></tr>
+<tr><td class="h"><a id="L339">339</a></td><td class="c0">50</td><td class="c3">T</td><td class="c0">F</td><td class="s">if (-f $config_file)</td></tr>
+<tr><td class="h"><a id="L344">344</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">unless (scalar @config_files_to_load)</td></tr>
+<tr><td class="h"><a id="L348">348</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (-r $candidate)</td></tr>
+<tr><td class="h"><a id="L359">359</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (@config_files_to_load) { }</td></tr>
 <tr><td class="h"></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">elsif (my $config = &#39;Config::Abstraction&#39;-&gt;new(&#39;env_prefix&#39;, &quot;${class}__&quot;)) { }</td></tr>
-<tr><td class="h"><a id="L374">374</a></td><td class="c0">50</td><td class="c3">T</td><td class="c0">F</td><td class="s">if ($config) { }</td></tr>
+<tr><td class="h"><a id="L362">362</a></td><td class="c0">50</td><td class="c3">T</td><td class="c0">F</td><td class="s">if (@config_files_to_load)</td></tr>
+<tr><td class="h"><a id="L388">388</a></td><td class="c0">50</td><td class="c3">T</td><td class="c0">F</td><td class="s">if ($config) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif ($@) { }</td></tr>
-<tr><td class="h"><a id="L405">405</a></td><td class="c0">50</td><td class="c3">T</td><td class="c0">F</td><td class="s">if ($ancestor_env_config)</td></tr>
-<tr><td class="h"><a id="L427">427</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if ($params-&gt;{&#39;config_path&#39;} and -f $params-&gt;{&#39;config_path&#39;})</td></tr>
-<tr><td class="h"><a id="L432">432</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">exists $params-&gt;{&#39;croak_on_error&#39;} ? :</td></tr>
-<tr><td class="h"><a id="L433">433</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">exists $params-&gt;{&#39;carp_on_warn&#39;} ? :</td></tr>
-<tr><td class="h"><a id="L436">436</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (my $logger = $params-&gt;{&#39;logger&#39;}) { }</td></tr>
+<tr><td class="h"><a id="L418">418</a></td><td class="c0">50</td><td class="c3">T</td><td class="c0">F</td><td class="s">if ($ancestor_env_config)</td></tr>
+<tr><td class="h"><a id="L440">440</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if ($params-&gt;{&#39;config_path&#39;} and -f $params-&gt;{&#39;config_path&#39;})</td></tr>
+<tr><td class="h"><a id="L445">445</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">exists $params-&gt;{&#39;croak_on_error&#39;} ? :</td></tr>
+<tr><td class="h"><a id="L446">446</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">exists $params-&gt;{&#39;carp_on_warn&#39;} ? :</td></tr>
+<tr><td class="h"><a id="L449">449</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (my $logger = $params-&gt;{&#39;logger&#39;}) { }</td></tr>
 <tr><td class="h"></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">elsif ($array) { }</td></tr>
-<tr><td class="h"><a id="L437">437</a></td><td class="c0">50</td><td class="c3">T</td><td class="c0">F</td><td class="s">if ($params-&gt;{&#39;logger&#39;} ne &quot;NULL&quot;)</td></tr>
-<tr><td class="h"><a id="L438">438</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (ref $logger eq &#39;HASH&#39;) { }</td></tr>
+<tr><td class="h"><a id="L450">450</a></td><td class="c0">50</td><td class="c3">T</td><td class="c0">F</td><td class="s">if ($params-&gt;{&#39;logger&#39;} ne &quot;NULL&quot;)</td></tr>
+<tr><td class="h"><a id="L451">451</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (ref $logger eq &#39;HASH&#39;) { }</td></tr>
 <tr><td class="h"></td><td class="c0">50</td><td class="c3">T</td><td class="c0">F</td><td class="s">elsif (not &amp;blessed($logger) &amp;&amp; $logger-&gt;isa(&#39;Log::Abstraction&#39;)) { }</td></tr>
-<tr><td class="h"><a id="L439">439</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if ($logger-&gt;{&#39;syslog&#39;}) { }</td></tr>
-<tr><td class="h"><a id="L468">468</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if ($array and not $params-&gt;{&#39;logger&#39;}{&#39;array&#39;})</td></tr>
-<tr><td class="h"><a id="L473">473</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if defined $config_file</td></tr>
-<tr><td class="h"><a id="L474">474</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if @config_files_to_load</td></tr>
-<tr><td class="h"><a id="L491">491</a></td><td class="c0">50</td><td class="c3">T</td><td class="c0">F</td><td class="s">if ($base_config_file =~ m[^(.*/)([^/]+?)(\.[^.]+)?$]) { }</td></tr>
-<tr><td class="h"><a id="L511">511</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if ($config_dirs and ref $config_dirs eq &quot;ARRAY&quot;)</td></tr>
-<tr><td class="h"><a id="L527">527</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (-r $pattern and -f $pattern)</td></tr>
-<tr><td class="h"><a id="L550">550</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if $seen-&gt;{$class}++</td></tr>
-<tr><td class="h"><a id="L560">560</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if $parent eq &quot;Exporter&quot;</td></tr>
-<tr><td class="h"><a id="L561">561</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if $parent eq &quot;DynaLoader&quot;</td></tr>
-<tr><td class="h"><a id="L562">562</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if $parent eq &quot;UNIVERSAL&quot;</td></tr>
-<tr><td class="h"><a id="L576">576</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">unless ref $base eq &quot;HASH&quot;</td></tr>
-<tr><td class="h"><a id="L577">577</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">unless ref $overlay eq &quot;HASH&quot;</td></tr>
-<tr><td class="h"><a id="L582">582</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (ref $overlay-&gt;{$key} eq &#39;HASH&#39; and ref $result-&gt;{$key} eq &#39;HASH&#39;) { }</td></tr>
-<tr><td class="h"><a id="L610">610</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if ($params-&gt;{&#39;_config_file&#39;})</td></tr>
-<tr><td class="h"><a id="L637">637</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if %_config_watchers</td></tr>
-<tr><td class="h"><a id="L640">640</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (my $pid = fork) { }</td></tr>
+<tr><td class="h"><a id="L452">452</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if ($logger-&gt;{&#39;syslog&#39;}) { }</td></tr>
+<tr><td class="h"><a id="L481">481</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if ($array and not $params-&gt;{&#39;logger&#39;}{&#39;array&#39;})</td></tr>
+<tr><td class="h"><a id="L486">486</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if defined $config_file</td></tr>
+<tr><td class="h"><a id="L487">487</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if @config_files_to_load</td></tr>
+<tr><td class="h"><a id="L504">504</a></td><td class="c0">50</td><td class="c3">T</td><td class="c0">F</td><td class="s">if ($base_config_file =~ m[^(.*/)([^/]+?)(\.[^.]+)?$]) { }</td></tr>
+<tr><td class="h"><a id="L524">524</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if ($config_dirs and ref $config_dirs eq &quot;ARRAY&quot;)</td></tr>
+<tr><td class="h"><a id="L540">540</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (-r $pattern and -f $pattern)</td></tr>
+<tr><td class="h"><a id="L563">563</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if $seen-&gt;{$class}++</td></tr>
+<tr><td class="h"><a id="L573">573</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if $parent eq &quot;Exporter&quot;</td></tr>
+<tr><td class="h"><a id="L574">574</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if $parent eq &quot;DynaLoader&quot;</td></tr>
+<tr><td class="h"><a id="L575">575</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if $parent eq &quot;UNIVERSAL&quot;</td></tr>
+<tr><td class="h"><a id="L589">589</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">unless ref $base eq &quot;HASH&quot;</td></tr>
+<tr><td class="h"><a id="L590">590</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">unless ref $overlay eq &quot;HASH&quot;</td></tr>
+<tr><td class="h"><a id="L595">595</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (ref $overlay-&gt;{$key} eq &#39;HASH&#39; and ref $result-&gt;{$key} eq &#39;HASH&#39;) { }</td></tr>
+<tr><td class="h"><a id="L623">623</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if ($params-&gt;{&#39;_config_file&#39;})</td></tr>
+<tr><td class="h"><a id="L650">650</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if %_config_watchers</td></tr>
+<tr><td class="h"><a id="L653">653</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (my $pid = fork) { }</td></tr>
 <tr><td class="h"></td><td class="c0">50</td><td class="c3">T</td><td class="c0">F</td><td class="s">elsif (defined $pid) { }</td></tr>
-<tr><td class="h"><a id="L663">663</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (my $pid = $_config_watchers{&#39;pid&#39;})</td></tr>
-<tr><td class="h"><a id="L688">688</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (my $obj = $$obj_ref)</td></tr>
-<tr><td class="h"><a id="L693">693</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if ($@)</td></tr>
-<tr><td class="h"><a id="L700">700</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">unless @$objects</td></tr>
-<tr><td class="h"><a id="L721">721</a></td><td class="c0">50</td><td class="c3">T</td><td class="c0">F</td><td class="s">if (-f $config_file) { }</td></tr>
-<tr><td class="h"><a id="L726">726</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (not $stored_stat or $current_stat-&gt;mtime &gt; $stored_stat-&gt;mtime)</td></tr>
-<tr><td class="h"><a id="L737">737</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if ($changes_detected)</td></tr>
-<tr><td class="h"><a id="L738">738</a></td><td class="c0">50</td><td class="c3">T</td><td class="c0">F</td><td class="s">if ($^O ne &quot;MSWin32&quot;)</td></tr>
-<tr><td class="h"><a id="L741">741</a></td><td class="c0">50</td><td class="c3">T</td><td class="c0">F</td><td class="s">if (my $parent_pid = getppid)</td></tr>
-<tr><td class="h"><a id="L753">753</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">unless &amp;blessed($obj)</td></tr>
-<tr><td class="h"><a id="L761">761</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless $config_file and -f $config_file</td></tr>
-<tr><td class="h"><a id="L769">769</a></td><td class="c0">50</td><td class="c3">T</td><td class="c0">F</td><td class="s">if ($config)</td></tr>
-<tr><td class="h"><a id="L780">780</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if $key =~ /^_/</td></tr>
-<tr><td class="h"><a id="L782">782</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if ($key =~ /^logger/ and $new_params-&gt;{$key} ne &#39;NULL&#39;) { }</td></tr>
-<tr><td class="h"><a id="L791">791</a></td><td class="c0">50</td><td class="c3">T</td><td class="c0">F</td><td class="s">if ($obj-&gt;can(&quot;_on_config_reload&quot;))</td></tr>
-<tr><td class="h"><a id="L796">796</a></td><td class="c0">50</td><td class="c3">T</td><td class="c0">F</td><td class="s">if ($obj-&gt;{&#39;logger&#39;} and $obj-&gt;{&#39;logger&#39;}-&gt;can(&quot;info&quot;))</td></tr>
-<tr><td class="h"><a id="L807">807</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if (ref $logger_config eq &#39;HASH&#39;) { }</td></tr>
-<tr><td class="h"><a id="L811">811</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($logger_config-&gt;{&#39;syslog&#39;}) { }</td></tr>
-<tr><td class="h"><a id="L849">849</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (not defined $_original_usr1_handler)</td></tr>
-<tr><td class="h"><a id="L853">853</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if $^O eq &quot;MSWin32&quot;</td></tr>
-<tr><td class="h"><a id="L858">858</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if ($_config_watchers{&#39;callback&#39;})</td></tr>
-<tr><td class="h"><a id="L863">863</a></td><td class="c0">50</td><td class="c3">T</td><td class="c0">F</td><td class="s">if (ref $_original_usr1_handler eq &#39;CODE&#39;) { }</td></tr>
+<tr><td class="h"><a id="L676">676</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (my $pid = $_config_watchers{&#39;pid&#39;})</td></tr>
+<tr><td class="h"><a id="L701">701</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (my $obj = $$obj_ref)</td></tr>
+<tr><td class="h"><a id="L706">706</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if ($@)</td></tr>
+<tr><td class="h"><a id="L713">713</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">unless @$objects</td></tr>
+<tr><td class="h"><a id="L734">734</a></td><td class="c0">50</td><td class="c3">T</td><td class="c0">F</td><td class="s">if (-f $config_file) { }</td></tr>
+<tr><td class="h"><a id="L739">739</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (not $stored_stat or $current_stat-&gt;mtime &gt; $stored_stat-&gt;mtime)</td></tr>
+<tr><td class="h"><a id="L750">750</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if ($changes_detected)</td></tr>
+<tr><td class="h"><a id="L751">751</a></td><td class="c0">50</td><td class="c3">T</td><td class="c0">F</td><td class="s">if ($^O ne &quot;MSWin32&quot;)</td></tr>
+<tr><td class="h"><a id="L754">754</a></td><td class="c0">50</td><td class="c3">T</td><td class="c0">F</td><td class="s">if (my $parent_pid = getppid)</td></tr>
+<tr><td class="h"><a id="L766">766</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">unless &amp;blessed($obj)</td></tr>
+<tr><td class="h"><a id="L774">774</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless $config_file and -f $config_file</td></tr>
+<tr><td class="h"><a id="L782">782</a></td><td class="c0">50</td><td class="c3">T</td><td class="c0">F</td><td class="s">if ($config)</td></tr>
+<tr><td class="h"><a id="L793">793</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if $key =~ /^_/</td></tr>
+<tr><td class="h"><a id="L795">795</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if ($key =~ /^logger/ and $new_params-&gt;{$key} ne &#39;NULL&#39;) { }</td></tr>
+<tr><td class="h"><a id="L804">804</a></td><td class="c0">50</td><td class="c3">T</td><td class="c0">F</td><td class="s">if ($obj-&gt;can(&quot;_on_config_reload&quot;))</td></tr>
+<tr><td class="h"><a id="L809">809</a></td><td class="c0">50</td><td class="c3">T</td><td class="c0">F</td><td class="s">if ($obj-&gt;{&#39;logger&#39;} and $obj-&gt;{&#39;logger&#39;}-&gt;can(&quot;info&quot;))</td></tr>
+<tr><td class="h"><a id="L820">820</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if (ref $logger_config eq &#39;HASH&#39;) { }</td></tr>
+<tr><td class="h"><a id="L824">824</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($logger_config-&gt;{&#39;syslog&#39;}) { }</td></tr>
+<tr><td class="h"><a id="L862">862</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (not defined $_original_usr1_handler)</td></tr>
+<tr><td class="h"><a id="L866">866</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if $^O eq &quot;MSWin32&quot;</td></tr>
+<tr><td class="h"><a id="L871">871</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if ($_config_watchers{&#39;callback&#39;})</td></tr>
+<tr><td class="h"><a id="L876">876</a></td><td class="c0">50</td><td class="c3">T</td><td class="c0">F</td><td class="s">if (ref $_original_usr1_handler eq &#39;CODE&#39;) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif ($_original_usr1_handler eq &#39;DEFAULT&#39;) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif ($_original_usr1_handler eq &#39;IGNORE&#39;) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif ($_original_usr1_handler ne &#39;DEFAULT&#39; and $_original_usr1_handler ne &#39;IGNORE&#39;) { }</td></tr>
-<tr><td class="h"><a id="L891">891</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (defined $_original_usr1_handler)</td></tr>
-<tr><td class="h"><a id="L892">892</a></td><td class="c0">50</td><td class="c3">T</td><td class="c0">F</td><td class="s">if $^O ne &quot;MSWin32&quot;</td></tr>
+<tr><td class="h"><a id="L904">904</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (defined $_original_usr1_handler)</td></tr>
+<tr><td class="h"><a id="L905">905</a></td><td class="c0">50</td><td class="c3">T</td><td class="c0">F</td><td class="s">if $^O ne &quot;MSWin32&quot;</td></tr>
 </table>
 </body>
 </html>
