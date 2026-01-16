@@ -883,7 +883,7 @@ sub _reconfigure_logger
 	}
 }
 
-=head2 register_object
+=head2 register_object($class, $obj)
 
 Register an object for hot reload monitoring.
 
@@ -892,10 +892,26 @@ Register an object for hot reload monitoring.
 This is automatically called by the configure() function when a config file is used,
 but can also be called manually to register objects for hot reload.
 
+=head3 Parameters
+
+=over 4
+
+=item * C<class> (Required)
+
+The class of the object, used for the configuration name.
+
+=item * C<obj> (Required)
+
+The object to be configured
+
+=back
+
 =cut
 
 sub register_object {
 	my ($class, $obj) = @_;
+
+	croak(__PACKAGE__, '::register_object: Usage ($class, $obj)') unless(defined($class) && defined($obj));
 
 	# Use weak references to avoid memory leaks
 	my $obj_ref = \$obj;
