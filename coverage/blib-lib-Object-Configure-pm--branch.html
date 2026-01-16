@@ -20,7 +20,7 @@ https://pjcj.net
 <h1>Branch Coverage</h1>
 <table>
 <tr><td class="h" align="right">File:</td><td align="left">blib/lib/Object/Configure.pm</td></tr>
-<tr><td class="h" align="right">Coverage:</td><td align="left" class="c0">66.4%</td></tr>
+<tr><td class="h" align="right">Coverage:</td><td align="left" class="c0">66.2%</td></tr>
 </table>
 <div><br/></div>
 <table>
@@ -83,15 +83,16 @@ https://pjcj.net
 <tr><td class="h"><a id="L854">854</a></td><td class="c0">50</td><td class="c3">T</td><td class="c0">F</td><td class="s">if ($obj-&gt;{&#39;logger&#39;} and $obj-&gt;{&#39;logger&#39;}-&gt;can(&quot;info&quot;))</td></tr>
 <tr><td class="h"><a id="L865">865</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if (ref $logger_config eq &#39;HASH&#39;) { }</td></tr>
 <tr><td class="h"><a id="L869">869</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($logger_config-&gt;{&#39;syslog&#39;}) { }</td></tr>
-<tr><td class="h"><a id="L907">907</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (not defined $_original_usr1_handler)</td></tr>
-<tr><td class="h"><a id="L911">911</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if $^O eq &quot;MSWin32&quot;</td></tr>
-<tr><td class="h"><a id="L916">916</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if ($_config_watchers{&#39;callback&#39;})</td></tr>
-<tr><td class="h"><a id="L921">921</a></td><td class="c0">50</td><td class="c3">T</td><td class="c0">F</td><td class="s">if (ref $_original_usr1_handler eq &#39;CODE&#39;) { }</td></tr>
+<tr><td class="h"><a id="L914">914</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">unless defined $class and defined $obj</td></tr>
+<tr><td class="h"><a id="L923">923</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (not defined $_original_usr1_handler)</td></tr>
+<tr><td class="h"><a id="L927">927</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if $^O eq &quot;MSWin32&quot;</td></tr>
+<tr><td class="h"><a id="L932">932</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if ($_config_watchers{&#39;callback&#39;})</td></tr>
+<tr><td class="h"><a id="L937">937</a></td><td class="c0">50</td><td class="c3">T</td><td class="c0">F</td><td class="s">if (ref $_original_usr1_handler eq &#39;CODE&#39;) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif ($_original_usr1_handler eq &#39;DEFAULT&#39;) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif ($_original_usr1_handler eq &#39;IGNORE&#39;) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif ($_original_usr1_handler ne &#39;DEFAULT&#39; and $_original_usr1_handler ne &#39;IGNORE&#39;) { }</td></tr>
-<tr><td class="h"><a id="L949">949</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (defined $_original_usr1_handler)</td></tr>
-<tr><td class="h"><a id="L950">950</a></td><td class="c0">50</td><td class="c3">T</td><td class="c0">F</td><td class="s">if $^O ne &quot;MSWin32&quot;</td></tr>
+<tr><td class="h"><a id="L965">965</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (defined $_original_usr1_handler)</td></tr>
+<tr><td class="h"><a id="L966">966</a></td><td class="c0">50</td><td class="c3">T</td><td class="c0">F</td><td class="s">if $^O ne &quot;MSWin32&quot;</td></tr>
 </table>
 </body>
 </html>
