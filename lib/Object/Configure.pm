@@ -313,6 +313,8 @@ sub configure {
 	my $params = $_[1] || {};	# Contains the defaults, the run time config will overwrite them
 	my $array;
 
+	croak(__PACKAGE__, ': configure: what class do you want to configure?') if(!defined($class));
+
 	if(exists($params->{'logger'}) && (ref($params->{'logger'}) eq 'ARRAY')) {
 		$array = delete $params->{'logger'};
 	}
