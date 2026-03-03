@@ -490,7 +490,7 @@ sub configure {
 	if (my $logger = $params->{'logger'}) {
 		if ($params->{'logger'} ne 'NULL') {
 			if(ref($logger) eq 'HASH') {
-				if ($logger->{'syslog'}) {
+				if(exists $logger->{'syslog'}) {
 					$params->{'logger'} = Log::Abstraction->new({
 						carp_on_warn => $carp_on_warn,
 						syslog => $logger->{'syslog'},
