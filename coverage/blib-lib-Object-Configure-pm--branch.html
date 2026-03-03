@@ -50,7 +50,7 @@ https://pjcj.net
 <tr><td class="h"><a id="L491">491</a></td><td class="c0">50</td><td class="c3">T</td><td class="c0">F</td><td class="s">if ($params-&gt;{&#39;logger&#39;} ne &quot;NULL&quot;)</td></tr>
 <tr><td class="h"><a id="L492">492</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (ref $logger eq &#39;HASH&#39;) { }</td></tr>
 <tr><td class="h"></td><td class="c0">50</td><td class="c3">T</td><td class="c0">F</td><td class="s">elsif (not &amp;blessed($logger) &amp;&amp; $logger-&gt;isa(&#39;Log::Abstraction&#39;)) { }</td></tr>
-<tr><td class="h"><a id="L493">493</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if ($logger-&gt;{&#39;syslog&#39;}) { }</td></tr>
+<tr><td class="h"><a id="L493">493</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (exists $logger-&gt;{&#39;syslog&#39;}) { }</td></tr>
 <tr><td class="h"><a id="L522">522</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if ($array and not $params-&gt;{&#39;logger&#39;}{&#39;array&#39;})</td></tr>
 <tr><td class="h"><a id="L527">527</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if defined $config_file</td></tr>
 <tr><td class="h"><a id="L528">528</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if @config_files_to_load</td></tr>
