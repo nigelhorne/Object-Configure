@@ -1,10 +1,31 @@
 Revision history for Object::Configure - Runtime Configuration for an Object
 
 0.20
-	Sanity check that class is given to configure()
+
+	[Bug Fixes]
+	- Sanity check that class is given to configure()
+
+	- Automatically preserve coderefs and blessed objects passed to configure().
+	Config::Abstraction treats unknown scalar values as config file paths,
+	which corrupts coderef and object references. The configure() function
+	now automatically stashes these values before processing and restores
+	them afterward, eliminating the need for users to implement manual
+	stash-delete-restore patterns in their constructors. The logger
+	parameter continues to receive special handling for wrapping in
+	Log::Abstraction. Added comprehensive test suite (t/coderef.t) to
+	verify preservation of coderefs and blessed objects.
 
 0.19	Fri Dec 12 08:07:32 EST 2025
-	Enable reading from universal.yaml etc.
+
+	[Enhancement]
+	- Added UNIVERSAL configuration inheritance support.
+	All classes now automatically inherit from a universal.yml (or .conf,
+	.json, etc.) configuration file if present. This allows application-wide
+	defaults to be set once and inherited by all classes unless explicitly
+	overridden. Modified _walk_isa() to explicitly include UNIVERSAL in the
+	inheritance chain for classes with no explicit parents. Added test suite
+	(t/universal.t) to verify UNIVERSAL inheritance across multiple classes
+	and inheritance levels. Updated POD with UNIVERSAL CONFIGURATION section.
 
 0.18	Thu Dec 11 11:58:01 EST 2025
 	If a parent class hierachy can't be found, ensure we still load the given path/file

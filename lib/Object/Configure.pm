@@ -315,6 +315,23 @@ sub configure {
 
 	croak(__PACKAGE__, ': configure: what class do you want to configure?') if(!defined($class));
 
+	# Stash coderefs and blessed objects EXCEPT logger (which needs special handling)
+
+	# Config::Abstraction treats unknown scalar values as config file paths and will
+	# attempt to read them, which corrupts coderefs and object references.
+	# We must remove these from $params before calling configure(), then restore them
+	# afterward. The logger parameter has its own special handling below, so we skip it here.
+	# This automatic stashing means users don't need to implement the stash-delete-restore
+	# pattern in their own constructors.
+	my %stashed_values;
+	foreach my $key (keys %$params) {
+		next if $key eq 'logger';	# logger has its own special handling below
+		my $value = $params->{$key};
+		if(ref($value) eq 'CODE' || blessed($value)) {
+			$stashed_values{$key} = delete $params->{$key};
+		}
+	}
+
 	if(exists($params->{'logger'}) && (ref($params->{'logger'}) eq 'ARRAY')) {
 		$array = delete $params->{'logger'};
 	}
@@ -526,6 +543,9 @@ sub configure {
 	# Store config file path in params for hot reload
 	$params->{_config_file} = $config_file if(defined($config_file));
 	$params->{_config_files} = [map { $_->{file} } @config_files_to_load] if @config_files_to_load;
+
+	# Restore stashed coderefs and objects via hash slice
+	@{$params}{keys %stashed_values} = values %stashed_values if %stashed_values;
 
 	return Return::Set::set_return($params, { 'type' => 'hashref' });
 }
@@ -1006,7 +1026,7 @@ END {
 
 =item * L<Log::Abstraction>
 
-=item * Test coverage report: L<https://nigelhorne.github.io/Object-Configure/coverage/>
+=item * L<Test Dashboard|https://nigelhorne.github.io/Object-Cofigure/coverage/>
 
 =back
 
@@ -1024,23 +1044,13 @@ You can find documentation for this module with the perldoc command.
 
     perldoc Object::Configure
 
-=head1 LICENSE AND COPYRIGHT
+=head1 LICENCE AND COPYRIGHT
 
-Copyright 2025 Nigel Horne.
+Copyright 2026 Nigel Horne.
 
-Usage is subject to licence terms.
-
-The licence terms of this software are as follows:
-
-=over 4
-
-=item * Personal single user, single computer use: GPL2
-
-=item * All other users (including Commercial, Charity, Educational, Government)
-  must apply in writing for a licence for use from Nigel Horne at the
-  above e-mail.
-
-=back
+Usage is subject to GPL2 licence terms.
+If you use it,
+please let me know.
 
 =cut
 

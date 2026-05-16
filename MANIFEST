@@ -10,6 +10,7 @@ t/00-load.t
 t/10-compile.t
 t/20-construct.t
 t/30-basics.t
+t/coderef.t
 t/complex.t
 t/env.t
 t/eof.t

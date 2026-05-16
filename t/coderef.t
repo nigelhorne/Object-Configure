@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-use Test::Most tests => 24;
+use Test::Most tests => 23;
 use File::Temp qw(tempdir);
 use File::Spec;
 use Scalar::Util qw(blessed reftype);
@@ -21,7 +21,8 @@ Test__Class__WithCoderef:
 EOF
 close $fh;
 
-# Test class using the stash-delete-configure-restore pattern
+# Test class that relies on Object::Configure's automatic handling
+# (NO manual stash-delete-restore pattern needed)
 {
 	package Test::Class::WithCoderef;
 	use Object::Configure;
@@ -31,7 +32,29 @@ close $fh;
 		my $class = shift;
 		my %params = @_;
 		
-		# Stash keys with coderef or object values before configure()
+		# Simply pass everything to configure - it handles coderefs/objects automatically
+		my $self = Object::Configure::configure($class, {
+			config_file => 'test.yml',
+			config_dirs => [$temp_dir],
+			%params
+		});
+		
+		return bless $self, $class;
+	}
+}
+
+# Test class using old manual pattern (for backward compatibility test)
+{
+	package Test::Class::ManualPattern;
+	use Object::Configure;
+	use Scalar::Util qw(blessed);
+	use Carp;
+	
+	sub new {
+		my $class = shift;
+		my %params = @_;
+		
+		# Manual stash-delete-configure-restore pattern
 		my %stashed;
 		foreach my $key (qw(on_error on_success ctx logger_obj)) {
 			if(exists($params{$key})) {
@@ -55,26 +78,6 @@ close $fh;
 	}
 }
 
-# Test class that does NOT use the pattern (for comparison)
-{
-	package Test::Class::Broken;
-	use Object::Configure;
-	
-	sub new {
-		my $class = shift;
-		my %params = @_;
-		
-		# Directly pass coderef to configure() - will be corrupted
-		my $self = Object::Configure::configure($class, {
-			config_file => 'test.yml',
-			config_dirs => [$temp_dir],
-			%params
-		});
-		
-		return bless $self, $class;
-	}
-}
-
 # Mock logger object for testing
 {
 	package Mock::Logger;
@@ -90,7 +93,7 @@ close $fh;
 	}
 }
 
-# Test 1: Verify coderef is preserved with stash-delete-configure-restore pattern
+# Test 1: Verify coderef is preserved with automatic handling
 {
 	my $callback_called = 0;
 	my $on_error = sub {
@@ -159,19 +162,17 @@ close $fh;
 	is($obj->{logger_obj}{messages}[0], 'test message', 'Logger recorded message');
 }
 
-# Test 4: Verify the broken case (without stash-delete-configure-restore)
+# Test 4: Verify manual pattern still works (backward compatibility)
 {
 	my $callback_called = 0;
 	my $on_error = sub { $callback_called++ };
 	
-	my $obj = Test::Class::Broken->new(
+	my $obj = Test::Class::ManualPattern->new(
 		on_error => $on_error
 	);
 	
-	ok(defined $obj, 'Broken object created');
-	ok(exists($obj->{on_error}), 'on_error key exists in broken object');
-	
-	# The coderef will be corrupted - it's no longer a CODE ref
-	isnt(ref($obj->{on_error}), 'CODE', 
-		'Without stash-delete-restore, on_error is NOT a coderef (corrupted)');
+	ok(defined $obj, 'Manual pattern object created');
+	ok(exists($obj->{on_error}), 'on_error key exists with manual pattern');
+	is(ref($obj->{on_error}), 'CODE', 
+		'Manual stash-delete-restore pattern still works');
 }
