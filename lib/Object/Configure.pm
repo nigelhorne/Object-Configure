@@ -608,26 +608,27 @@ sub configure {
 
 	# Load the default logger
 	if (my $logger = $params->{'logger'}) {
-		if ($params->{'logger'} ne 'NULL') {
-			if(ref($logger) eq 'HASH') {
-				if(exists $logger->{'syslog'}) {
-					$params->{'logger'} = Log::Abstraction->new({
-						carp_on_warn => $carp_on_warn,
-						syslog => $logger->{'syslog'},
-						%{$logger}
-					});
-				} else {
-					$params->{'logger'} = Log::Abstraction->new({
-						carp_on_warn => $carp_on_warn,
-						%{$logger}
-					});
-				}
-			} elsif(!blessed($logger) || !$logger->isa('Log::Abstraction')) {
+		if($logger eq 'NULL') {
+			# Explicitly keep NULL - do not create a logger
+			# The logger param stays as the string 'NULL'
+		} elsif(ref($logger) eq 'HASH') {
+			if(exists $logger->{'syslog'}) {
 				$params->{'logger'} = Log::Abstraction->new({
 					carp_on_warn => $carp_on_warn,
-					logger => $logger
+					syslog => $logger->{'syslog'},
+					%{$logger}
+				});
+			} else {
+				$params->{'logger'} = Log::Abstraction->new({
+					carp_on_warn => $carp_on_warn,
+					%{$logger}
 				});
 			}
+		} elsif(!blessed($logger) || !$logger->isa('Log::Abstraction')) {
+			$params->{'logger'} = Log::Abstraction->new({
+				carp_on_warn => $carp_on_warn,
+				logger => $logger
+			});
 		}
 	} elsif ($array) {
 		$params->{'logger'} = Log::Abstraction->new(
@@ -637,6 +638,10 @@ sub configure {
 		undef $array;
 	} else {
 		$params->{'logger'} = Log::Abstraction->new(carp_on_warn => $carp_on_warn);
+	}
+
+	if ($array && !$params->{'logger'}->{'array'}) {
+		$params->{'logger'}->{'array'} = $array;
 	}
 
 	if ($array && !$params->{'logger'}->{'array'}) {
@@ -757,7 +762,7 @@ sub _deep_merge {
 	my ($base, $overlay) = @_;
 
 	return $overlay unless ref($base) eq 'HASH';
-	return $base unless ref($overlay) eq 'HASH';
+	return $overlay unless ref($overlay) eq 'HASH';
 
 	my $result = { %$base };
 

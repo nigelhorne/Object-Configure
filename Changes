@@ -10,14 +10,36 @@ Revision history for Object::Configure - Runtime Configuration for an Object
 	- Sanity check that class is given to configure()
 
 	- Automatically preserve coderefs and blessed objects passed to configure().
-	Config::Abstraction treats unknown scalar values as config file paths,
-	which corrupts coderef and object references. The configure() function
-	now automatically stashes these values before processing and restores
-	them afterward, eliminating the need for users to implement manual
-	stash-delete-restore patterns in their constructors. The logger
-	parameter continues to receive special handling for wrapping in
-	Log::Abstraction. Added comprehensive test suite (t/coderef.t) to
-	verify preservation of coderefs and blessed objects.
+		Config::Abstraction treats unknown scalar values as config file paths,
+		which corrupts coderef and object references. The configure() function
+		now automatically stashes these values before processing and restores
+		them afterward, eliminating the need for users to implement manual
+		stash-delete-restore patterns in their constructors. The logger
+		parameter continues to receive special handling for wrapping in
+		Log::Abstraction. Added comprehensive test suite (t/coderef.t) to
+		verify preservation of coderefs and blessed objects.
+
+	- Fixed _deep_merge() to correctly return overlay value when overlay is not a hash.
+		Previously returned base value instead of overlay, violating the principle
+		that overlay should always take precedence. Changed line to
+		'return $overlay unless ref($overlay) eq "HASH"'.
+
+	- Fixed logger='NULL' handling to prevent unwanted logger creation.
+		When logger parameter was set to 'NULL', code would skip wrapping but fall
+		through to else clause which created a default Log::Abstraction anyway.
+		Restructured logic to explicitly check for 'NULL' first and preserve it
+		without creating any logger. Also optimized to avoid dereferencing
+		$params->{'logger'} twice by using the already-assigned $logger variable.
+
+	- Comprehensive POD documentation updates for all public methods.
+		Added detailed documentation for configure(), instantiate(),
+		enable_hot_reload(), disable_hot_reload(), reload_config(),
+		register_object(), restore_signal_handlers(), and get_signal_handler_info().
+		Each method now includes Purpose, Arguments, Returns, Side Effects, Notes,
+		Usage Example, API Specification (Params::Validate::Strict compatible
+		input schema and Return::Set compatible output schema), and Formal
+		Specification (Z notation). Added comprehensive white-box test suite
+		(t/function.t) covering all public and private functions.
 
 0.19	Fri Dec 12 08:07:32 EST 2025
 
