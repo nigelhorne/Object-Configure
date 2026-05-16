@@ -261,6 +261,8 @@ Hot reload is not supported on Windows.
     my $count = Object::Configure::reload_config();
     print "Reloaded configuration for $count objects\n";
 
+=encoding utf8
+
 =head1 SUBROUTINES/METHODS
 
 =head2 configure
@@ -305,6 +307,107 @@ A L<Params::Validate::Strict> compatible schema to validate the configuration fi
 Returns a hash ref containing the new values for the constructor.
 
 Now you can set up a configuration file and environment variables to configure your object.
+
+=head3 API Specification
+
+=head4 Input
+
+    schema => {
+        class => {
+            type => 'string',
+            required => 1,
+            description => 'Fully-qualified class name'
+        },
+        params => {
+            type => 'hashref',
+            optional => 1,
+            default => {},
+            schema => {
+                config_file => {
+                    type => 'string',
+                    optional => 1,
+                    description => 'Configuration file basename'
+                },
+                config_dirs => {
+                    type => 'arrayref',
+                    optional => 1,
+                    description => 'Directories to search for config files'
+                },
+                logger => {
+                    type => [qw(hashref coderef object string arrayref)],
+                    optional => 1,
+                    description => 'Logger configuration or instance'
+                },
+                carp_on_warn => {
+                    type => 'boolean',
+                    optional => 1,
+                    default => 0,
+                    description => 'Use Carp::carp for warnings'
+                },
+                croak_on_error => {
+                    type => 'boolean',
+                    optional => 1,
+                    default => 1,
+                    description => 'Use Carp::croak for errors'
+                }
+            }
+        }
+    }
+
+=head4 Output
+
+    type => 'hashref',
+    description => 'Merged configuration parameters',
+    schema => {
+        logger => {
+            type => 'object',
+            isa => 'Log::Abstraction',
+            description => 'Initialized logger instance'
+        },
+        _config_file => {
+            type => 'string',
+            optional => 1,
+            description => 'Primary configuration file path'
+        },
+        _config_files => {
+            type => 'arrayref',
+            optional => 1,
+            description => 'All loaded configuration file paths'
+        }
+    }
+
+=head3 Formal Specification
+
+    configure: Class × Params → ConfigHash
+
+    Given:
+    - C: set of all class names
+    - P: set of all parameter hashes
+    - F: set of all file paths
+    - H: set of all configuration hashes
+
+    State:
+    - ConfigFiles: F → H (maps file paths to configuration content)
+    - EnvVars: String → String (environment variables)
+    - InheritanceChain: C → seq C (ordered sequence of ancestor classes)
+
+    Pre-condition:
+    ∀ class ∈ C, params ∈ P •
+        class ≠ ∅ ∧
+        (params.config_file ≠ ∅ ⇒
+            (∃ dir ∈ params.config_dirs • readable(dir/params.config_file)) ∨
+            readable(params.config_file))
+
+    Post-condition:
+    ∀ result ∈ H •
+        result = params ⊕
+                 (⊕ f ∈ InheritanceConfigFiles(class) • ConfigFiles(f)) ⊕
+                 (⊕ v ∈ RelevantEnvVars(class) • v) ∧
+        result.logger ∈ Log::Abstraction ∧
+        (∀ k ∈ dom params •
+            (params(k) ∈ CodeRef ∨ blessed(params(k))) ⇒ result(k) = params(k))
+
+    where ⊕ denotes hash merge with right-precedence
 
 =cut
 
@@ -672,8 +775,104 @@ sub _deep_merge {
 
 =head2 instantiate($class,...)
 
-Create and configure an object of the given class.
-This is a quick and dirty way of making third-party classes configurable at runtime.
+Create and configure an object of a third-party class without modifying the class itself.
+
+=head3 Purpose
+
+Provides a convenient way to make third-party classes (those you cannot modify) configurable
+at runtime using Object::Configure. This is a wrapper that calls C<configure> and then
+instantiates the class.
+
+=head3 Arguments
+
+Takes a hash or hashref with the following keys:
+
+=over 4
+
+=item * C<class> (Required)
+
+The fully-qualified class name to instantiate (e.g., C<'LWP::UserAgent'>).
+
+=item * Additional keys
+
+Any additional keys are passed through to C<configure> and then to the class constructor.
+
+=back
+
+=head3 Returns
+
+A blessed object of the specified class, configured according to the parameters and
+configuration files.
+
+=head3 Side Effects
+
+=over 4
+
+=item * Calls C<configure> (see its side effects)
+
+=item * Calls the C<new> method on the specified class
+
+=item * Registers the object for hot reload if a configuration file was used
+
+=back
+
+=head3 Notes
+
+The specified class must have a C<new> method that accepts a hashref of parameters.
+This is a "quick and dirty" way to add configuration support to classes you don't control.
+
+=head3 Usage Example
+
+    use Object::Configure;
+
+    # Configure LWP::UserAgent from a config file
+    my $ua = Object::Configure::instantiate(
+        class => 'LWP::UserAgent',
+        config_file => 'lwp.yml',
+        config_dirs => ['/etc/myapp'],
+        timeout => 30
+    );
+
+=head3 API Specification
+
+=head4 Input
+
+    schema => {
+        class => {
+            type => 'string',
+            required => 1,
+            description => 'Class name to instantiate',
+            can => 'new'
+        }
+    }
+
+=head4 Output
+
+    type => 'object',
+    description => 'Instance of the specified class'
+
+=head3 Formal Specification
+
+    instantiate: Params → Object
+
+    Given:
+    - P: set of all parameter hashes
+    - C: set of all class names
+    - O: set of all objects
+
+    Pre-condition:
+    ∀ params ∈ P •
+        params.class ∈ C ∧
+        params.class.can('new')
+
+    Post-condition:
+    ∀ result ∈ O •
+        ∃ config ∈ H •
+            config = configure(params.class, params) ∧
+            result = params.class.new(config) ∧
+            blessed(result) = params.class ∧
+            (config._config_file ≠ ∅ ⇒
+                result ∈ _object_registry(params.class))
 
 =cut
 
@@ -698,14 +897,133 @@ sub instantiate
 
 =head2 enable_hot_reload
 
-Enable hot reloading for configuration files.
+Enable automatic hot reloading of configuration files when they are modified.
 
+=head3 Purpose
+
+Starts a background process that monitors configuration files for changes and automatically
+reloads them into registered objects. This allows runtime configuration updates without
+restarting the application.
+
+=head3 Arguments
+
+Takes a hash with the following optional keys:
+
+=over 4
+
+=item * C<interval> (Optional, default: 10)
+
+Number of seconds between configuration file checks. Lower values provide faster
+response to changes but consume more CPU.
+
+=item * C<callback> (Optional)
+
+A coderef to execute after configuration files are reloaded. Useful for logging
+or triggering application-specific reload behavior.
+
+=back
+
+=head3 Returns
+
+The process ID (PID) of the background watcher process on success.
+Returns immediately if hot reload is already enabled.
+
+=head3 Side Effects
+
+=over 4
+
+=item * Forks a background process to monitor configuration files
+
+=item * The background process sends SIGUSR1 to the parent when changes are detected
+
+=item * Stores the watcher PID in C<%_config_watchers>
+
+=item * May throw an exception (via C<croak>) if the fork fails
+
+=back
+
+=head3 Notes
+
+Hot reload is not supported on Windows due to lack of SIGUSR1 signal support.
+The background process runs indefinitely until C<disable_hot_reload> is called.
+Objects must be registered via C<register_object> to receive configuration updates.
+
+=head3 Usage Example
+
+    use Object::Configure;
+
+    # Enable hot reload with 5-second check interval
     Object::Configure::enable_hot_reload(
-        interval => 5,  # Check every 5 seconds (default: 10)
-        callback => sub { print "Config reloaded!\n"; }  # Optional callback
+        interval => 5,
+        callback => sub {
+            my $timestamp = localtime;
+            print "[$timestamp] Configuration reloaded\n";
+        }
     );
 
+    # Application continues running...
+    while (1) {
+        # Do work...
+        sleep(1);
+    }
+
+=head3 API Specification
+
+=head4 Input
+
+    schema => {
+        interval => {
+            type => 'integer',
+            optional => 1,
+            default => 10,
+            min => 1,
+            description => 'Check interval in seconds'
+        },
+        callback => {
+            type => 'coderef',
+            optional => 1,
+            description => 'Code to execute after reload'
+        }
+    }
+
+=head4 Output
+
+    type => 'integer',
+    description => 'PID of background watcher process',
+    condition => 'value > 0'
+
+=head3 Formal Specification
+
+    enable_hot_reload: Interval × Callback → PID
+
+    Given:
+    - I: set of positive integers (intervals in seconds)
+    - CB: set of code references
+    - PID: set of process identifiers
+
+    State:
+    - _config_watchers: {pid: PID, callback: CB}
+    - _config_file_stats: F → Stat
+
+    Pre-condition:
+    ∀ interval ∈ I, callback ∈ CB ∪ {∅} •
+        interval ≥ 1 ∧
+        _config_watchers = ∅ ∧
+        OS ≠ 'MSWin32'
+
+    Post-condition:
+    ∀ result ∈ PID •
+        result > 0 ∧
+        _config_watchers.pid = result ∧
+        _config_watchers.callback = callback ∧
+        (∀ t ∈ Time •
+            (t mod interval = 0) ⇒
+                (∃ f ∈ dom _config_file_stats •
+                    mtime(f) > _config_file_stats(f).mtime ⇒
+                        send_signal(SIGUSR1, parent_process)))
+
 =cut
+
 
 sub enable_hot_reload {
 	my %params = @_;
@@ -733,11 +1051,78 @@ sub enable_hot_reload {
 
 =head2 disable_hot_reload
 
-Disable hot reloading and stop the background watcher.
+Disable hot reloading and terminate the background watcher process.
 
+=head3 Purpose
+
+Cleanly shuts down the hot reload system by terminating the background watcher
+process and clearing internal state.
+
+=head3 Arguments
+
+None.
+
+=head3 Returns
+
+Nothing.
+
+=head3 Side Effects
+
+=over 4
+
+=item * Sends SIGTERM to the background watcher process
+
+=item * Waits for the watcher process to terminate
+
+=item * Clears C<%_config_watchers> state
+
+=back
+
+=head3 Notes
+
+Safe to call even if hot reload is not currently enabled.
+The function blocks until the watcher process has fully terminated.
+
+=head3 Usage Example
+
+    use Object::Configure;
+
+    # Enable hot reload
+    Object::Configure::enable_hot_reload(interval => 5);
+
+    # ... application runs ...
+
+    # Clean shutdown
     Object::Configure::disable_hot_reload();
 
+=head3 API Specification
+
+=head4 Input
+
+    schema => {}
+
+=head4 Output
+
+    type => 'void'
+
+=head3 Formal Specification
+
+    disable_hot_reload: () → ()
+
+    State:
+    - _config_watchers: {pid: PID, callback: CB}
+
+    Pre-condition:
+    true
+
+    Post-condition:
+    _config_watchers = ∅ ∧
+    (∀ p ∈ PID •
+        p = _config_watchers.pid@pre ⇒
+            ¬alive(p))
+
 =cut
+
 
 sub disable_hot_reload {
 	if (my $pid = $_config_watchers{pid}) {
@@ -749,11 +1134,95 @@ sub disable_hot_reload {
 
 =head2 reload_config
 
-Manually trigger a configuration reload for all registered objects.
+Manually trigger configuration reload for all registered objects.
 
-    Object::Configure::reload_config();
+=head3 Purpose
+
+Forces an immediate reload of configuration from files for all objects that have been
+registered for hot reload. This is useful for testing or forcing a reload without
+waiting for the automatic file monitoring to detect changes.
+
+=head3 Arguments
+
+None.
+
+=head3 Returns
+
+An integer count of how many objects had their configuration successfully reloaded.
+
+=head3 Side Effects
+
+=over 4
+
+=item * Reads configuration files from disk
+
+=item * Updates object properties with new configuration values
+
+=item * Calls C<_on_config_reload> hook on objects that implement it
+
+=item * Cleans up dead weak references from C<%_object_registry>
+
+=item * May emit warnings if configuration reload fails for any object
+
+=back
+
+=head3 Notes
+
+Only objects registered via C<register_object> are reloaded.
+Objects are updated in-place; their identity does not change.
+Private properties (those starting with C<_>) are not updated during reload.
+
+=head3 Usage Example
+
+    use Object::Configure;
+
+    # Create and register objects
+    my $obj = My::Module->new(config_file => 'app.yml');
+
+    # Manually edit app.yml...
+
+    # Force immediate reload
+    my $count = Object::Configure::reload_config();
+    print "Reloaded configuration for $count objects\n";
+
+=head3 API Specification
+
+=head4 Input
+
+    schema => {}
+
+=head4 Output
+
+    type => 'integer',
+    description => 'Number of objects successfully reloaded',
+    condition => 'value >= 0'
+
+=head3 Formal Specification
+
+    reload_config: () → ℕ
+
+    State:
+    - _object_registry: C → seq ObjectRef
+    - ConfigFiles: F → H
+
+    Pre-condition:
+    true
+
+    Post-condition:
+    ∀ result ∈ ℕ •
+        result = |{obj ∈ flatten(ran _object_registry) |
+                   obj ≠ ∅ ∧
+                   obj._config_file ∈ dom ConfigFiles}| ∧
+        (∀ obj ∈ flatten(ran _object_registry) •
+            obj ≠ ∅ ∧ obj._config_file ∈ dom ConfigFiles ⇒
+                (∀ k ∈ dom ConfigFiles(obj._config_file) •
+                    k ∉ PrivateKeys ⇒
+                        obj(k)@post = ConfigFiles(obj._config_file)(k)))
+
+    where PrivateKeys = {k | k starts with '_'}
 
 =cut
+
 
 sub reload_config {
 	my $reloaded_count = 0;
@@ -909,26 +1378,118 @@ sub _reconfigure_logger
 
 Register an object for hot reload monitoring.
 
-    Object::Configure::register_object($class, $obj);
+=head3 Purpose
 
-This is automatically called by the configure() function when a config file is used,
-but can also be called manually to register objects for hot reload.
+Adds an object to the hot reload registry so it will receive automatic configuration
+updates when files change. Uses weak references to prevent memory leaks.
 
-=head3 Parameters
+=head3 Arguments
 
 =over 4
 
 =item * C<class> (Required)
 
-The class of the object, used for the configuration name.
+The class name of the object, used for organizing the registry.
 
 =item * C<obj> (Required)
 
-The object to be configured
+The object instance to register. Must be a blessed reference.
 
 =back
 
+=head3 Returns
+
+Nothing.
+
+=head3 Side Effects
+
+=over 4
+
+=item * Adds a weak reference to the object in C<%_object_registry>
+
+=item * Sets up SIGUSR1 signal handler on first call (Unix-like systems only)
+
+=item * Stores the original SIGUSR1 handler for later restoration
+
+=back
+
+=head3 Notes
+
+Objects are stored using weak references, so they will be automatically
+garbage collected when no other references exist.
+The SIGUSR1 handler chains to any existing handler that was installed.
+On Windows, the signal handler is not installed (SIGUSR1 does not exist).
+
+=head3 Usage Example
+
+    package My::Module;
+    use Object::Configure;
+
+    sub new {
+        my $class = shift;
+        my $params = Object::Configure::configure($class, {
+            config_file => 'mymodule.yml',
+        });
+        my $self = bless $params, $class;
+
+        # Register for hot reload
+        Object::Configure::register_object($class, $self)
+            if $params->{_config_file};
+
+        return $self;
+    }
+
+=head3 API Specification
+
+=head4 Input
+
+    schema => {
+        class => {
+            type => 'string',
+            required => 1,
+            description => 'Class name for registry organization'
+        },
+        obj => {
+            type => 'object',
+            required => 1,
+            description => 'Blessed object instance to register'
+        }
+    }
+
+=head4 Output
+
+    type => 'void'
+
+=head3 Formal Specification
+
+    register_object: C × O → ()
+
+    Given:
+    - C: set of class names
+    - O: set of blessed objects
+    - OR: C → seq WeakRef(O) (object registry)
+
+    State:
+    - _object_registry: OR
+    - _original_usr1_handler: SignalHandler ∪ {∅}
+    - $SIG{USR1}: SignalHandler
+
+    Pre-condition:
+    ∀ class ∈ C, obj ∈ O •
+        class ≠ ∅ ∧
+        obj ≠ ∅ ∧
+        blessed(obj) ≠ ∅
+
+    Post-condition:
+    ∀ class ∈ C, obj ∈ O •
+        ∃ ref ∈ _object_registry(class) •
+            weak(ref) = obj ∧
+        (_original_usr1_handler = ∅@pre ⇒
+            (_original_usr1_handler@post = $SIG{USR1}@pre ∧
+             $SIG{USR1}@post = reload_config_handler))
+
 =cut
+
 
 sub register_object {
 	my ($class, $obj) = @_;
@@ -976,9 +1537,70 @@ sub register_object {
 =head2 restore_signal_handlers
 
 Restore original signal handlers and disable hot reload integration.
-Useful when you want to cleanly shut down the hot reload system.
 
+=head3 Purpose
+
+Restores the signal handler that was in place before Object::Configure installed
+its SIGUSR1 handler. This is useful for clean shutdown or when transferring
+control to another hot reload system.
+
+=head3 Arguments
+
+None.
+
+=head3 Returns
+
+Nothing.
+
+=head3 Side Effects
+
+=over 4
+
+=item * Restores C<$SIG{USR1}> to its original value
+
+=item * Clears C<$_original_usr1_handler> internal state
+
+=back
+
+=head3 Notes
+
+Safe to call even if Object::Configure never installed a signal handler.
+On Windows, this function has no effect (SIGUSR1 does not exist).
+
+=head3 Usage Example
+
+    use Object::Configure;
+
+    # Objects are registered...
+
+    # Clean shutdown
+    Object::Configure::disable_hot_reload();
     Object::Configure::restore_signal_handlers();
+
+=head3 API Specification
+
+=head4 Input
+
+    schema => {}
+
+=head4 Output
+
+    type => 'void'
+
+=head3 Formal Specification
+
+    restore_signal_handlers: () → ()
+
+    State:
+    - _original_usr1_handler: SignalHandler ∪ {∅}
+    - $SIG{USR1}: SignalHandler
+
+    Pre-condition:
+    true
+
+    Post-condition:
+    $SIG{USR1}@post = _original_usr1_handler@pre ∧
+    _original_usr1_handler@post = ∅
 
 =cut
 
@@ -992,12 +1614,115 @@ sub restore_signal_handlers
 
 =head2 get_signal_handler_info
 
-Get information about the current signal handler setup.
-Useful for debugging signal handler chains.
+Get information about the current signal handler setup for debugging.
+
+=head3 Purpose
+
+Returns diagnostic information about the signal handler state, useful for
+debugging signal handler chains or verifying hot reload configuration.
+
+=head3 Arguments
+
+None.
+
+=head3 Returns
+
+A hashref containing the following keys:
+
+=over 4
+
+=item * C<original_usr1>
+
+The signal handler that was installed before Object::Configure's handler,
+or undef if no handler was present.
+
+=item * C<current_usr1>
+
+The currently installed SIGUSR1 handler.
+
+=item * C<hot_reload_active>
+
+Boolean indicating whether Object::Configure's hot reload handler is active.
+
+=item * C<watcher_pid>
+
+The PID of the background watcher process, or undef if not running.
+
+=back
+
+=head3 Side Effects
+
+None.
+
+=head3 Notes
+
+This is primarily a debugging aid and is not needed for normal operation.
+
+=head3 Usage Example
+
+    use Object::Configure;
+    use Data::Dumper;
+
+    Object::Configure::enable_hot_reload();
 
     my $info = Object::Configure::get_signal_handler_info();
-    print "Original USR1 handler: ", $info->{original_usr1} || 'none', "\n";
-    print "Hot reload active: ", $info->{hot_reload_active} ? 'yes' : 'no', "\n";
+    print Dumper($info);
+    # $VAR1 = {
+    #     'original_usr1' => 'DEFAULT',
+    #     'current_usr1' => CODE(0x...),
+    #     'hot_reload_active' => 1,
+    #     'watcher_pid' => 12345
+    # };
+
+=head3 API Specification
+
+=head4 Input
+
+    schema => {}
+
+=head4 Output
+
+    type => 'hashref',
+    schema => {
+        original_usr1 => {
+            type => [qw(coderef string undef)],
+            description => 'Original SIGUSR1 handler'
+        },
+        current_usr1 => {
+            type => [qw(coderef string undef)],
+            description => 'Current SIGUSR1 handler'
+        },
+        hot_reload_active => {
+            type => 'boolean',
+            description => 'Whether hot reload is active'
+        },
+        watcher_pid => {
+            type => [qw(integer undef)],
+            description => 'Background watcher process PID'
+        }
+    }
+
+=head3 Formal Specification
+
+    get_signal_handler_info: () → InfoHash
+
+    Given:
+    - IH: set of all info hashes
+
+    State:
+    - _original_usr1_handler: SignalHandler ∪ {∅}
+    - $SIG{USR1}: SignalHandler ∪ {∅}
+    - _config_watchers: {pid: PID, callback: CB}
+
+    Pre-condition:
+    true
+
+    Post-condition:
+    ∀ result ∈ IH •
+        result.original_usr1 = _original_usr1_handler ∧
+        result.current_usr1 = $SIG{USR1} ∧
+        result.hot_reload_active = (_original_usr1_handler ≠ ∅) ∧
+        result.watcher_pid = _config_watchers.pid
 
 =cut
 
@@ -1046,7 +1771,7 @@ You can find documentation for this module with the perldoc command.
 
 =head1 LICENCE AND COPYRIGHT
 
-Copyright 2026 Nigel Horne.
+Copyright 2025-2026 Nigel Horne.
 
 Usage is subject to GPL2 licence terms.
 If you use it,

@@ -2,6 +2,10 @@ Revision history for Object::Configure - Runtime Configuration for an Object
 
 0.20
 
+	[Enhancement]
+
+	- Improve the method documentation
+
 	[Bug Fixes]
 	- Sanity check that class is given to configure()
 
