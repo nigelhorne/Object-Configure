@@ -39,7 +39,7 @@
 		td.positive { color: green; font-weight: bold; }
 		td.negative { color: red; font-weight: bold; }
 		td.neutral { color: gray; }
-		// Show cursor points on the headers to show that they are clickable
+		/* Show cursor points on the headers to show that they are clickable */
 		th { background-color: #f2f2f2; cursor: pointer; }
 		th.sortable {
 			cursor: pointer;
@@ -58,6 +58,75 @@
 			display: inline-block;
 			vertical-align: middle;
 		}
+		tr.cpan-fail td {
+			background-color: #fdd;
+		}
+		tr.cpan-unknown td {
+			background-color: #eee;
+			color: #666;
+		}
+		tr.cpan-na td {
+			background-color: #ffffde;
+			color: #666;
+		}
+		.new-failure {
+			background: #c00;
+			color: #fff;
+			font-weight: bold;
+			padding: 2px 6px;
+			border-radius: 4px;
+			font-size: 0.85em;
+		}
+		.notice {
+			padding: 8px 12px;
+			margin: 10px 0;
+			border-radius: 4px;
+			font-size: 0.95em;
+		}
+		.notice strong {
+			font-weight: bold;
+		}
+		.notice.perl-version-cliff {
+			background-color: #fff3cd; /* soft amber */
+			border: 1px solid #ffeeba;
+			color: #856404;
+		}
+		.notice.perl-version-cliff a {
+			color: #533f03;
+			text-decoration: underline;
+		}
+		.notice.perl-version-cliff a:hover {
+			text-decoration: none;
+		}
+		.notice.locale-cliff {
+			border-left: 4px solid #d97706;
+			background: #fffbeb;
+			padding: 0.5em 1em;
+		}
+		.notice.rt-issues {
+			background: #fff6e5;
+			border-left: 4px solid #d9822b;
+		}
+		table.root-causes {
+			border-collapse: collapse;
+			width: 100%;
+			margin-bottom: 1.5em;
+		}
+		table.root-causes th,
+		table.root-causes td {
+			border: 1px solid #ccc;
+			padding: 8px;
+			vertical-align: top;
+		}
+		table.root-causes tr.high {
+			background-color: #dfd;
+		}
+		table.root-causes tr.med {
+			background-color: #ffd;
+		}
+		table.root-causes tr.low {
+			background-color: #fdd;
+		}
 	</style>
 </head>
 <body>
@@ -65,31 +134,28 @@
 	<a href="https://github.com/nigelhorne/Object-Configure">
 		<img src="https://img.shields.io/github/stars/nigelhorne/Object-Configure?style=social" alt="GitHub stars">
 	</a>
-	<img src="https://img.shields.io/badge/coverage-80%25-yellow" alt="Coverage badge">
+	<img src="https://img.shields.io/badge/coverage-84%25-yellow" alt="Coverage badge">
 </div>
 <h1>Object::Configure</h1><h2>Coverage Report</h2>
 <table data-sort-col="0" data-sort-order="asc">
 <!-- Make the column headers clickable -->
 <thead>
 <tr>
-	<th class="sortable" onclick="sortTable(0)"><span class="label">File</span> <span class="arrow active">&#x25B2;</span></th>
-	<th class="sortable" onclick="sortTable(1)"><span class="label">Stmt</span> <span class="arrow">&#x25B2;</span></th>
-	<th class="sortable" onclick="sortTable(2)"><span class="label">Branch</span> <span class="arrow">&#x25B2;</span></th>
-	<th class="sortable" onclick="sortTable(3)"><span class="label">Cond</span> <span class="arrow">&#x25B2;</span></th>
-	<th class="sortable" onclick="sortTable(4)"><span class="label">Sub</span> <span class="arrow">&#x25B2;</span></th>
-	<th class="sortable" onclick="sortTable(5)"><span class="label">Total</span> <span class="arrow">&#x25B2;</span></th>
-	<th class="sortable" onclick="sortTable(6)"><span class="label">&Delta;</span> <span class="arrow">&#x25B2;</span></th>
+	<th class="sortable" onclick="sortTable(this, 0)"><span class="label">File</span> <span class="arrow active">&#x25B2;</span></th>
+	<th class="sortable" onclick="sortTable(this, 1)"><span class="label">Stmt</span> <span class="arrow">&#x25B2;</span></th>
+	<th class="sortable" onclick="sortTable(this, 2)"><span class="label">Branch</span> <span class="arrow">&#x25B2;</span></th>
+	<th class="sortable" onclick="sortTable(this, 3)"><span class="label">Cond</span> <span class="arrow">&#x25B2;</span></th>
+	<th class="sortable" onclick="sortTable(this, 4)"><span class="label">Sub</span> <span class="arrow">&#x25B2;</span></th>
+	<th class="sortable" onclick="sortTable(this, 5)"><span class="label">Total</span> <span class="arrow">&#x25B2;</span></th>
+	<th class="sortable" onclick="sortTable(this, 6)"><span class="label">&Delta;</span> <span class="arrow">&#x25B2;</span></th>
 </tr>
 </thead>
 
 <tbody>
 
-<tr class="med"><td><a href="blib-lib-Object-Configure-pm.html" title="View coverage line by line" target="_blank">blib/lib/Object/Configure.pm</a> <a href="https://github.com/nigelhorne/Object-Configure/blob/de4cf2c4b005d76f6f1c063d170dc0f32b570845/blib/lib/Object/Configure.pm" class="icon-link" title="View source on GitHub">&#128269;</a><canvas class="sparkline" width="80" height="20" data-points="79.6,42.5,42.2,77.6,79.6,42.5,80.2,77.5,77.2,77.5,77.5,77.5,77.4,77.4,77.4,77.4,77.4,77.4,77.4,77.4,80.3,78.6,80.3,80.3,75.6,80.3,80.3,80.3,79.1,79.1,80.9,80.9,80.6,80.5"></canvas></td><td>92.0</td><td>65.9</td><td>59.5</td><td>96.9</td><td><span class="coverage-badge badge-warn" title="Moderate coverage">80.5%</span></td><td class="neutral" title="Previous: 80.5%">&#9679; 0.0%</td></tr>
-
-<tr class="summary-row nosort"><td colspan="2"><strong>Summary</strong></td><td colspan="2">1 files</td><td colspan="3">Avg: 80%, Low: 0</td></tr>
-
-<tr class="high nosort"><td><strong>Total</strong></td><td>92.0</td><td>65.9</td><td>59.5</td><td>96.9</td><td colspan="2"><strong>80.5</strong></td></tr>
-
+<tr class="med"><td><a href="blib-lib-Object-Configure-pm.html" title="View coverage line by line" target="_blank">lib/Object/Configure.pm</a> <a href="https://github.com/nigelhorne/Object-Configure/blob/f37ea1ad93497aa8d668925d27eb706cba70398e/lib/Object/Configure.pm" class="icon-link" title="View source on GitHub">&#128269;</a><canvas class="sparkline" width="80" height="20" data-points="80.3,80.3,80.3,79.1,79.1,80.9,80.9,80.6,80.5,80.5"></canvas></td><td>94.7</td><td>75.3</td><td>63.5</td><td>96.9</td><td><span class="coverage-badge badge-warn" title="Moderate coverage">84.9%</span></td><td class="neutral" title="Previous (sparkline): 80.5%">&#9679; 0.0%</td></tr>
+<tr class="summary-row nosort"><td colspan="2"><strong>Summary</strong></td><td colspan="2">1 files</td><td colspan="3">Avg: 84%, Low: 0</td></tr>
+<tr class="high nosort"><td><strong>Total</strong></td><td>94.7</td><td>75.3</td><td>63.5</td><td>96.9</td><td colspan="2"><strong>84.9</strong></td></tr>
 </tbody></table>
 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1em;">
 	<div>
@@ -106,12 +172,11 @@
 		<button id="resetZoomBtn" type="button">Reset Zoom</button>
 	</div>
 </div>
-
 <canvas id="coverageTrend" width="600" height="300"></canvas>
 <!-- Zoom controls for the trend chart -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <!-- Add chartjs-plugin-zoom (required for wheel/pinch/drag zoom & pan) -->
-<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.1.1/dist/chartjs-plugin-zoom.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom\@2.1.1/dist/chartjs-plugin-zoom.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
 <script>
 function linearRegression(data) {
@@ -124,6 +189,9 @@ function linearRegression(data) {
 	const sumXY = xs.reduce((acc, val, i) => acc + val * ys[i], 0);
 	const sumX2 = xs.reduce((acc, val) => acc + val * val, 0);
 
+	if(n < 2 || (n * sumX2 - sumX * sumX) === 0) {
+		return [];
+	}
 	const slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
 	const intercept = (sumY - slope * sumX) / n;
 
@@ -133,24 +201,24 @@ function linearRegression(data) {
 	}));
 }
 
-const dataPoints = [ { x: "2025-12-06T09:14:44-05:00", y: 80.2788844621514, delta: 0, url: "https://github.com/nigelhorne/Object-Configure/commit/2d68b4f", label: "2025-12-06T09:14:44-05:00", pointBackgroundColor: "gray", comment: "Added t/inheritance.t" },
-{ x: "2025-12-06T09:58:10-05:00", y: 80.2788844621514, delta: 0.0, url: "https://github.com/nigelhorne/Object-Configure/commit/3e0e15b", label: "2025-12-06T09:58:10-05:00", pointBackgroundColor: "gray", comment: "Add note clarifying that an when config_dir isn't passed, there's no inheritance" },
-{ x: "2025-12-06T21:03:02-05:00", y: 80.2788844621514, delta: 0.0, url: "https://github.com/nigelhorne/Object-Configure/commit/cb3f799", label: "2025-12-06T21:03:02-05:00", pointBackgroundColor: "gray", comment: "Don't assume English - fixes https://www.cpantesters.org/cpan/report/b1624b76-ad2b-11f0-852b-311a6e8775ea" },
-{ x: "2025-12-06T21:32:32-05:00", y: 80.2788844621514, delta: 0.0, url: "https://github.com/nigelhorne/Object-Configure/commit/46be4cb", label: "2025-12-06T21:32:32-05:00", pointBackgroundColor: "gray", comment: "Release 0.17" },
-{ x: "2025-12-08T16:40:50-05:00", y: 80.2788844621514, delta: 0.0, url: "https://github.com/nigelhorne/Object-Configure/commit/14d17ee", label: "2025-12-08T16:40:50-05:00", pointBackgroundColor: "gray", comment: "One TODO test can be run now" },
-{ x: "2025-12-11T11:34:31-05:00", y: 79.0697674418605, delta: -1.2, url: "https://github.com/nigelhorne/Object-Configure/commit/3353de6", label: "2025-12-11T11:34:31-05:00", pointBackgroundColor: "red", comment: "If a parent class hierachy can't be found, ensure we still load the given path/file" },
-{ x: "2025-12-11T11:59:50-05:00", y: 79.0697674418605, delta: 0.0, url: "https://github.com/nigelhorne/Object-Configure/commit/a34b11d", label: "2025-12-11T11:59:50-05:00", pointBackgroundColor: "gray", comment: "Release 0.18" },
-{ x: "2025-12-12T08:07:54-05:00", y: 80.9338521400778, delta: 1.9, url: "https://github.com/nigelhorne/Object-Configure/commit/d1bf503", label: "2025-12-12T08:07:54-05:00", pointBackgroundColor: "green", comment: "Release 0.19" },
-{ x: "2026-01-16T17:10:03-05:00", y: 80.5769230769231, delta: -0.4, url: "https://github.com/nigelhorne/Object-Configure/commit/79ab4a3", label: "2026-01-16T17:10:03-05:00", pointBackgroundColor: "red", comment: "Fix code signature" },
-{ x: "2026-01-23T11:56:06-05:00", y: 80.4971319311664, delta: -0.1, url: "https://github.com/nigelhorne/Object-Configure/commit/1fceb50", label: "2026-01-23T11:56:06-05:00", pointBackgroundColor: "red", comment: "Sanity check that class is given to configure()" } ];
 
+const dataPoints = [ { x: "2025-12-06T09:58:10-05:00", y: 80.2788844621514, delta: 0, url: "https://github.com/nigelhorne/Object-Configure/commit/3e0e15be442a627b2e6527bf443bd1c7f6697110", label: "2025-12-06T09:58:10-05:00", pointBackgroundColor: "gray", comment: "Add note clarifying that an when config_dir isn't passed, there's no inheritance" },
+{ x: "2025-12-06T21:03:02-05:00", y: 80.2788844621514, delta: 0.0, url: "https://github.com/nigelhorne/Object-Configure/commit/cb3f7993eaa1ce110452a5d5e1fe06dc985b60e0", label: "2025-12-06T21:03:02-05:00", pointBackgroundColor: "gray", comment: "Don't assume English - fixes https://www.cpantesters.org/cpan/report/b1624b76-ad2b-11f0-852b-311a6e8775ea" },
+{ x: "2025-12-06T21:32:32-05:00", y: 80.2788844621514, delta: 0.0, url: "https://github.com/nigelhorne/Object-Configure/commit/46be4cbb173fc5c3460a0546b66005bbd54c90a5", label: "2025-12-06T21:32:32-05:00", pointBackgroundColor: "gray", comment: "Release 0.17" },
+{ x: "2025-12-08T16:40:50-05:00", y: 80.2788844621514, delta: 0.0, url: "https://github.com/nigelhorne/Object-Configure/commit/14d17eec7159292e1a8e5e8ca93848279a5baf72", label: "2025-12-08T16:40:50-05:00", pointBackgroundColor: "gray", comment: "One TODO test can be run now" },
+{ x: "2025-12-11T11:34:31-05:00", y: 79.0697674418605, delta: -1.2, url: "https://github.com/nigelhorne/Object-Configure/commit/3353de6553cbe97402601b7e29cf45afc08cd6d6", label: "2025-12-11T11:34:31-05:00", pointBackgroundColor: "red", comment: "If a parent class hierachy can't be found, ensure we still load the given path/file" },
+{ x: "2025-12-11T11:59:50-05:00", y: 79.0697674418605, delta: 0.0, url: "https://github.com/nigelhorne/Object-Configure/commit/a34b11d310c84d1b3a8b682f06d939f991341a37", label: "2025-12-11T11:59:50-05:00", pointBackgroundColor: "gray", comment: "Release 0.18" },
+{ x: "2025-12-12T08:07:54-05:00", y: 80.9338521400778, delta: 1.9, url: "https://github.com/nigelhorne/Object-Configure/commit/d1bf503a241f72a4f4a3ad16a555d632427f1359", label: "2025-12-12T08:07:54-05:00", pointBackgroundColor: "green", comment: "Release 0.19" },
+{ x: "2026-01-16T17:10:03-05:00", y: 80.5769230769231, delta: -0.4, url: "https://github.com/nigelhorne/Object-Configure/commit/79ab4a36d23da23a0f3431267f8a342ba155d0d2", label: "2026-01-16T17:10:03-05:00", pointBackgroundColor: "red", comment: "Fix code signature" },
+{ x: "2026-01-23T11:56:06-05:00", y: 80.4971319311664, delta: -0.1, url: "https://github.com/nigelhorne/Object-Configure/commit/1fceb506c87e70d1cd7dba8a464d5b49271ff173", label: "2026-01-23T11:56:06-05:00", pointBackgroundColor: "red", comment: "Sanity check that class is given to configure()" },
+{ x: "2026-03-03T09:33:13-05:00", y: 80.4971319311664, delta: 0.0, url: "https://github.com/nigelhorne/Object-Configure/commit/de4cf2c4b005d76f6f1c063d170dc0f32b570845", label: "2026-03-03T09:33:13-05:00", pointBackgroundColor: "gray", comment: "Better test" } ];
 const regressionPoints = linearRegression(dataPoints);
 // Try to register the zoom plugin (handles different UMD builds)
 (function registerZoomPlugin(){
 	try {
 		const candidates = ['chartjsPluginZoom','ChartZoom','zoomPlugin','chartjs_plugin_zoom','ChartjsPluginZoom','chartjsPluginZoom'];
-		for (const name of candidates) {
-			if (window[name]) {
+		for(const name of candidates) {
+			if(window[name]) {
 				try { Chart.register(window[name]); console.log('Registered zoom plugin:', name); return; } catch(e) { console.warn('zoom register failed for', name, e); }
 			}
 		}
@@ -235,7 +303,7 @@ const chart = new Chart(ctx, {
 			}
 		}, onClick: (e) => {
 			const points = chart.getElementsAtEventForMode(e, 'nearest', { intersect: true }, true);
-			if (points.length) {
+			if(points.length) {
 				const url = chart.data.datasets[0].data[points[0].index].url;
 				window.open(url, '_blank');
 			}
@@ -252,10 +320,10 @@ document.getElementById('toggleTrend').addEventListener('change', function(e) {
 
 // Reset Zoom button handler (calls plugin API if available)
 const resetBtn = document.getElementById('resetZoomBtn');
-if (resetBtn) {
+if(resetBtn) {
 	resetBtn.addEventListener('click', function() {
 		try {
-			if (chart && typeof chart.resetZoom === 'function') {
+			if(chart && typeof chart.resetZoom === 'function') {
 				chart.resetZoom();
 			} else {
 				console.warn('resetZoom not available; zoom plugin may not be registered.');
@@ -266,81 +334,74 @@ if (resetBtn) {
 	});
 }
 
-function sortTable(n) {
-	const table = document.querySelector("table");
-	if (!table || !table.tBodies || !table.tBodies[0]) return;
+function sortTable(th, colIndex) {
+	const table = th.closest("table");
+	if(!table || !table.tBodies.length) return;
 
-	// All rows in tbody
-	const allBodyRows = Array.from(table.tBodies[0].rows);
+	const tbody = table.tBodies[0];
+	const rows = Array.from(tbody.rows);
 
-	// Separate normal (sortable) rows and fixed (nosort) rows.
-	const normalRows = allBodyRows.filter(r => !r.classList.contains("nosort"));
-	const fixedRows = allBodyRows.filter(r => r.classList.contains("nosort"));
-
-	// Decide numeric vs text column (column 0 = File => text)
-	const isNumeric = n > 0;
-
-	// Determine ascending/descending toggle logic
 	const prevCol = table.getAttribute("data-sort-col");
 	const prevOrder = table.getAttribute("data-sort-order") || "desc";
-	const asc = (prevCol != n) ? true : (prevOrder === "desc");
+	const asc = (prevCol != colIndex) ? true : (prevOrder === "desc");
+
+	const isNumeric = colIndex === 0; // Date column
+
+	const normalRows = rows.filter(r => !r.classList.contains("nosort"));
+	const fixedRows = rows.filter(r => r.classList.contains("nosort"));
 
 	normalRows.sort((a, b) => {
-		let x = (a.cells[n] && a.cells[n].innerText) ? a.cells[n].innerText.trim() : "";
-		let y = (b.cells[n] && b.cells[n].innerText) ? b.cells[n].innerText.trim() : "";
+		let x = a.cells[colIndex]?.innerText.trim() || "";
+		let y = b.cells[colIndex]?.innerText.trim() || "";
 
-		if (isNumeric) {
-			// Remove non-number characters (arrows, percent signs, bullets, etc.)
-			x = parseFloat(x.replace(/[^0-9.\-+eE]/g, '')) || 0;
-			y = parseFloat(y.replace(/[^0-9.\-+eE]/g, '')) || 0;
+		if(isNumeric) {
+			x = Date.parse(x) || 0;
+			y = Date.parse(y) || 0;
 		} else {
-			// Text compare (case-insensitive)
 			x = x.toLowerCase();
 			y = y.toLowerCase();
 		}
 
-		if (x < y) return asc ? -1 : 1;
-		if (x > y) return asc ? 1 : -1;
+		if(x < y) return asc ? -1 : 1;
+		if(x > y) return asc ? 1 : -1;
 		return 0;
 	});
 
-	// Reattach rows: sorted normalRows first, then fixedRows (keeps summary/total last)
-	normalRows.forEach(r => table.tBodies[0].appendChild(r));
-	fixedRows.forEach(r => table.tBodies[0].appendChild(r));
+	normalRows.forEach(r => tbody.appendChild(r));
+	fixedRows.forEach(r => tbody.appendChild(r));
 
-	// Update header arrows
+	// Update arrows
 	const headers = table.tHead.rows[0].cells;
-	for (let i = 0; i < headers.length; i++) {
+	for(let i = 0; i < headers.length; i++) {
 		const arrow = headers[i].querySelector(".arrow");
-		if (!arrow) continue;
-		if (i === n) {
-			// active column: bold arrow, direction ▲ or ▼
+		if(!arrow) continue;
+
+		if(i === colIndex) {
 			arrow.textContent = asc ? "▲" : "▼";
 			arrow.classList.add("active");
 		} else {
-			// inactive column: always ▲, dimmed
 			arrow.textContent = "▲";
 			arrow.classList.remove("active");
 		}
 	}
 
-	// Remember state (so clicking same column toggles)
-	table.setAttribute("data-sort-col", n);
+	table.setAttribute("data-sort-col", colIndex);
 	table.setAttribute("data-sort-order", asc ? "asc" : "desc");
 }
+
 
 // Initial display.
 // The table has been set up sorted in ascending order on the filename; reflect that in the GUI
 document.addEventListener("DOMContentLoaded", () => {
 	const table = document.querySelector("table");
-	if (!table) return;
+	if(!table) return;
 
 	const headers = table.tHead.rows[0].cells;
-	for (let i = 0; i < headers.length; i++) {
+	for(let i = 0; i < headers.length; i++) {
 		const arrow = headers[i].querySelector(".arrow");
-		if (!arrow) continue;
+		if(!arrow) continue;
 
-		if (i === 0) {
+		if(i === 0) {
 			arrow.textContent = "▲";
 			arrow.classList.add("active");
 		} else {
@@ -353,7 +414,7 @@ document.addEventListener("DOMContentLoaded", () => {
 document.addEventListener("DOMContentLoaded", () => {
 	document.querySelectorAll("canvas.sparkline").forEach(canvas => {
 		const raw = canvas.getAttribute("data-points");
-		if (!raw) return;
+		if(!raw) return;
 		const points = raw.split(",").map(v => parseFloat(v));
 
 		new Chart(canvas.getContext("2d"), {
@@ -400,10 +461,216 @@ function refresh(){
 }
 </script>
 
+<p><center>Use mouse wheel or pinch to zoom; drag to pan</center></p>
+<p>No issues active on <a href="https://rt.cpan.org/Public/Dist/Display.html?Name=Object-Configure">RT</a></p>
+<h2>CPAN Testers Failures for Object-Configure 0.19</h2>
+<h3>Failure Summary (all reports)</h3>
+<ul>
+<li><b>Perl 5.24.x</b>: 4 failures</li>
+<li><b>linux</b>: 15 failures</li>
+<li><b>5.22 / freebsd</b>: 4 failures</li>
+</ul>
+<h3>Likely Root Causes</h3>
+<table class="root-causes">
+<thead>
+<tr>
+	<th>Cause</th>
+	<th>Confidence</th>
+	<th>Evidence</th>
+</tr>
+</thead>
+<tbody>
+
+<tr class="high">
+	<td halign="center"><strong>Locale-sensitive behavior (de_DE)</strong></td>
+	<td halign="center">Strong (94%)</td>
+	<td halign="center"><ul><li>17/18 failures with LANG=de_DE</li><li>English locales show fewer or no failures</li></ul></td>
+</tr>
+
+<tr class="low">
+	<td halign="center"><strong>Scattered failures (no clear version or OS pattern)</strong></td>
+	<td halign="center">Weak (40%)</td>
+	<td halign="center"><ul><li>Failures and passes both seen on 11 common Perl series</li><li>Possible causes: flaky tests, optional dependency differences, or CGI environment assumptions</li><li>Review test output from failing reports for specific error messages</li></ul></td>
+</tr>
+
+</tbody>
+</table>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+	const toggleFail = document.getElementById('toggleFail');
+	const toggleUnknown = document.getElementById('toggleUnknown');
+	const toggleNA = document.getElementById('toggleNA');
+	const toggleNew = document.getElementById('toggleNew');
+
+	function update() {
+		document.querySelectorAll('tr').forEach(row => {
+			// Skip header rows
+			if(row.querySelector('th')) return;
+
+			// Determine row status
+			const isFail = row.classList.contains('cpan-fail');
+			const isUnknown = row.classList.contains('cpan-unknown');
+			const isNA = row.classList.contains('cpan-na');
+			const isNew = !!row.querySelector('.new-failure');
+
+			// Decide whether to show the row
+			let show = true;
+
+			if(toggleFail && !toggleFail.checked && isFail) show = false;
+			if(toggleUnknown && !toggleUnknown.checked && isUnknown) show = false;
+			if(toggleNA && !toggleNA.checked && isNA) show = false;
+			if(toggleNew && toggleNew.checked && !isNew) show = false;
+
+			row.style.display = show ? '' : 'none';
+		});
+	}
+
+	[toggleFail, toggleUnknown, toggleNA, toggleNew].forEach(cb => {
+		if(cb) cb.addEventListener('change', update);
+	});
+
+	update();
+});
+document.addEventListener("DOMContentLoaded", () => {
+	const th = document.querySelector("table.sortable-table th");
+	if(th) sortTable(th, 0);
+});
+</script>
+
+<p><em>Showing one failure per OS/Perl combination.</em></p>
+<div style="margin-bottom: 0.5em;">
+	<label>
+		<input type="checkbox" id="toggleFail" checked>
+		FAIL
+	</label>
+	<label style="margin-left: 1em;">
+		<input type="checkbox" id="toggleUnknown">
+		UNKNOWN
+	</label>
+	<label style="margin-left: 1em;">
+		<input type="checkbox" id="toggleNA">
+		NA
+	</label>
+	<label style="margin-left: 1em;">
+		<input type="checkbox" id="toggleNew">
+		NEW only
+	</label>
+</div>
+
+<table class="sortable-table" data-sort-col="0" data-sort-order="asc">
+<thead>
+<tr>
+	<th class="sortable" onclick="sortTable(this, 0)">
+		<span class="label">Date</span> <span class="arrow">&#x25B2;</span>
+	</th>
+	<th class="sortable" onclick="sortTable(this, 1)">
+		<span class="label">OS</span> <span class="arrow">&#x25B2;</span>
+	</th>
+	<th class="sortable" onclick="sortTable(this, 2)">
+		<span class="label">Perl</span> <span class="arrow">&#x25B2;</span>
+	</th>
+	<th class="sortable" onclick="sortTable(this, 3)">
+		<span class="label">Reporter</span> <span class="arrow">&#x25B2;</span>
+	</th>
+	<th class="sortable" onclick="sortTable(this, 4)" title="Marks failures that did not occur in the previous release. The same OS, Perl version, architecture, and platform were passing before.">
+		<span class="label">New</span> <span class="arrow">&#x25B2;</span>
+	</th>
+	<th>Report</th>
+</tr>
+</thead>
+<tbody>
+
+<tr class="cpan-fail"><td>2025-12-13T22:01:00Z</td><td>freebsd</td><td>5.22.0</td><td>Slaven Rezi&#x107;</td><td></td>
+				<td><a href="https://www.cpantesters.org/cpan/report/4b26172e-d86f-11f0-a093-4fe16d8775ea" target="_blank">View</a></td></tr>
+<tr class="cpan-fail"><td>2025-12-13T22:01:00Z</td><td>freebsd</td><td>5.24.1</td><td>Slaven Rezi&#x107;</td><td></td>
+				<td><a href="https://www.cpantesters.org/cpan/report/437ec78c-d86f-11f0-a093-4fe16d8775ea" target="_blank">View</a></td></tr>
+<tr class="cpan-fail"><td>2025-12-13T22:04:00Z</td><td>linux</td><td>5.32.1</td><td>Slaven Rezi&#x107;</td><td></td>
+				<td><a href="https://www.cpantesters.org/cpan/report/ac2ee794-d86f-11f0-a093-4fe16d8775ea" target="_blank">View</a></td></tr>
+<tr class="cpan-fail"><td>2025-12-13T22:03:00Z</td><td>linux</td><td>5.36.0</td><td>Slaven Rezi&#x107;</td><td></td>
+				<td><a href="https://www.cpantesters.org/cpan/report/9e86c594-d86f-11f0-a093-4fe16d8775ea" target="_blank">View</a></td></tr>
+<tr class="cpan-fail"><td>2025-12-13T22:04:00Z</td><td>linux</td><td>5.38.0</td><td>Slaven Rezi&#x107;</td><td></td>
+				<td><a href="https://www.cpantesters.org/cpan/report/a4abaa02-d86f-11f0-a093-4fe16d8775ea" target="_blank">View</a></td></tr>
+<tr class="cpan-fail"><td>2025-12-13T22:03:00Z</td><td>linux</td><td>5.34.1</td><td>Slaven Rezi&#x107;</td><td></td>
+				<td><a href="https://www.cpantesters.org/cpan/report/9802f1fc-d86f-11f0-a093-4fe16d8775ea" target="_blank">View</a></td></tr>
+<tr class="cpan-fail"><td>2025-12-13T22:03:00Z</td><td>linux</td><td>5.38.2</td><td>Slaven Rezi&#x107;</td><td></td>
+				<td><a href="https://www.cpantesters.org/cpan/report/8ba2cf0e-d86f-11f0-a093-4fe16d8775ea" target="_blank">View</a></td></tr>
+<tr class="cpan-fail"><td>2025-12-13T22:01:00Z</td><td>freebsd</td><td>5.24.0</td><td>Slaven Rezi&#x107;</td><td></td>
+				<td><a href="https://www.cpantesters.org/cpan/report/52db4d36-d86f-11f0-a093-4fe16d8775ea" target="_blank">View</a></td></tr>
+<tr class="cpan-fail"><td>2026-02-15T14:31:00Z</td><td>linux</td><td>5.36.0</td><td></td><td></td>
+				<td><a href="https://www.cpantesters.org/cpan/report/12a35464-0a7b-11f1-b455-df254cdcb4c1" target="_blank">View</a></td></tr>
+<tr class="cpan-fail"><td>2025-12-13T22:00:00Z</td><td>freebsd</td><td>5.22.2</td><td>Slaven Rezi&#x107;</td><td></td>
+				<td><a href="https://www.cpantesters.org/cpan/report/311e6958-d86f-11f0-a093-4fe16d8775ea" target="_blank">View</a></td></tr>
+<tr class="cpan-fail"><td>2026-02-12T01:14:00Z</td><td>MSWin32</td><td>5.42.0</td><td>David Solimano</td><td></td>
+				<td><a href="https://www.cpantesters.org/cpan/report/7fe44b95-6fab-1014-8029-fd7df845652c" target="_blank">View</a></td></tr>
+<tr class="cpan-fail"><td>2025-12-13T22:02:00Z</td><td>freebsd</td><td>5.28.1</td><td>Slaven Rezi&#x107;</td><td></td>
+				<td><a href="https://www.cpantesters.org/cpan/report/6cf69ad6-d86f-11f0-a093-4fe16d8775ea" target="_blank">View</a></td></tr>
+<tr class="cpan-fail"><td>2025-12-13T22:04:00Z</td><td>linux</td><td>5.42.0</td><td>Slaven Rezi&#x107;</td><td></td>
+				<td><a href="https://www.cpantesters.org/cpan/report/b565cd00-d86f-11f0-a093-4fe16d8775ea" target="_blank">View</a></td></tr>
+<tr class="cpan-fail"><td>2025-12-13T22:05:00Z</td><td>linux</td><td>5.38.4</td><td>Slaven Rezi&#x107;</td><td></td>
+				<td><a href="https://www.cpantesters.org/cpan/report/cbf8b0aa-d86f-11f0-a093-4fe16d8775ea" target="_blank">View</a></td></tr>
+<tr class="cpan-fail"><td>2025-12-13T22:02:00Z</td><td>linux</td><td>5.42.0</td><td>Slaven Rezi&#x107;</td><td></td>
+				<td><a href="https://www.cpantesters.org/cpan/report/73387dd8-d86f-11f0-a093-4fe16d8775ea" target="_blank">View</a></td></tr>
+<tr class="cpan-fail"><td>2026-05-12T20:40:00Z</td><td>solaris</td><td>5.26.2</td><td>Chris Williams (BINGOS)</td><td></td>
+				<td><a href="https://www.cpantesters.org/cpan/report/cf2a492a-4e42-11f1-a3bc-a055f9c4ba34" target="_blank">View</a></td></tr>
+<tr class="cpan-fail"><td>2025-12-13T22:02:00Z</td><td>freebsd</td><td>5.24.2</td><td>Slaven Rezi&#x107;</td><td></td>
+				<td><a href="https://www.cpantesters.org/cpan/report/66cb23d4-d86f-11f0-a093-4fe16d8775ea" target="_blank">View</a></td></tr>
+<tr class="cpan-fail"><td>2025-12-13T22:03:00Z</td><td>linux</td><td>5.34.3</td><td>Slaven Rezi&#x107;</td><td></td>
+				<td><a href="https://www.cpantesters.org/cpan/report/7f631bf4-d86f-11f0-a093-4fe16d8775ea" target="_blank">View</a></td></tr>
+<tr class="cpan-fail"><td>2025-12-13T22:02:00Z</td><td>linux</td><td>5.24.4</td><td>Slaven Rezi&#x107;</td><td></td>
+				<td><a href="https://www.cpantesters.org/cpan/report/7955dba2-d86f-11f0-a093-4fe16d8775ea" target="_blank">View</a></td></tr>
+<tr class="cpan-fail"><td>2026-02-04T04:35:00Z</td><td>solaris</td><td>5.34.3</td><td>David Cantrell (DCANTRELL)</td><td></td>
+				<td><a href="https://www.cpantesters.org/cpan/report/de883f10-0182-11f1-b41f-d78ad713fe9e" target="_blank">View</a></td></tr>
+<tr class="cpan-fail"><td>2025-12-13T22:02:00Z</td><td>freebsd</td><td>5.26.1</td><td>Slaven Rezi&#x107;</td><td></td>
+				<td><a href="https://www.cpantesters.org/cpan/report/60abdba6-d86f-11f0-a093-4fe16d8775ea" target="_blank">View</a></td></tr>
+<tr class="cpan-fail"><td>2025-12-13T22:03:00Z</td><td>linux</td><td>5.40.0</td><td>Slaven Rezi&#x107;</td><td></td>
+				<td><a href="https://www.cpantesters.org/cpan/report/858cd43e-d86f-11f0-a093-4fe16d8775ea" target="_blank">View</a></td></tr>
+<tr class="cpan-fail"><td>2026-03-30T03:35:00Z</td><td>linux</td><td>5.40.1</td><td>David Cantrell (DCANTRELL)</td><td></td>
+				<td><a href="https://www.cpantesters.org/cpan/report/8326768c-2be9-11f1-968f-9fa38ee61e61" target="_blank">View</a></td></tr>
+<tr class="cpan-fail"><td>2025-12-13T22:01:00Z</td><td>freebsd</td><td>5.22.3</td><td>Slaven Rezi&#x107;</td><td></td>
+				<td><a href="https://www.cpantesters.org/cpan/report/3a42af08-d86f-11f0-a093-4fe16d8775ea" target="_blank">View</a></td></tr>
+<tr class="cpan-fail"><td>2025-12-13T22:05:00Z</td><td>linux</td><td>5.36.3</td><td>Slaven Rezi&#x107;</td><td></td>
+				<td><a href="https://www.cpantesters.org/cpan/report/c79717ae-d86f-11f0-a093-4fe16d8775ea" target="_blank">View</a></td></tr>
+<tr class="cpan-fail"><td>2025-12-13T22:04:00Z</td><td>linux</td><td>5.43.5</td><td>Slaven Rezi&#x107;</td><td></td>
+				<td><a href="https://www.cpantesters.org/cpan/report/c17d4fb4-d86f-11f0-a093-4fe16d8775ea" target="_blank">View</a></td></tr>
+<tr class="cpan-fail"><td>2025-12-13T22:02:00Z</td><td>freebsd</td><td>5.22.1</td><td>Slaven Rezi&#x107;</td><td></td>
+				<td><a href="https://www.cpantesters.org/cpan/report/5a8b17a0-d86f-11f0-a093-4fe16d8775ea" target="_blank">View</a></td></tr>
+</tbody></table>
+<p>No CPAN Testers failures reported for Object-Configure 0.19.</p>
+<h2>Mutation Report</h2>
+<h3>Mutation Summary</h3>
+<ul>
+<li><b>Score</b>: 100%</li>
+<li><b>Total</b>: 0</li>
+<li><b>Killed</b>: 
+0
+</li>
+<li><b>Survived</b>: 
+0
+</li>
+</ul>
+<h3>Mutation Files</h3>
+
+<table border='1' cellpadding='5'>
+
+<tr><th>File</th><th>Total</th><th>Killed</th><th>Survivors</th><th>Score%</th><th>Complexity</th><th title="TER1=Statement, TER2=Branch, TER3=LCSAJ Path">TER1 / TER2 / TER3</th></tr>
+
+</table>
+
+<h2>Structural Coverage (Approximate)</h2>
+<div class='summary'>
+Statement Coverage: 94.74% (270 / 285)<br>
+Branch Coverage: 75.34% (110 / 146)<br>
+<em>Approximate LCSAJ derived from branch and statement coverage.</em>
+</div>
+<h2>Executive Summary</h2>
+<div class='summary'>
+Tests execute 94.74% of the code. No mutation data available yet — trigger the mutation workflow for fault detection analysis.
+</div>
 <footer>
-	<p><span style="margin-left:8px;color:#666;font-size:0.9em;">Use mouse wheel or pinch to zoom; drag to pan</span></p>
 	<p>Project: <a href="https://github.com/nigelhorne/Object-Configure">Object-Configure</a></p>
-	<p><em>Last updated: 2026-03-03 14:37:10 - <a href="https://github.com/nigelhorne/Object-Configure/commit/de4cf2c4b005d76f6f1c063d170dc0f32b570845">commit <code>de4cf2c</code></a></em></p>
+	<p><em>Last updated: 2026-05-17 01:47:45 - <a href="https://github.com/nigelhorne/Object-Configure/commit/f37ea1ad93497aa8d668925d27eb706cba70398e">commit <code>f37ea1a</code></a></em></p>
+	<p style="float: right; font-size: 0.85em; color: #999;">Powered by <a href="https://metacpan.org/dist/App-Test-Generator">App::Test::Generator 0.36</a></p>
 </footer>
 </body>
 </html>
