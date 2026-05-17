@@ -554,10 +554,21 @@ EOF
 	my $found_config_file = 0;
 	for my $call (@calls) {
 		# $call->[0] is method name, $call->[1] is invocant, rest are args
-		my %args = @{$call}[2..$#{$call}];
-		if ($args{config_file} && $args{config_file} =~ /spy\.yml$/) {
-			$found_config_file = 1;
-			last;
+		my @args = @{$call}[2..$#{$call}];
+		next unless @args;  # Skip if no args
+		
+		# Handle hashref argument (common in OO constructors)
+		if (@args == 1 && ref($args[0]) eq 'HASH') {
+			if ($args[0]{config_file} && $args[0]{config_file} =~ /spy\.yml$/) {
+				$found_config_file = 1;
+				last;
+			}
+		} elsif (@args % 2 == 0) {  # Even number of args - can be a hash
+			my %args = @args;
+			if ($args{config_file} && $args{config_file} =~ /spy\.yml$/) {
+				$found_config_file = 1;
+				last;
+			}
 		}
 	}
 	ok($found_config_file, 'Config::Abstraction called with correct config file');
@@ -589,7 +600,7 @@ subtest 'Spy: Verify Log::Abstraction is initialized' => sub {
 	
 	# Verify logger was created with carp_on_warn parameter
 	my $has_carp_on_warn = 0;
-		for my $call (@calls) {
+	for my $call (@calls) {
 		# $call->[0] is method name, $call->[1] is invocant, rest are args
 		my @args = @{$call}[2..$#{$call}];
 		next unless @args;  # Skip if no args
@@ -609,7 +620,7 @@ subtest 'Spy: Verify Log::Abstraction is initialized' => sub {
 		}
 	}
 	ok($has_carp_on_warn, 'Logger initialized with carp_on_warn parameter');
-
+	
 	done_testing();
 };
 
@@ -637,6 +648,229 @@ subtest 'End-to-end: Environment variable configuration' => sub {
 	# Verify environment variables override defaults
 	is($app->{timeout}, 90, 'Environment variable overrides default');
 	is($app->{api_key}, 'env_key_123', 'Environment variable loaded');
+	
+	done_testing();
+};
+
+subtest 'Integration: Manual hot reload updates object properties' => sub {
+	my $temp_dir = tempdir(CLEANUP => 1);
+	
+	# Create initial config
+	my $config_path = create_test_config($temp_dir, 'manual_reload.yml', <<'EOF');
+---
+Manual__Reload__Test:
+  timeout: 30
+  value: "initial"
+  status: "active"
+EOF
+	
+	{
+		package Manual::Reload::Test;
+		use Object::Configure;
+		
+		sub new {
+			my ($class, %args) = @_;
+			my $config_dirs = delete $args{_config_dirs} || [];
+			my $params = Object::Configure::configure($class, {
+				config_file => 'manual_reload.yml',
+				config_dirs => $config_dirs,
+				%args
+			});
+			my $self = bless $params, $class;
+			Object::Configure::register_object($class, $self) if $params->{_config_file};
+			return $self;
+		}
+	}
+	
+	my $obj = Manual::Reload::Test->new(_config_dirs => [$temp_dir]);
+	
+	# Verify initial values
+	is($obj->{timeout}, 30, 'Initial timeout');
+	is($obj->{value}, 'initial', 'Initial value');
+	is($obj->{status}, 'active', 'Initial status');
+	
+	# Modify config file
+	sleep(0.2);  # Ensure mtime changes
+	create_test_config($temp_dir, 'manual_reload.yml', <<'EOF');
+---
+Manual__Reload__Test:
+  timeout: 60
+  value: "updated"
+  status: "reloaded"
+EOF
+	
+	# Manually trigger reload
+	my $count = Object::Configure::reload_config();
+	ok($count >= 1, 'Reload executed and affected at least one object');
+	
+	# Verify object was updated in-place
+	is($obj->{timeout}, 60, 'Timeout updated after reload');
+	is($obj->{value}, 'updated', 'Value updated after reload');
+	is($obj->{status}, 'reloaded', 'Status updated after reload');
+	
+	# Cleanup
+	delete $Object::Configure::_object_registry{'Manual::Reload::Test'};
+	
+	done_testing();
+};
+
+subtest 'Integration: _on_config_reload hook is called' => sub {
+	my $temp_dir = tempdir(CLEANUP => 1);
+	
+	# Create initial config
+	create_test_config($temp_dir, 'hook_test.yml', <<'EOF');
+---
+Hook__Test__App:
+  timeout: 30
+  value: "initial"
+EOF
+	
+	{
+		package Hook::Test::App;
+		use Object::Configure;
+		
+		sub new {
+			my ($class, %args) = @_;
+			my $config_dirs = delete $args{_config_dirs} || [];
+			my $params = Object::Configure::configure($class, {
+				config_file => 'hook_test.yml',
+				config_dirs => $config_dirs,
+				%args
+			});
+			my $self = bless $params, $class;
+			$self->{_reload_count} = 0;
+			$self->{_last_reload_config} = undef;
+			Object::Configure::register_object($class, $self) if $params->{_config_file};
+			return $self;
+		}
+		
+		sub _on_config_reload {
+			my ($self, $new_config) = @_;
+			$self->{_reload_count}++;
+			$self->{_last_reload_config} = $new_config;
+		}
+	}
+	
+	my $obj = Hook::Test::App->new(_config_dirs => [$temp_dir]);
+	
+	is($obj->{_reload_count}, 0, 'Hook not called yet');
+	ok(!defined($obj->{_last_reload_config}), 'No reload config yet');
+	
+	# Modify config
+	sleep(0.2);
+	create_test_config($temp_dir, 'hook_test.yml', <<'EOF');
+---
+Hook__Test__App:
+  timeout: 60
+  value: "reloaded"
+EOF
+	
+	# Trigger reload
+	Object::Configure::reload_config();
+	
+	# Verify hook was called
+	is($obj->{_reload_count}, 1, 'Hook called once');
+	ok(defined($obj->{_last_reload_config}), 'Hook received new config');
+	is(ref($obj->{_last_reload_config}), 'HASH', 'New config is hashref');
+	is($obj->{_last_reload_config}{timeout}, 60, 'Hook received updated timeout');
+	
+	# Cleanup
+	delete $Object::Configure::_object_registry{'Hook::Test::App'};
+	
+	done_testing();
+};
+
+subtest 'Integration: Syslog logger configuration' => sub {
+	my $temp_dir = tempdir(CLEANUP => 1);
+	
+	# Create config with syslog logger
+	my $config = <<'EOF';
+---
+Syslog__Test__App:
+  timeout: 30
+  logger:
+    syslog: local0
+    level: info
+EOF
+	create_test_config($temp_dir, 'syslog.yml', $config);
+	
+	{
+		package Syslog::Test::App;
+		use Object::Configure;
+		
+		sub new {
+			my ($class, %args) = @_;
+			my $config_dirs = delete $args{_config_dirs} || [];
+			my $params = Object::Configure::configure($class, {
+				config_file => 'syslog.yml',
+				config_dirs => $config_dirs,
+				%args
+			});
+			return bless $params, $class;
+		}
+	}
+	
+	my $app = Syslog::Test::App->new(_config_dirs => [$temp_dir]);
+	
+	# Verify logger was created
+	ok(blessed($app->{logger}), 'Logger created');
+	isa_ok($app->{logger}, 'Log::Abstraction');
+	
+	# Verify syslog configuration was applied
+	# Note: We can't easily verify internal syslog setup without accessing
+	# Log::Abstraction internals, but we can verify it was created without error
+	ok(defined($app->{logger}), 'Syslog logger initialized');
+	is($app->{timeout}, 30, 'Other config values loaded');
+	
+	done_testing();
+};
+
+subtest 'End-to-end: logger=NULL integration test' => sub {
+	my $temp_dir = tempdir(CLEANUP => 1);
+	
+	# Create config without logger settings
+	my $config = <<'EOF';
+---
+Null__Logger__Integration:
+  timeout: 45
+  api_key: "test123"
+EOF
+	create_test_config($temp_dir, 'nulllogger.yml', $config);
+	
+	{
+		package Null::Logger::Integration;
+		use Object::Configure;
+		
+		sub new {
+			my ($class, %args) = @_;
+			my $config_dirs = delete $args{_config_dirs} || [];
+			my $params = Object::Configure::configure($class, {
+				config_file => 'nulllogger.yml',
+				config_dirs => $config_dirs,
+				%args
+			});
+			return bless $params, $class;
+		}
+		
+		sub has_logger {
+			my $self = shift;
+			return $self->{logger} ne 'NULL';
+		}
+	}
+	
+	# Test with logger=NULL
+	my $app = Null::Logger::Integration->new(
+		_config_dirs => [$temp_dir],
+		logger => 'NULL'
+	);
+	
+	# Verify logger is NULL
+	is($app->{logger}, 'NULL', 'Logger is NULL as requested');
+	ok(!$app->has_logger, 'has_logger returns false');
+	
+	# Verify other config still loaded
+	is($app->{timeout}, 45, 'Config timeout loaded');
+	is($app->{api_key}, 'test123', 'Config api_key loaded');
 	
 	done_testing();
 };

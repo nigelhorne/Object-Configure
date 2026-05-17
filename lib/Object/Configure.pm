@@ -1228,7 +1228,6 @@ Private properties (those starting with C<_>) are not updated during reload.
 
 =cut
 
-
 sub reload_config {
 	my $reloaded_count = 0;
 
@@ -1302,7 +1301,7 @@ sub _run_config_watcher {
 
 # Internal function to reload a single object's configuration
 sub _reload_object_config {
-	my ($obj) = @_;
+	my $obj = $_[0];
 
 	return unless blessed($obj);
 
@@ -1310,8 +1309,16 @@ sub _reload_object_config {
 	my $original_class = $class;
 	$class =~ s/::/__/g;
 
-	# Get the original config file path if it exists
-	my $config_file = $obj->{_config_file} || $obj->{config_file};
+	# Get the original config file path(s) if they exist
+	# Use the full path from _config_files if available, otherwise try _config_file
+	my $config_file;
+	if ($obj->{_config_files} && ref($obj->{_config_files}) eq 'ARRAY' && @{$obj->{_config_files}}) {
+		# Use the last (most specific) config file
+		$config_file = $obj->{_config_files}[-1];
+	} else {
+		$config_file = $obj->{_config_file} || $obj->{config_file};
+	}
+	
 	return unless $config_file && -f $config_file;
 
 	# Reload the configuration
@@ -1351,6 +1358,8 @@ sub _reload_object_config {
 			$obj->{logger}->info("Configuration reloaded for $original_class");
 		}
 	}
+
+	return;
 }
 
 # Internal function to reconfigure the logger
