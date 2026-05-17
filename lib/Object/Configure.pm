@@ -416,7 +416,7 @@ sub configure {
 	my $params = $_[1] || {};	# Contains the defaults, the run time config will overwrite them
 	my $array;
 
-	croak(__PACKAGE__, ': configure: what class do you want to configure?') if(!defined($class));
+	croak(__PACKAGE__, ': configure: what class do you want to configure?') if(!defined($class) || $class eq '');
 
 	# Stash coderefs and blessed objects EXCEPT logger (which needs special handling)
 
@@ -510,7 +510,8 @@ sub configure {
 					push @config_files_to_load, {
 						file => $candidate,
 						class => $original_class
-					}
+					};
+					last;  # CRITICAL: Stop at first readable file
 				}
 			}
 		}
@@ -649,8 +650,13 @@ sub configure {
 	}
 
 	# Store config file path in params for hot reload
-	$params->{_config_file} = $config_file if(defined($config_file));
-	$params->{_config_files} = [map { $_->{file} } @config_files_to_load] if @config_files_to_load;
+	# Preserve user-provided internal keys
+	if (!exists($params->{_config_file})) {
+		$params->{_config_file} = $config_file if defined($config_file);
+	}
+	if (!exists($params->{_config_files})) {
+		$params->{_config_files} = [map { $_->{file} } @config_files_to_load] if @config_files_to_load;
+	}
 
 	# Restore stashed coderefs and objects via hash slice
 	@{$params}{keys %stashed_values} = values %stashed_values if %stashed_values;
@@ -680,34 +686,38 @@ sub _find_class_config_file {
 		$base_ext = '';
 	}
 
-	# Try several naming patterns
-	my @patterns = (
-		"${base_dir}${class_file}${base_ext}",           # my-parent-class.yml
-		"${base_dir}${class_file}.conf",                  # my-parent-class.conf
-		"${base_dir}${class_file}.yml",                   # my-parent-class.yml
-		"${base_dir}${class_file}.yaml",                  # my-parent-class.yaml
-		"${base_dir}${class_file}.json",                  # my-parent-class.json
+	# Try base directory patterns first
+	my @base_patterns = (
+		"${base_dir}${class_file}${base_ext}",
+		"${base_dir}${class_file}.conf",
+		"${base_dir}${class_file}.yml",
+		"${base_dir}${class_file}.yaml",
+		"${base_dir}${class_file}.json",
 	);
 
-	# Also try with config_dirs if provided
+	foreach my $pattern (@base_patterns) {
+		if (-r $pattern && -f $pattern) {
+			return $pattern;
+		}
+	}
+
+	# Then try config_dirs in order - fully check each dir before moving to next
 	if ($config_dirs && ref($config_dirs) eq 'ARRAY') {
 		foreach my $dir (@$config_dirs) {
 			# Remove trailing slash if present
 			$dir =~ s{/$}{};
-			push @patterns, (
+			my @dir_patterns = (
 				"${dir}/${class_file}${base_ext}",
 				"${dir}/${class_file}.conf",
 				"${dir}/${class_file}.yml",
 				"${dir}/${class_file}.yaml",
 				"${dir}/${class_file}.json",
 			);
-		}
-	}
-
-	# Return the first file that exists and is readable
-	foreach my $pattern (@patterns) {
-		if (-r $pattern && -f $pattern) {
-			return $pattern;
+			foreach my $pattern (@dir_patterns) {
+				if (-r $pattern && -f $pattern) {
+					return $pattern;
+				}
+			}
 		}
 	}
 

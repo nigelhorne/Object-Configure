@@ -8,6 +8,8 @@ Revision history for Object::Configure - Runtime Configuration for an Object
 
 	[Bug Fixes]
 
+	- Fixed looking in the correct directory for a object class to reload
+
 	- Fixed _reload_object_config() to use full config file paths during hot reload.
 		Previously attempted to reload from basename only (e.g., 'app.yml') instead
 		of full path stored in _config_files array. This caused -f test to fail and
