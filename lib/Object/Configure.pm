@@ -1495,8 +1495,8 @@ On Windows, the signal handler is not installed (SIGUSR1 does not exist).
 
 =cut
 
-
-sub register_object {
+sub register_object
+{
 	my ($class, $obj) = @_;
 
 	croak(__PACKAGE__, '::register_object: Usage ($class, $obj)') unless(defined($class) && defined($obj));
@@ -1537,6 +1537,7 @@ sub register_object {
 			}
 		};
 	}
+	return;	# ensure the functions return nothing (void/empty list)
 }
 
 =head2 restore_signal_handlers
@@ -1615,6 +1616,8 @@ sub restore_signal_handlers
 		$SIG{USR1} = $_original_usr1_handler if($^O ne 'MSWin32');	# There is no SIGUSR1 on Windows
 		$_original_usr1_handler = undef;
 	}
+
+	return;	# ensure the functions return nothing (void/empty list)
 }
 
 =head2 get_signal_handler_info

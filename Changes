@@ -7,7 +7,18 @@ Revision history for Object::Configure - Runtime Configuration for an Object
 	- Improve the method documentation
 
 	[Bug Fixes]
+
 	- Sanity check that class is given to configure()
+
+	- Fixed register_object() to return void consistently.
+		Previously returned a coderef on first call (from $SIG{USR1} assignment),
+		undef on Windows, and false on subsequent calls. Now explicitly returns
+		nothing via 'return;' at end of function to match API specification.
+
+	- Fixed restore_signal_handlers() to return void consistently.
+		Previously returned undef when handler was defined and empty list when
+		not defined. Now explicitly returns nothing via 'return;' at end of
+		function to match API specification.
 
 	- Automatically preserve coderefs and blessed objects passed to configure().
 		Config::Abstraction treats unknown scalar values as config file paths,
