@@ -609,7 +609,7 @@ sub configure {
 
 	# Load the default logger
 	if (my $logger = $params->{'logger'}) {
-		if($logger eq 'NULL') {
+		if(!ref($logger) && $logger eq 'NULL') {
 			# Explicitly keep NULL - do not create a logger
 			# The logger param stays as the string 'NULL'
 		} elsif(ref($logger) eq 'HASH') {
@@ -1330,7 +1330,7 @@ sub _reload_object_config {
 	} else {
 		$config_file = $obj->{_config_file} || $obj->{config_file};
 	}
-	
+
 	return unless $config_file && -f $config_file;
 
 	# Reload the configuration

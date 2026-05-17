@@ -8,6 +8,8 @@ Revision history for Object::Configure - Runtime Configuration for an Object
 
 	[Bug Fixes]
 
+	- Fixed configure() logger dispatch ignoring NULL and re-wrapping existing Log::Abstraction instances
+
 	- Fixed looking in the correct directory for a object class to reload
 
 	- Fixed _reload_object_config() to use full config file paths during hot reload.

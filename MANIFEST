@@ -12,9 +12,11 @@ t/20-construct.t
 t/30-basics.t
 t/coderef.t
 t/complex.t
+t/edge_cases.t
 t/env.t
 t/eof.t
 t/eol.t
+t/extended_tests.t
 t/function.t
 t/inheritance.t
 t/instantiate.t
