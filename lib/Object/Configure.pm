@@ -641,12 +641,14 @@ sub configure {
 		$params->{'logger'} = Log::Abstraction->new(carp_on_warn => $carp_on_warn);
 	}
 
-	if ($array && !$params->{'logger'}->{'array'}) {
-		$params->{'logger'}->{'array'} = $array;
-	}
+	if(exists($params->{'logger'}) && ref($params->{'logger'})) {
+		if ($array && !$params->{'logger'}->{'array'}) {
+			$params->{'logger'}->{'array'} = $array;
+		}
 
-	if ($array && !$params->{'logger'}->{'array'}) {
-		$params->{'logger'}->{'array'} = $array;
+		if ($array && !$params->{'logger'}->{'array'}) {
+			$params->{'logger'}->{'array'} = $array;
+		}
 	}
 
 	# Store config file path in params for hot reload
