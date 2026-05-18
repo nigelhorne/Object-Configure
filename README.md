@@ -1007,7 +1007,7 @@ This is primarily a debugging aid and is not needed for normal operation.
 
 - [Config::Abstraction](https://metacpan.org/pod/Config%3A%3AAbstraction)
 - [Log::Abstraction](https://metacpan.org/pod/Log%3A%3AAbstraction)
-- [Test Dashboard](https://nigelhorne.github.io/Object-Cofigure/coverage/)
+- [Test Dashboard](https://nigelhorne.github.io/Object-Configure/coverage/)
 
 # SUPPORT
 

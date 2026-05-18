@@ -1796,7 +1796,7 @@ END {
 
 =item * L<Log::Abstraction>
 
-=item * L<Test Dashboard|https://nigelhorne.github.io/Object-Cofigure/coverage/>
+=item * L<Test Dashboard|https://nigelhorne.github.io/Object-Configure/coverage/>
 
 =back
 
