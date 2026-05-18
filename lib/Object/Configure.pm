@@ -671,26 +671,20 @@ sub _find_class_config_file {
 	my $class_file = lc($class);
 	$class_file =~ s/::/-/g;
 
-	# Extract directory, basename, and extension from base config file
-	my ($base_dir, $base_name, $base_ext);
-
-	if ($base_config_file =~ m{^(.*/)([^/]+?)(\.[^.]+)?$}) {
-		$base_dir = $1 || '';
-		$base_name = $2;
-		$base_ext = $3 || '';
-	} else {
-		$base_name = $base_config_file;
-		$base_dir = '';
-		$base_ext = '';
-	}
+	# Extract directory and extension from base config file using File::Spec
+	# so that path separators are handled correctly on all platforms
+	my ($base_vol, $base_dir_part, $base_name_ext) = File::Spec->splitpath($base_config_file);
+	my (undef, $base_ext) = $base_name_ext =~ /^(.*?)(\.[^.]+)?$/;
+	$base_ext //= '';	# $2 is undef when there is no extension
+	my $base_dir = File::Spec->catpath($base_vol, $base_dir_part, '');
 
 	# Try base directory patterns first
 	my @base_patterns = (
-		"${base_dir}${class_file}${base_ext}",
-		"${base_dir}${class_file}.conf",
-		"${base_dir}${class_file}.yml",
-		"${base_dir}${class_file}.yaml",
-		"${base_dir}${class_file}.json",
+		File::Spec->catfile($base_dir, "${class_file}${base_ext}"),
+		File::Spec->catfile($base_dir, "${class_file}.conf"),
+		File::Spec->catfile($base_dir, "${class_file}.yml"),
+		File::Spec->catfile($base_dir, "${class_file}.yaml"),
+		File::Spec->catfile($base_dir, "${class_file}.json"),
 	);
 
 	foreach my $pattern (@base_patterns) {

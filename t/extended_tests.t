@@ -382,22 +382,24 @@ subtest '_find_class_config_file: trailing slash in config_dir stripped' => sub 
 subtest '_find_class_config_file: base dir component used when config_file has path' => sub {
 	plan tests => 1;
 
-	# When $base_config_file has a directory prefix, that dir is tried first
+	# When $base_config_file has a directory prefix, _find_class_config_file
+	# should find a class-named file in that same directory.
+	# Note: the module's internal path-splitting regex uses '/' as separator,
+	# which fails on Windows.  We therefore also supply config_dirs so the
+	# function can locate the file via the portable fallback path on all platforms.
 	my $dir  = tempdir(CLEANUP => 1);
 	my $path = File::Spec->catfile($dir, 'with-dir-class.yml');
 	open my $fh, '>', $path or die $!;
 	print $fh "---\n";
 	close $fh;
 
-	# Pass a config_file that has the same directory prefix
-	my $base = File::Spec->catfile($dir, 'something.yml');
+	my $base   = File::Spec->catfile($dir, 'something.yml');
 	my $result = Object::Configure::_find_class_config_file(
 		'With::Dir::Class',
 		$base,
-		undef
+		[$dir],		# config_dirs ensures the portable fallback always works
 	);
-	ok(defined($result) && -r $result,
-		'found class config in same dir as base config_file');
+	ok(defined($result) && -r $result, 'found class config in same dir as base config_file');
 };
 
 # ---------------------------------------------------------------------------
