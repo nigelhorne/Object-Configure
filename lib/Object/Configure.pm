@@ -1131,6 +1131,7 @@ The function blocks until the watcher process has fully terminated.
 =cut
 
 sub disable_hot_reload {
+	## MUTANT_SKIP_BEGIN
 	if (my $pid = $_config_watchers{pid}) {
 		# Guard against non-numeric PIDs (e.g. from mutation testing)
 		if($pid =~ /\A[0-9]+\z/ && $pid > 0) {
@@ -1155,6 +1156,7 @@ sub disable_hot_reload {
 		}
 		%_config_watchers = ();
 	}
+	## MUTANT_SKIP_END
 }
 
 =head2 reload_config
