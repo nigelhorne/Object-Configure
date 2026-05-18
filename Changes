@@ -8,7 +8,9 @@ Revision history for Object::Configure - Runtime Configuration for an Object
 
 	[Bug Fixes]
 
-	- Added a timeout to disable_hot_reload
+	- Fixed disable_hot_reload() hanging indefinitely when child process does not exit on SIGTERM
+		During mutation testing the forked watcher process can be left in a state where it never receives or acts on SIGTERM, causing waitpid to block forever.
+		The fix replaces the unconditional waitpid with a non-blocking poll loop with a 5-second deadline, then escalates to SIGKILL if the child is still alive, followed by a final waitpid that is safe because SIGKILL cannot be caught or deferred.
 
 	- Fixed configure() logger dispatch ignoring NULL and re-wrapping existing Log::Abstraction instances
 

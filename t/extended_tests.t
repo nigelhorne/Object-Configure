@@ -16,7 +16,6 @@ use File::Temp qw(tempdir tempfile);
 use File::Spec;
 use POSIX qw(WIFEXITED);
 
-# Ensure we load the in-tree copy when run from the dist root
 use_ok('Object::Configure');
 
 # ---------------------------------------------------------------------------
@@ -618,17 +617,16 @@ subtest 'register_object: original coderef handler chained on SIGUSR1' => sub {
 
 	_reset_globals();
 
-	# Install a coderef handler BEFORE register_object
 	my $chained = 0;
 	$SIG{USR1} = sub { $chained++ };
 
 	my $obj = bless { _config_file => undef }, 'Chain::Test::Class';
 	Object::Configure::register_object('Chain::Test::Class', $obj);
 
-	# Fire the signal — the new handler should call the old one
-	kill 'USR1', $$;
-	# Give the signal a moment to be delivered in the same process
-	select undef, undef, undef, 0.05;
+	_with_timeout(5, 'USR1 coderef chaining', sub {
+		kill 'USR1', $$;
+		select undef, undef, undef, 0.05;	# allow signal delivery
+	});
 
 	ok($chained > 0, 'original coderef handler was chained');
 };
@@ -645,8 +643,11 @@ subtest 'register_object: IGNORE handler does not warn' => sub {
 	local $SIG{__WARN__} = sub { push @warnings, @_ };
 
 	Object::Configure::register_object('Ignore::Handler::Test', $obj);
-	kill 'USR1', $$;
-	select undef, undef, undef, 0.05;
+
+	_with_timeout(5, 'USR1 IGNORE handler', sub {
+		kill 'USR1', $$;
+		select undef, undef, undef, 0.05;	# allow signal delivery
+	});
 
 	ok(!@warnings, 'no warning when original handler was IGNORE');
 };
@@ -725,7 +726,32 @@ subtest 'get_signal_handler_info: after restore' => sub {
 
 # ---------------------------------------------------------------------------
 # SECTION 14 — enable_hot_reload() / disable_hot_reload(): state machine
+#
+# All subtests that fork are wrapped with a SIGALRM deadline.  Under mutation
+# testing a mutant can cause enable_hot_reload() to fork when it should return
+# early, or disable_hot_reload() to not kill the child, leaving a zombie that
+# blocks waitpid forever.  The alarm ensures the test process always exits.
 # ---------------------------------------------------------------------------
+
+# Helper: run a block with a hard timeout (seconds).  Calls BAIL_OUT on expiry
+# so the test file exits cleanly rather than hanging the mutation harness.
+sub _with_timeout {
+	my ($secs, $label, $code) = @_;
+	local $SIG{ALRM} = sub {
+		# Kill any child we may have spawned before bailing
+		if(my $pid = $Object::Configure::_config_watchers{pid}) {
+			kill 'KILL', $pid;
+			waitpid $pid, 0;
+		}
+		%Object::Configure::_config_watchers = ();
+		BAIL_OUT("Timeout after ${secs}s in: $label");
+	};
+	alarm $secs;
+	my $ok = eval { $code->(); 1 };
+	alarm 0;
+	die $@ if !$ok && $@;
+	return;
+}
 
 subtest 'enable_hot_reload: returns immediately if already active' => sub {
 	plan skip_all => 'fork not available on Windows' if $^O eq 'MSWin32';
@@ -733,14 +759,16 @@ subtest 'enable_hot_reload: returns immediately if already active' => sub {
 
 	_reset_globals();
 
-	my $pid1 = Object::Configure::enable_hot_reload(interval => 60);
-	ok(defined $pid1 && $pid1 > 0, 'first enable returns a PID');
+	_with_timeout(10, 'enable_hot_reload already-active', sub {
+		my $pid1 = Object::Configure::enable_hot_reload(interval => 60);
+		ok(defined $pid1 && $pid1 > 0, 'first enable returns a PID');
 
-	my $pid2 = Object::Configure::enable_hot_reload(interval => 60);
-	ok(!defined($pid2) || $pid2 == 0 || $pid2 == $pid1,
-		'second call returns early (same PID or undef/0)');
+		my $pid2 = Object::Configure::enable_hot_reload(interval => 60);
+		ok(!defined($pid2) || $pid2 == 0 || $pid2 == $pid1,
+			'second call returns early (same PID or undef/0)');
 
-	Object::Configure::disable_hot_reload();
+		Object::Configure::disable_hot_reload();
+	});
 };
 
 subtest 'disable_hot_reload: no-op when not active' => sub {
@@ -757,14 +785,15 @@ subtest 'disable_hot_reload: kills watcher process cleanly' => sub {
 
 	_reset_globals();
 
-	my $pid = Object::Configure::enable_hot_reload(interval => 60);
-	ok(defined $pid && $pid > 0, 'watcher pid returned');
-	ok(kill(0, $pid), 'watcher process is alive');
+	_with_timeout(15, 'disable_hot_reload kills watcher', sub {
+		my $pid = Object::Configure::enable_hot_reload(interval => 60);
+		ok(defined $pid && $pid > 0, 'watcher pid returned');
+		ok(kill(0, $pid), 'watcher process is alive');
 
-	Object::Configure::disable_hot_reload();
-	# Allow process table to update
-	select undef, undef, undef, 0.1;
-	ok(!kill(0, $pid), 'watcher process gone after disable');
+		Object::Configure::disable_hot_reload();
+		select undef, undef, undef, 0.1;	# allow process table to update
+		ok(!kill(0, $pid), 'watcher process gone after disable');
+	});
 };
 
 # ---------------------------------------------------------------------------
