@@ -1140,11 +1140,27 @@ The function blocks until the watcher process has fully terminated.
 
 =cut
 
-
 sub disable_hot_reload {
-	if (my $pid = $_config_watchers{pid}) {
+	if(my $pid = $_config_watchers{pid}) {
 		kill('TERM', $pid);
-		waitpid($pid, 0);
+
+		# Wait up to 5 seconds for the child to exit; if it doesn't respond
+		# to SIGTERM, escalate to SIGKILL to avoid hanging indefinitely.
+		my $deadline = time() + 5;
+		my $kid;
+		do {
+			$kid = waitpid($pid, POSIX::WNOHANG());
+			if($kid == 0 && time() < $deadline) {
+				select undef, undef, undef, 0.1;	# sleep 100ms between polls
+			}
+		} while($kid == 0 && time() < $deadline);
+
+		# Escalate if still alive after timeout
+		if($kid == 0) {
+			kill('KILL', $pid);
+			waitpid($pid, 0);	# SIGKILL is not deferrable; this wait is safe
+		}
+
 		%_config_watchers = ();
 	}
 }
