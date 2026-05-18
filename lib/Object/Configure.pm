@@ -327,24 +327,20 @@ Now you can set up a configuration file and environment variables to configure y
                     type => 'string',
                     optional => 1,
                     description => 'Configuration file basename'
-                },
-                config_dirs => {
+                }, config_dirs => {
                     type => 'arrayref',
                     optional => 1,
                     description => 'Directories to search for config files'
-                },
-                logger => {
+                }, logger => {
                     type => [qw(hashref coderef object string arrayref)],
                     optional => 1,
                     description => 'Logger configuration or instance'
-                },
-                carp_on_warn => {
+                }, carp_on_warn => {
                     type => 'boolean',
                     optional => 1,
                     default => 0,
                     description => 'Use Carp::carp for warnings'
-                },
-                croak_on_error => {
+                }, croak_on_error => {
                     type => 'boolean',
                     optional => 1,
                     default => 1,
@@ -1141,26 +1137,28 @@ The function blocks until the watcher process has fully terminated.
 =cut
 
 sub disable_hot_reload {
-	if(my $pid = $_config_watchers{pid}) {
-		kill('TERM', $pid);
+	if (my $pid = $_config_watchers{pid}) {
+		# Guard against non-numeric PIDs (e.g. from mutation testing)
+		if($pid =~ /\A[0-9]+\z/ && $pid > 0) {
+			kill('TERM', $pid);
 
-		# Wait up to 5 seconds for the child to exit; if it doesn't respond
-		# to SIGTERM, escalate to SIGKILL to avoid hanging indefinitely.
-		my $deadline = time() + 5;
-		my $kid;
-		do {
-			$kid = waitpid($pid, POSIX::WNOHANG());
-			if($kid == 0 && time() < $deadline) {
-				select undef, undef, undef, 0.1;	# sleep 100ms between polls
+			# Wait up to 5 seconds for the child to exit; if it doesn't respond
+			# to SIGTERM, escalate to SIGKILL to avoid hanging indefinitely
+			my $deadline = time() + 5;
+			my $kid;
+			do {
+				$kid = waitpid($pid, POSIX::WNOHANG());
+				if($kid == 0 && time() < $deadline) {
+					select undef, undef, undef, 0.1;	# sleep 100ms between polls
+				}
+			} while($kid == 0 && time() < $deadline);
+
+			# Escalate if still alive after timeout
+			if($kid == 0) {
+				kill('KILL', $pid);
+				waitpid($pid, 0);	# SIGKILL is not deferrable; this wait is safe
 			}
-		} while($kid == 0 && time() < $deadline);
-
-		# Escalate if still alive after timeout
-		if($kid == 0) {
-			kill('KILL', $pid);
-			waitpid($pid, 0);	# SIGKILL is not deferrable; this wait is safe
 		}
-
 		%_config_watchers = ();
 	}
 }

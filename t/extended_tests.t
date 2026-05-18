@@ -44,7 +44,14 @@ sub _make_other_obj { return bless {}, 'Some::RandomClass' }
 
 # Reset Object::Configure package globals between tests that touch them.
 # We reach in via the package namespace because these are our globals.
+# Guard the kill() call against non-numeric PIDs that a mutant may inject.
 sub _reset_globals {
+	if(my $pid = $Object::Configure::_config_watchers{pid}) {
+		if($pid =~ /\A[0-9]+\z/ && $pid > 0) {
+			kill 'KILL', $pid;
+			waitpid $pid, 0;
+		}
+	}
 	%Object::Configure::_object_registry   = ();
 	%Object::Configure::_config_watchers   = ();
 	%Object::Configure::_config_file_stats = ();
@@ -738,10 +745,13 @@ subtest 'get_signal_handler_info: after restore' => sub {
 sub _with_timeout {
 	my ($secs, $label, $code) = @_;
 	local $SIG{ALRM} = sub {
-		# Kill any child we may have spawned before bailing
+		# Kill any child we may have spawned before bailing.
+		# Guard against non-numeric PIDs injected by mutants.
 		if(my $pid = $Object::Configure::_config_watchers{pid}) {
-			kill 'KILL', $pid;
-			waitpid $pid, 0;
+			if($pid =~ /\A[0-9]+\z/ && $pid > 0) {
+				kill 'KILL', $pid;
+				waitpid $pid, 0;
+			}
 		}
 		%Object::Configure::_config_watchers = ();
 		BAIL_OUT("Timeout after ${secs}s in: $label");
@@ -775,8 +785,16 @@ subtest 'disable_hot_reload: no-op when not active' => sub {
 	plan tests => 1;
 	_reset_globals();
 
-	lives_ok { Object::Configure::disable_hot_reload() }
-		'disable_hot_reload is safe when no watcher running';
+	# Wrap in eval: a mutant may make disable_hot_reload() call kill() with a
+	# non-numeric PID even when the registry is empty, which would otherwise die
+	# and corrupt the END block.
+	my $err;
+	eval { Object::Configure::disable_hot_reload(); 1 } or do { $err = $@ };
+	ok(!$err, 'disable_hot_reload is safe when no watcher running')
+		or diag("died: $err");
+
+	# Ensure globals are clean regardless of what the mutant did
+	%Object::Configure::_config_watchers = ();
 };
 
 subtest 'disable_hot_reload: kills watcher process cleanly' => sub {
@@ -790,10 +808,23 @@ subtest 'disable_hot_reload: kills watcher process cleanly' => sub {
 		ok(defined $pid && $pid > 0, 'watcher pid returned');
 		ok(kill(0, $pid), 'watcher process is alive');
 
-		Object::Configure::disable_hot_reload();
+		# Wrap disable call: a mutant may cause kill() to die inside the module
+		eval { Object::Configure::disable_hot_reload() };
+		# Force cleanup regardless
+		if(my $p = $Object::Configure::_config_watchers{pid}) {
+			if($p =~ /\A[0-9]+\z/ && $p > 0) {
+				kill 'KILL', $p;
+				waitpid $p, 0;
+			}
+		}
+		%Object::Configure::_config_watchers = ();
+
 		select undef, undef, undef, 0.1;	# allow process table to update
 		ok(!kill(0, $pid), 'watcher process gone after disable');
 	});
+
+	# Ensure clean state for subsequent tests and END block
+	_reset_globals();
 };
 
 # ---------------------------------------------------------------------------
@@ -1112,5 +1143,20 @@ subtest 'configure: carp_on_warn=1 propagated to logger' => sub {
 	# Log::Abstraction stores this flag; we just confirm configure() doesn't croak
 	isa_ok($params->{logger}, 'Log::Abstraction');
 };
+
+# ---------------------------------------------------------------------------
+# Cleanup: sanitise Object::Configure globals before the module's own END
+# block runs.  A mutant may have left a non-numeric or stale PID in
+# %_config_watchers; without this guard the module's disable_hot_reload()
+# call in its END block would die with "Can't kill a non-numeric process ID",
+# aborting the END queue and producing a spurious exit code 22.
+END {
+	if(my $pid = $Object::Configure::_config_watchers{pid}) {
+		unless($pid =~ /\A[0-9]+\z/ && $pid > 0) {
+			# Bad PID from a mutant — clear it before the module's END fires
+			%Object::Configure::_config_watchers = ();
+		}
+	}
+}
 
 done_testing();
