@@ -7,7 +7,7 @@ Object::Configure - Runtime Configuration for an Object
 
 # VERSION
 
-0.19
+0.20
 
 # SYNOPSIS
 
@@ -290,24 +290,20 @@ Now you can set up a configuration file and environment variables to configure y
                     type => 'string',
                     optional => 1,
                     description => 'Configuration file basename'
-                },
-                config_dirs => {
+                }, config_dirs => {
                     type => 'arrayref',
                     optional => 1,
                     description => 'Directories to search for config files'
-                },
-                logger => {
+                }, logger => {
                     type => [qw(hashref coderef object string arrayref)],
                     optional => 1,
                     description => 'Logger configuration or instance'
-                },
-                carp_on_warn => {
+                }, carp_on_warn => {
                     type => 'boolean',
                     optional => 1,
                     default => 0,
                     description => 'Use Carp::carp for warnings'
-                },
-                croak_on_error => {
+                }, croak_on_error => {
                     type => 'boolean',
                     optional => 1,
                     default => 1,
