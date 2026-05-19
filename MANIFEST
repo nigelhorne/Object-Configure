@@ -22,6 +22,7 @@ t/inheritance.t
 t/instantiate.t
 t/integration.t
 t/manifest.t
+t/mutant_killer.t
 t/pod-cm.t
 t/pod-synopsis.t
 t/pod.t
