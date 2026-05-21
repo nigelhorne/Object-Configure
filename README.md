@@ -7,7 +7,7 @@ Object::Configure - Runtime Configuration for an Object
 
 # VERSION
 
-0.20
+0.21
 
 # SYNOPSIS
 

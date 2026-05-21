@@ -27,11 +27,11 @@ Object::Configure - Runtime Configuration for an Object
 
 =head1 VERSION
 
-0.20
+0.21
 
 =cut
 
-our $VERSION = 0.20;
+our $VERSION = 0.21;
 
 =head1 SYNOPSIS
 
