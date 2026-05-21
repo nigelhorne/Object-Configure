@@ -4,7 +4,7 @@ use strict;
 use warnings;
 
 use Carp;
-use Config::Abstraction 0.37;
+use Config::Abstraction 0.38;
 use File::Spec;
 use Log::Abstraction 0.26;
 use Params::Get 0.13;

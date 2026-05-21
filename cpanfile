@@ -3,7 +3,7 @@
 requires 'perl', '5.008';
 
 requires 'Carp';
-requires 'Config::Abstraction', '0.37';
+requires 'Config::Abstraction', '0.38';
 requires 'ExtUtils::MakeMaker', '6.64';
 requires 'File::Spec';
 requires 'Log::Abstraction', '0.26';

@@ -1,5 +1,10 @@
 Revision history for Object::Configure - Runtime Configuration for an Object
 
+0.21
+
+	[Bug Fixes]
+	- Bump minimum version of Params::Get and Config::Abstraction
+
 0.20 Tue May 19 08:51:20 EDT 2026
 
 	[Enhancement]
