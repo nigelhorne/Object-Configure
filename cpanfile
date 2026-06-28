@@ -11,6 +11,7 @@ requires 'Params::Get', '0.13';
 requires 'Readonly';
 requires 'Return::Set';
 requires 'Scalar::Util';
+requires 'mro';
 
 on 'configure' => sub {
 	requires 'ExtUtils::MakeMaker', '6.64';

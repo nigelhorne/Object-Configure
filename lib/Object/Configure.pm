@@ -41,11 +41,11 @@ Object::Configure - Runtime Configuration for an Object
 
 =head1 VERSION
 
-0.22
+0.23
 
 =cut
 
-our $VERSION = 0.22;
+our $VERSION = 0.23;
 
 =head1 SYNOPSIS
 
@@ -386,39 +386,6 @@ Now you can set up a configuration file and environment variables to configure y
         }
     }
 
-=head3 Formal Specification
-
-    configure: Class x Params -> ConfigHash
-
-    Given:
-    - C: set of all class names
-    - P: set of all parameter hashes
-    - F: set of all file paths
-    - H: set of all configuration hashes
-
-    State:
-    - ConfigFiles: F -> H (maps file paths to configuration content)
-    - EnvVars: String -> String (environment variables)
-    - InheritanceChain: C -> seq C (ordered sequence of ancestor classes)
-
-    Pre-condition:
-    forall class in C, params in P:
-        class != empty
-        (params.config_file != empty =>
-            (exists dir in params.config_dirs: readable(dir/params.config_file))
-            OR readable(params.config_file))
-
-    Post-condition:
-    forall result in H:
-        result = params
-                 (+) (merge f in InheritanceConfigFiles(class): ConfigFiles(f))
-                 (+) (merge v in RelevantEnvVars(class): v)
-        result.logger in Log::Abstraction
-        (forall k in dom params:
-            (params(k) in CodeRef OR blessed(params(k))) => result(k) = params(k))
-
-    where (+) denotes hash merge with right-precedence
-
 =head3 MESSAGES
 
 =over 4
@@ -713,29 +680,6 @@ This is a "quick and dirty" way to add configuration support to classes you don'
     type => 'object',
     description => 'Instance of the specified class'
 
-=head3 Formal Specification
-
-    instantiate: Params -> Object
-
-    Given:
-    - P: set of all parameter hashes
-    - C: set of all class names
-    - O: set of all objects
-
-    Pre-condition:
-    forall params in P:
-        params.class in C
-        params.class.can('new')
-
-    Post-condition:
-    forall result in O:
-        exists config in H:
-            config = configure(params.class, params)
-            result = params.class.new(config)
-            blessed(result) = params.class
-            (config._config_file != empty =>
-                result in _object_registry(params.class))
-
 =cut
 
 sub instantiate
@@ -851,36 +795,6 @@ Objects must be registered via C<register_object> to receive configuration updat
     description => 'PID of background watcher process',
     condition => 'value > 0'
 
-=head3 Formal Specification
-
-    enable_hot_reload: Interval x Callback -> PID
-
-    Given:
-    - I: set of positive integers (intervals in seconds)
-    - CB: set of code references
-    - PID: set of process identifiers
-
-    State:
-    - _config_watchers: {pid: PID, callback: CB}
-    - _config_file_stats: F -> Stat
-
-    Pre-condition:
-    forall interval in I, callback in CB union {empty}:
-        interval >= 1
-        _config_watchers = empty
-        OS != 'MSWin32'
-
-    Post-condition:
-    forall result in PID:
-        result > 0
-        _config_watchers.pid = result
-        _config_watchers.callback = callback
-        (forall t in Time:
-            (t mod interval = 0) =>
-                (exists f in dom _config_file_stats:
-                    mtime(f) > _config_file_stats(f).mtime =>
-                        send_signal(SIGUSR1, parent_process)))
-
 =cut
 
 sub enable_hot_reload {
@@ -959,22 +873,6 @@ The function blocks until the watcher process has fully terminated.
 =head4 Output
 
     type => 'void'
-
-=head3 Formal Specification
-
-    disable_hot_reload: () -> ()
-
-    State:
-    - _config_watchers: {pid: PID, callback: CB}
-
-    Pre-condition:
-    true
-
-    Post-condition:
-    _config_watchers = empty
-    (forall p in PID:
-        p = _config_watchers.pid@pre =>
-            NOT alive(p))
 
 =cut
 
@@ -1069,30 +967,6 @@ Private properties (those starting with C<_>) are not updated during reload.
     type => 'integer',
     description => 'Number of objects successfully reloaded',
     condition => 'value >= 0'
-
-=head3 Formal Specification
-
-    reload_config: () -> N
-
-    State:
-    - _object_registry: C -> seq ObjectRef
-    - ConfigFiles: F -> H
-
-    Pre-condition:
-    true
-
-    Post-condition:
-    forall result in N:
-        result = |{obj in flatten(ran _object_registry) |
-                   obj != empty
-                   obj._config_file in dom ConfigFiles}|
-        (forall obj in flatten(ran _object_registry):
-            obj != empty AND obj._config_file in dom ConfigFiles =>
-                (forall k in dom ConfigFiles(obj._config_file):
-                    k NOT in PrivateKeys =>
-                        obj(k)@post = ConfigFiles(obj._config_file)(k)))
-
-    where PrivateKeys = {k | k starts with '_'}
 
 =cut
 
@@ -1208,34 +1082,6 @@ On Windows, the signal handler is not installed (SIGUSR1 does not exist).
 
     type => 'void'
 
-=head3 Formal Specification
-
-    register_object: C x O -> ()
-
-    Given:
-    - C: set of class names
-    - O: set of blessed objects
-    - OR: C -> seq WeakRef(O) (object registry)
-
-    State:
-    - _object_registry: OR
-    - _original_usr1_handler: SignalHandler union {empty}
-    - $SIG{USR1}: SignalHandler
-
-    Pre-condition:
-    forall class in C, obj in O:
-        class != empty
-        obj != empty
-        blessed(obj) != empty
-
-    Post-condition:
-    forall class in C, obj in O:
-        exists ref in _object_registry(class):
-            weak(ref) = obj
-        (_original_usr1_handler = empty@pre =>
-            (_original_usr1_handler@post = $SIG{USR1}@pre
-             $SIG{USR1}@post = reload_config_handler))
-
 =cut
 
 sub register_object
@@ -1329,21 +1175,6 @@ On Windows, this function has no effect (SIGUSR1 does not exist).
 
     type => 'void'
 
-=head3 Formal Specification
-
-    restore_signal_handlers: () -> ()
-
-    State:
-    - _original_usr1_handler: SignalHandler union {empty}
-    - $SIG{USR1}: SignalHandler
-
-    Pre-condition:
-    true
-
-    Post-condition:
-    $SIG{USR1}@post = _original_usr1_handler@pre
-    _original_usr1_handler@post = empty
-
 =cut
 
 sub restore_signal_handlers
@@ -1394,10 +1225,6 @@ The PID of the background watcher process, or undef if not running.
 
 =back
 
-=head3 Side Effects
-
-None.
-
 =head3 Notes
 
 This is primarily a debugging aid and is not needed for normal operation.
@@ -1445,28 +1272,6 @@ This is primarily a debugging aid and is not needed for normal operation.
             description => 'Background watcher process PID'
         }
     }
-
-=head3 Formal Specification
-
-    get_signal_handler_info: () -> InfoHash
-
-    Given:
-    - IH: set of all info hashes
-
-    State:
-    - _original_usr1_handler: SignalHandler union {empty}
-    - $SIG{USR1}: SignalHandler union {empty}
-    - _config_watchers: {pid: PID, callback: CB}
-
-    Pre-condition:
-    true
-
-    Post-condition:
-    forall result in IH:
-        result.original_usr1 = _original_usr1_handler
-        result.current_usr1 = $SIG{USR1}
-        result.hot_reload_active = (_original_usr1_handler != empty)
-        result.watcher_pid = _config_watchers.pid
 
 =cut
 
@@ -1526,7 +1331,6 @@ sub _build_logger {
 #            it unless it appears in @ISA, yet Object::Configure supports universal.yml.
 # Entry:     $class is a fully-qualified class name that has already been loaded.
 # Exit:      Returns a list in base-first order: (UNIVERSAL, ..., GrandParent, Parent, Class).
-# Side:      None.
 sub _get_inheritance_chain {
 	my ($class) = @_;
 
@@ -1546,7 +1350,6 @@ sub _get_inheritance_chain {
 #            $base_config_file is the primary config file path (provides dir and ext).
 #            $config_dirs is an optional arrayref of additional search directories.
 # Exit:      Returns a readable file path, or undef if nothing found.
-# Side:      None.
 sub _find_class_config_file {
 	my ($class, $base_config_file, $config_dirs) = @_;
 
@@ -1712,7 +1515,6 @@ sub _reconfigure_logger
 #            nested hashrefs are merged recursively.
 # Entry:     Both args should be hashrefs (or undef/non-ref, handled gracefully).
 # Exit:      Returns a new hashref; neither input is modified.
-# Side:      None.
 sub _deep_merge {
 	my ($base, $overlay) = @_;
 
@@ -1792,6 +1594,199 @@ always discovered.  If a future Perl version changes this behaviour the guard
 (C<grep { $_ eq 'UNIVERSAL' }>) remains correct.
 
 =back
+
+=head1 Formal Specification
+
+=head2 configure
+
+    configure: Class x Params -> ConfigHash
+
+    Given:
+    - C: set of all class names
+    - P: set of all parameter hashes
+    - F: set of all file paths
+    - H: set of all configuration hashes
+
+    State:
+    - ConfigFiles: F -> H (maps file paths to configuration content)
+    - EnvVars: String -> String (environment variables)
+    - InheritanceChain: C -> seq C (ordered sequence of ancestor classes)
+
+    Pre-condition:
+    forall class in C, params in P:
+        class != empty
+        (params.config_file != empty =>
+            (exists dir in params.config_dirs: readable(dir/params.config_file))
+            OR readable(params.config_file))
+
+    Post-condition:
+    forall result in H:
+        result = params
+                 (+) (merge f in InheritanceConfigFiles(class): ConfigFiles(f))
+                 (+) (merge v in RelevantEnvVars(class): v)
+        result.logger in Log::Abstraction
+        (forall k in dom params:
+            (params(k) in CodeRef OR blessed(params(k))) => result(k) = params(k))
+
+    where (+) denotes hash merge with right-precedence
+
+=head2 instantiate
+
+    instantiate: Params -> Object
+
+    Given:
+    - P: set of all parameter hashes
+    - C: set of all class names
+    - O: set of all objects
+
+    Pre-condition:
+    forall params in P:
+        params.class in C
+        params.class.can('new')
+
+    Post-condition:
+    forall result in O:
+        exists config in H:
+            config = configure(params.class, params)
+            result = params.class.new(config)
+            blessed(result) = params.class
+            (config._config_file != empty =>
+                result in _object_registry(params.class))
+
+=head2 enable_hot_reload
+
+    enable_hot_reload: Interval x Callback -> PID
+
+    Given:
+    - I: set of positive integers (intervals in seconds)
+    - CB: set of code references
+    - PID: set of process identifiers
+
+    State:
+    - _config_watchers: {pid: PID, callback: CB}
+    - _config_file_stats: F -> Stat
+
+    Pre-condition:
+    forall interval in I, callback in CB union {empty}:
+        interval >= 1
+        _config_watchers = empty
+        OS != 'MSWin32'
+
+    Post-condition:
+    forall result in PID:
+        result > 0
+        _config_watchers.pid = result
+        _config_watchers.callback = callback
+        (forall t in Time:
+            (t mod interval = 0) =>
+                (exists f in dom _config_file_stats:
+                    mtime(f) > _config_file_stats(f).mtime =>
+                        send_signal(SIGUSR1, parent_process)))
+
+=head2 disable_hot_reload
+
+    disable_hot_reload: () -> ()
+
+    State:
+    - _config_watchers: {pid: PID, callback: CB}
+
+    Pre-condition:
+    true
+
+    Post-condition:
+    _config_watchers = empty
+    (forall p in PID:
+        p = _config_watchers.pid@pre =>
+            NOT alive(p))
+
+=head2 reload_config
+
+    reload_config: () -> N
+
+    State:
+    - _object_registry: C -> seq ObjectRef
+    - ConfigFiles: F -> H
+
+    Pre-condition:
+    true
+
+    Post-condition:
+    forall result in N:
+        result = |{obj in flatten(ran _object_registry) |
+                   obj != empty
+                   obj._config_file in dom ConfigFiles}|
+        (forall obj in flatten(ran _object_registry):
+            obj != empty AND obj._config_file in dom ConfigFiles =>
+                (forall k in dom ConfigFiles(obj._config_file):
+                    k NOT in PrivateKeys =>
+                        obj(k)@post = ConfigFiles(obj._config_file)(k)))
+
+    where PrivateKeys = {k | k starts with '_'}
+
+=head2 register_object
+
+    register_object: C x O -> ()
+
+    Given:
+    - C: set of class names
+    - O: set of blessed objects
+    - OR: C -> seq WeakRef(O) (object registry)
+
+    State:
+    - _object_registry: OR
+    - _original_usr1_handler: SignalHandler union {empty}
+    - $SIG{USR1}: SignalHandler
+
+    Pre-condition:
+    forall class in C, obj in O:
+        class != empty
+        obj != empty
+        blessed(obj) != empty
+
+    Post-condition:
+    forall class in C, obj in O:
+        exists ref in _object_registry(class):
+            weak(ref) = obj
+        (_original_usr1_handler = empty@pre =>
+            (_original_usr1_handler@post = $SIG{USR1}@pre
+             $SIG{USR1}@post = reload_config_handler))
+
+=head2 restore_signal_handlers
+
+    restore_signal_handlers: () -> ()
+
+    State:
+    - _original_usr1_handler: SignalHandler union {empty}
+    - $SIG{USR1}: SignalHandler
+
+    Pre-condition:
+    true
+
+    Post-condition:
+    $SIG{USR1}@post = _original_usr1_handler@pre
+    _original_usr1_handler@post = empty
+
+=head2 get_sigal_handler_info
+
+    get_signal_handler_info: () -> InfoHash
+
+    Given:
+    - IH: set of all info hashes
+
+    State:
+    - _original_usr1_handler: SignalHandler union {empty}
+    - $SIG{USR1}: SignalHandler union {empty}
+    - _config_watchers: {pid: PID, callback: CB}
+
+    Pre-condition:
+    true
+
+    Post-condition:
+    forall result in IH:
+        result.original_usr1 = _original_usr1_handler
+        result.current_usr1 = $SIG{USR1}
+        result.hot_reload_active = (_original_usr1_handler != empty)
+        result.watcher_pid = _config_watchers.pid
 
 =head1 SUPPORT
 
