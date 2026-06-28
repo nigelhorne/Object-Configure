@@ -246,7 +246,7 @@ pre details.mutant-details ul {
 <strong>Structural Coverage (Approximate)</strong><p>
 TER1 (Statement): 95.70%<br>
 TER2 (Branch): 83.12%<br>
-TER3 (LCSAJ): 100.0% (51/51)<br>
+TER3 (LCSAJ): 100.0% (23/23)<br>
 Approximate LCSAJ segments: 161<br>
 </div>
 
@@ -700,7 +700,7 @@ Approximate LCSAJ segments: 161<br>
 </span><span class="">  408: =cut
 </span><span class="">  409: 
 </span><span class="">  410: sub configure {
-</span><span class=""><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">411 → 426 → 434</span></span><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">411 → 426 → 0</span></span>  411: 	my $class = $_[0];
+</span><span class=""><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">411 → 426 → 434</span></span>  411: 	my $class = $_[0];
 </span><span class="">  412: 	my $params = $_[1] || {};	# Contains the defaults, the run time config will overwrite them
 </span><span class="">  413: 	my $array;
 </span><span class="">  414: 
@@ -723,11 +723,11 @@ Approximate LCSAJ segments: 161<br>
 </span><span class="">  431: 		}
 </span><span class="">  432: 	}
 </span><span class="">  433: 
-</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic."><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">434 → 434 → 438</span></span><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">434 → 434 → 0</span></span>  434: 	if(exists($params-&gt;{&#39;logger&#39;}) &amp;&amp; (ref($params-&gt;{&#39;logger&#39;}) eq &#39;ARRAY&#39;)) {
+</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic."><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">434 → 434 → 438</span></span>  434: 	if(exists($params-&gt;{&#39;logger&#39;}) &amp;&amp; (ref($params-&gt;{&#39;logger&#39;}) eq &#39;ARRAY&#39;)) {
 </span><p> <b> Mutants (Total: 1, Killed: 1, Survived: 0)</b><p><span class="">  435: 		$array = delete $params-&gt;{&#39;logger&#39;};
 </span><span class="">  436: 	}
 </span><span class="">  437: 
-</span><span class=""><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">438 → 452 → 517</span></span><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">438 → 452 → 0</span></span>  438: 	my $original_class = $class;
+</span><span class=""><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">438 → 452 → 517</span></span>  438: 	my $original_class = $class;
 </span><span class="">  439: 	$class =~ s/::/__/g;
 </span><span class="">  440: 
 </span><span class="">  441: 	# Store config file path for hot reload
@@ -812,7 +812,7 @@ Approximate LCSAJ segments: 161<br>
 </span><span class="">  514: 	}
 </span><span class="">  515: 
 </span><span class="">  516: 	# Load and merge configurations from all files
-</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic."><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">517 → 517 → 603</span></span><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">517 → 517 → 0</span></span>  517: 	if (@config_files_to_load) {
+</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic."><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">517 → 517 → 603</span></span>  517: 	if (@config_files_to_load) {
 </span><p> <b> Mutants (Total: 1, Killed: 1, Survived: 0)</b><p><span class="">  518: 		# Sort by class hierarchy to ensure correct order (base -&gt; parent -&gt; child)
 </span><span class="">  519: 		# This must happen AFTER all files are collected
 </span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic.">  520: 		if (@config_files_to_load) {
@@ -904,7 +904,7 @@ Approximate LCSAJ segments: 161<br>
 </span><span class="">  600: 		}
 </span><span class="">  601: 	}
 </span><span class="">  602: 
-</span><span class=""><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">603 → 607 → 640</span></span><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">603 → 607 → 0</span></span>  603: 	my $croak_on_error = exists($params-&gt;{&#39;croak_on_error&#39;}) ? $params-&gt;{&#39;croak_on_error&#39;} : 1;
+</span><span class=""><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">603 → 607 → 640</span></span>  603: 	my $croak_on_error = exists($params-&gt;{&#39;croak_on_error&#39;}) ? $params-&gt;{&#39;croak_on_error&#39;} : 1;
 </span><span class="">  604: 	my $carp_on_warn = exists($params-&gt;{&#39;carp_on_warn&#39;}) ? $params-&gt;{&#39;carp_on_warn&#39;} : 0;
 </span><span class="">  605: 
 </span><span class="">  606: 	# Load the default logger
@@ -947,7 +947,7 @@ Approximate LCSAJ segments: 161<br>
 </span><span class="">  637: 		$params-&gt;{&#39;logger&#39;} = Log::Abstraction-&gt;new(carp_on_warn =&gt; $carp_on_warn);
 </span><span class="">  638: 	}
 </span><span class="">  639: 
-</span><span class="survived-1 tooltip" data-tooltip="Mutation survived. Add targeted tests to validate this branch."><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">640 → 640 → 652</span></span><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">640 → 640 → 0</span></span>  640: 	if(exists($params-&gt;{&#39;logger&#39;}) &amp;&amp; ref($params-&gt;{&#39;logger&#39;})) {
+</span><span class="survived-1 tooltip" data-tooltip="Mutation survived. Add targeted tests to validate this branch."><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">640 → 640 → 652</span></span>  640: 	if(exists($params-&gt;{&#39;logger&#39;}) &amp;&amp; ref($params-&gt;{&#39;logger&#39;})) {
 </span>
 					<details class="mutant-details">
 					<summary>Mutants (Total: 1, Killed: 0, Survived: 1)</summary>
@@ -965,15 +965,15 @@ Approximate LCSAJ segments: 161<br>
 </span><span class="">  649: 
 </span><span class="">  650: 	# Store config file path in params for hot reload
 </span><span class="">  651: 	# Preserve user-provided internal keys
-</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic."><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">652 → 652 → 655</span></span><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">652 → 652 → 0</span></span>  652: 	if (!exists($params-&gt;{_config_file})) {
+</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic."><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">652 → 652 → 655</span></span>  652: 	if (!exists($params-&gt;{_config_file})) {
 </span><p> <b> Mutants (Total: 1, Killed: 1, Survived: 0)</b><p><span class="">  653: 		$params-&gt;{_config_file} = $config_file if defined($config_file);
 </span><span class="">  654: 	}
-</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic."><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">655 → 655 → 660</span></span><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">655 → 655 → 0</span></span>  655: 	if (!exists($params-&gt;{_config_files})) {
+</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic."><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">655 → 655 → 660</span></span>  655: 	if (!exists($params-&gt;{_config_files})) {
 </span><p> <b> Mutants (Total: 1, Killed: 1, Survived: 0)</b><p><span class="">  656: 		$params-&gt;{_config_files} = [map { $_-&gt;{file} } @config_files_to_load] if @config_files_to_load;
 </span><span class="">  657: 	}
 </span><span class="">  658: 
 </span><span class="">  659: 	# Restore stashed coderefs and objects via hash slice
-</span><span class=""><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">660 → 662 → 0</span></span>  660: 	@{$params}{keys %stashed_values} = values %stashed_values if %stashed_values;
+</span><span class="">  660: 	@{$params}{keys %stashed_values} = values %stashed_values if %stashed_values;
 </span><span class="">  661: 
 </span><span class="">  662: 	return Return::Set::set_return($params, { &#39;type&#39; =&gt; &#39;hashref&#39; });
 </span><span class="">  663: }
@@ -981,7 +981,7 @@ Approximate LCSAJ segments: 161<br>
 </span><span class="">  665: # Find the appropriate config file for a given class
 </span><span class="">  666: # Looks for class-specific config files based on naming conventions
 </span><span class="">  667: sub _find_class_config_file {
-</span><span class=""><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">668 → 690 → 697</span></span><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">668 → 690 → 0</span></span>  668: 	my ($class, $base_config_file, $config_dirs) = @_;
+</span><span class=""><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">668 → 690 → 697</span></span>  668: 	my ($class, $base_config_file, $config_dirs) = @_;
 </span><span class="">  669: 
 </span><span class="">  670: 	# Convert class name to file-friendly format
 </span><span class="">  671: 	my $class_file = lc($class);
@@ -1010,7 +1010,7 @@ Approximate LCSAJ segments: 161<br>
 </span><span class="">  694: 	}
 </span><span class="">  695: 
 </span><span class="">  696: 	# Then try config_dirs in order - fully check each dir before moving to next
-</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic."><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">697 → 697 → 716</span></span><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">697 → 697 → 0</span></span>  697: 	if ($config_dirs &amp;&amp; ref($config_dirs) eq &#39;ARRAY&#39;) {
+</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic."><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">697 → 697 → 716</span></span>  697: 	if ($config_dirs &amp;&amp; ref($config_dirs) eq &#39;ARRAY&#39;) {
 </span><p> <b> Mutants (Total: 1, Killed: 1, Survived: 0)</b><p><span class="">  698: 		foreach my $dir (@$config_dirs) {
 </span><span class="">  699: 			# Remove trailing slash if present
 </span><span class="">  700: 			$dir =~ s{/$}{};
@@ -1029,7 +1029,7 @@ Approximate LCSAJ segments: 161<br>
 </span><span class="">  713: 		}
 </span><span class="">  714: 	}
 </span><span class="">  715: 
-</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic."><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">716 → 716 → 0</span></span>  716: 	return undef;
+</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic.">  716: 	return undef;
 </span><p> <b> Mutants (Total: 2, Killed: 2, Survived: 0)</b><p><span class="">  717: }
 </span><span class="">  718: 
 </span><span class="">  719: # Helper function to get the inheritance chain for a class
@@ -1045,7 +1045,7 @@ Approximate LCSAJ segments: 161<br>
 </span><span class="">  729: 
 </span><span class="">  730: # Recursive function to walk the @ISA hierarchy
 </span><span class="">  731: sub _walk_isa {
-</span><span class=""><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">732 → 742 → 753</span></span><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">732 → 742 → 0</span></span>  732: 	my ($class, $chain, $seen) = @_;
+</span><span class=""><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">732 → 742 → 753</span></span>  732: 	my ($class, $chain, $seen) = @_;
 </span><span class="">  733: 
 </span><span class="">  734: 	return if $seen-&gt;{$class}++;
 </span><span class="">  735: 
@@ -1066,18 +1066,18 @@ Approximate LCSAJ segments: 161<br>
 </span><span class="">  750: 
 </span><span class="">  751: 	# If this class has no parents and isn&#39;t UNIVERSAL itself,
 </span><span class="">  752: 	# explicitly add UNIVERSAL as a parent
-</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic."><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">753 → 753 → 758</span></span><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">753 → 753 → 0</span></span>  753: 	if (!@isa &amp;&amp; $class ne &#39;UNIVERSAL&#39;) {
+</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic."><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">753 → 753 → 758</span></span>  753: 	if (!@isa &amp;&amp; $class ne &#39;UNIVERSAL&#39;) {
 </span><p> <b> Mutants (Total: 1, Killed: 1, Survived: 0)</b><p><span class="">  754: 		_walk_isa(&#39;UNIVERSAL&#39;, $chain, $seen);
 </span><span class="">  755: 	}
 </span><span class="">  756: 
 </span><span class="">  757: 	# Add current class to chain (after parents)
-</span><span class=""><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">758 → 758 → 0</span></span>  758: 	push @$chain, $class;
+</span><span class="">  758: 	push @$chain, $class;
 </span><span class="">  759: }
 </span><span class="">  760: 
 </span><span class="">  761: # Deep merge two hash references
 </span><span class="">  762: # Second hash takes precedence over first
 </span><span class="">  763: sub _deep_merge {
-</span><span class=""><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">764 → 771 → 779</span></span><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">764 → 771 → 0</span></span>  764: 	my ($base, $overlay) = @_;
+</span><span class=""><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">764 → 771 → 779</span></span>  764: 	my ($base, $overlay) = @_;
 </span><span class="">  765: 
 </span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic.">  766: 	return $overlay unless ref($base) eq &#39;HASH&#39;;
 </span><p> <b> Mutants (Total: 2, Killed: 2, Survived: 0)</b><p><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic.">  767: 	return $overlay unless ref($overlay) eq &#39;HASH&#39;;
@@ -1092,7 +1092,7 @@ Approximate LCSAJ segments: 161<br>
 </span><span class="">  776: 		}
 </span><span class="">  777: 	}
 </span><span class="">  778: 
-</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic."><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">779 → 779 → 0</span></span>  779: 	return $result;
+</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic.">  779: 	return $result;
 </span><p> <b> Mutants (Total: 2, Killed: 2, Survived: 0)</b><p><span class="">  780: }
 </span><span class="">  781: 
 </span><span class="">  782: 
@@ -1201,7 +1201,7 @@ Approximate LCSAJ segments: 161<br>
 </span><span class="">  885: 
 </span><span class="">  886: sub instantiate
 </span><span class="">  887: {
-</span><span class=""><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">888 → 896 → 900</span></span><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">888 → 896 → 0</span></span>  888: 	my $params = Params::Get::get_params(&#39;class&#39;, @_);
+</span><span class=""><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">888 → 896 → 900</span></span>  888: 	my $params = Params::Get::get_params(&#39;class&#39;, @_);
 </span><span class="">  889: 
 </span><span class="">  890: 	my $class = $params-&gt;{&#39;class&#39;};
 </span><span class="">  891: 	$params = configure($class, $params);
@@ -1213,7 +1213,7 @@ Approximate LCSAJ segments: 161<br>
 </span><p> <b> Mutants (Total: 1, Killed: 1, Survived: 0)</b><p><span class="">  897: 		register_object($class, $obj);
 </span><span class="">  898: 	}
 </span><span class="">  899: 
-</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic."><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">900 → 900 → 0</span></span>  900: 	return $obj;
+</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic.">  900: 	return $obj;
 </span><p> <b> Mutants (Total: 2, Killed: 2, Survived: 0)</b><p><span class="">  901: }
 </span><span class="">  902: 
 </span><span class="">  903: =head1 HOT RELOAD FEATURES
@@ -1567,7 +1567,7 @@ Approximate LCSAJ segments: 161<br>
 </span><span class=""> 1251: =cut
 </span><span class=""> 1252: 
 </span><span class=""> 1253: sub reload_config {
-</span><span class=""><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">1254 → 1256 → 1278</span></span><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">1254 → 1256 → 0</span></span> 1254: 	my $reloaded_count = 0;
+</span><span class=""><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">1254 → 1256 → 1278</span></span> 1254: 	my $reloaded_count = 0;
 </span><span class=""> 1255: 
 </span><span class=""> 1256: 	foreach my $class_key (keys %_object_registry) {
 </span><span class=""> 1257: 		my $objects = $_object_registry{$class_key};
@@ -1591,7 +1591,7 @@ Approximate LCSAJ segments: 161<br>
 </span><span class=""> 1275: 		delete $_object_registry{$class_key} unless @$objects;
 </span><span class=""> 1276: 	}
 </span><span class=""> 1277: 
-</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic."><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">1278 → 1278 → 0</span></span> 1278: 	return $reloaded_count;
+</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic."> 1278: 	return $reloaded_count;
 </span><p> <b> Mutants (Total: 2, Killed: 2, Survived: 0)</b><p><span class=""> 1279: }
 </span><span class=""> 1280: 
 </span><span class=""> 1281: # Internal function to run the config file watcher
@@ -1645,7 +1645,7 @@ Approximate LCSAJ segments: 161<br>
 </span><span class=""> 1323: 
 </span><span class=""> 1324: # Internal function to reload a single object&#39;s configuration
 </span><span class=""> 1325: sub _reload_object_config {
-</span><span class=""><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">1326 → 1337 → 1344</span></span><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">1326 → 1337 → 0</span></span> 1326: 	my $obj = $_[0];
+</span><span class=""><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">1326 → 1337 → 1344</span></span> 1326: 	my $obj = $_[0];
 </span><span class=""> 1327: 
 </span><span class=""> 1328: 	return unless blessed($obj);
 </span><span class=""> 1329: 
@@ -1663,7 +1663,7 @@ Approximate LCSAJ segments: 161<br>
 </span><span class=""> 1341: 		$config_file = $obj-&gt;{_config_file} || $obj-&gt;{config_file};
 </span><span class=""> 1342: 	}
 </span><span class=""> 1343: 
-</span><span class=""><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">1344 → 1352 → 1384</span></span><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">1344 → 1352 → 0</span></span> 1344: 	return unless $config_file &amp;&amp; -f $config_file;
+</span><span class=""><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">1344 → 1352 → 1384</span></span> 1344: 	return unless $config_file &amp;&amp; -f $config_file;
 </span><span class=""> 1345: 
 </span><span class=""> 1346: 	# Reload the configuration
 </span><span class=""> 1347: 	my $config = Config::Abstraction-&gt;new(
@@ -1715,7 +1715,7 @@ Approximate LCSAJ segments: 161<br>
 </span><span class=""> 1381: 		}
 </span><span class=""> 1382: 	}
 </span><span class=""> 1383: 
-</span><span class=""><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">1384 → 1384 → 0</span></span> 1384: 	return;
+</span><span class=""> 1384: 	return;
 </span><span class=""> 1385: }
 </span><span class=""> 1386: 
 </span><span class=""> 1387: # Internal function to reconfigure the logger
@@ -1868,7 +1868,7 @@ Approximate LCSAJ segments: 161<br>
 </span><span class=""> 1528: 
 </span><span class=""> 1529: sub register_object
 </span><span class=""> 1530: {
-</span><span class=""><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">1531 → 1542 → 1571</span></span><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">1531 → 1542 → 0</span></span> 1531: 	my ($class, $obj) = @_;
+</span><span class=""><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">1531 → 1542 → 1571</span></span> 1531: 	my ($class, $obj) = @_;
 </span><span class=""> 1532: 
 </span><span class=""> 1533: 	croak(__PACKAGE__, &#39;::register_object: Usage ($class, $obj)&#39;) unless(defined($class) &amp;&amp; defined($obj));
 </span><span class=""> 1534: 
@@ -1908,7 +1908,7 @@ Approximate LCSAJ segments: 161<br>
 </span><span class=""> 1568: 			}
 </span><span class=""> 1569: 		};
 </span><span class=""> 1570: 	}
-</span><span class=""><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">1571 → 1571 → 0</span></span> 1571: 	return;	# ensure the functions return nothing (void/empty list)
+</span><span class=""> 1571: 	return;	# ensure the functions return nothing (void/empty list)
 </span><span class=""> 1572: }
 </span><span class=""> 1573: 
 </span><span class=""> 1574: =head2 restore_signal_handlers
@@ -1983,12 +1983,12 @@ Approximate LCSAJ segments: 161<br>
 </span><span class=""> 1643: 
 </span><span class=""> 1644: sub restore_signal_handlers
 </span><span class=""> 1645: {
-</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic."><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">1646 → 1646 → 1651</span></span><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">1646 → 1646 → 0</span></span> 1646: 	if (defined $_original_usr1_handler) {
+</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic."><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">1646 → 1646 → 1651</span></span> 1646: 	if (defined $_original_usr1_handler) {
 </span><p> <b> Mutants (Total: 1, Killed: 1, Survived: 0)</b><p><span class=""> 1647: 		$SIG{USR1} = $_original_usr1_handler if($^O ne &#39;MSWin32&#39;);	# There is no SIGUSR1 on Windows
 </span><span class=""> 1648: 		$_original_usr1_handler = undef;
 </span><span class=""> 1649: 	}
 </span><span class=""> 1650: 
-</span><span class=""><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">1651 → 1651 → 0</span></span> 1651: 	return;	# ensure the functions return nothing (void/empty list)
+</span><span class=""> 1651: 	return;	# ensure the functions return nothing (void/empty list)
 </span><span class=""> 1652: }
 </span><span class=""> 1653: 
 </span><span class=""> 1654: =head2 get_signal_handler_info
