@@ -8,6 +8,7 @@ requires 'ExtUtils::MakeMaker', '6.64';
 requires 'File::Spec';
 requires 'Log::Abstraction', '0.26';
 requires 'Params::Get', '0.13';
+requires 'Readonly';
 requires 'Return::Set';
 requires 'Scalar::Util';
 
@@ -22,7 +23,6 @@ on 'test' => sub {
 	requires 'IO::Handle';
 	requires 'IPC::System::Simple';
 	requires 'POSIX';
-	requires 'Readonly';
 	requires 'Test::DescribeMe';
 	requires 'Test::Mockingbird', '0.10';
 	requires 'Test::Most';

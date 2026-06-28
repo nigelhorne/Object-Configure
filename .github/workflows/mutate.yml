@@ -40,7 +40,9 @@ jobs:
           fi
           echo "MUTATION_BASE_SHA=$BASE" >> $GITHUB_ENV
           echo "Base commit for mutation diff: $BASE"
-          if git rev-parse "${BASE}^" >/dev/null 2>&1; then
+          if [ -z "$BASE" ]; then
+            echo "No code commit found outside bot-generated commits; skipping diff"
+          elif git rev-parse "${BASE}^" >/dev/null 2>&1; then
             git diff --name-only "${BASE}^" HEAD
           else
             echo "Base commit is the root commit, no parent to diff against"
@@ -50,7 +52,7 @@ jobs:
         run: |
           if [ "${{ github.repository }}" != "nigelhorne/App-Test-Generator" ]; then
             cpanm -iqn Data::Random::Structure Data::Random::String::Matches Data::Random::String Data::Random
-            cpanm -iqn App::Test::Generator@0.39
+            cpanm -iqn App::Test::Generator@0.41
           fi
 
       - name: Generate the mutants
@@ -73,12 +75,18 @@ jobs:
           else
             ATG_CMD=$(which test-generator-mutate) || { echo "test-generator-mutate not found — did App::Test::Generator install correctly?"; exit 1; }
             MUTATE_CMD="perl -Ilib -Iblib/lib $ATG_CMD"
+            if [ -n "$MUTATION_BASE_SHA" ]; then
+              BASE_SHA_FLAG="--base_sha $MUTATION_BASE_SHA"
+            else
+              BASE_SHA_FLAG=""
+            fi
+            # shellcheck disable=SC2086
             $MUTATE_CMD \
               --lib lib \
               --tests t \
               --json mutation.json \
               --changed_only \
-              --base_sha "$MUTATION_BASE_SHA" \
+              $BASE_SHA_FLAG \
               --mutation_level fast
           fi
 
@@ -91,6 +99,6 @@ jobs:
             echo "No changes to commit"
           else
             git commit -m "Update mutation results ($(date +%Y-%m-%d) $(git rev-parse --short HEAD))"
-            git pull --rebase --quiet origin "${GITHUB_REF_NAME}" || true
+            git pull --rebase origin "${GITHUB_REF_NAME}"
             git push origin HEAD:"${GITHUB_REF_NAME}"
           fi
