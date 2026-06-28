@@ -1,5 +1,9 @@
 Revision history for Object::Configure - Runtime Configuration for an Object
 
+0.22
+	[ Bug Fixes ]
+	- Fixed https://github.com/nigelhorne/Object-Configure/issues/4
+
 0.21	Thu May 21 07:55:13 EDT 2026
 
 	[Bug Fixes]
