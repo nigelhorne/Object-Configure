@@ -520,6 +520,8 @@ sub configure {
 			my $cfg_class   = $config_info->{class};
 			my $section_name = $cfg_class;
 			$section_name =~ s/::/__/g;
+			# Protect the caller's $@ from being clobbered by our internal eval blocks.
+			local $@;
 
 			# Load only the specific file; do not re-pass config_dirs to avoid
 			# re-scanning directories and picking up the wrong file for this class.
@@ -980,6 +982,8 @@ sub reload_config {
 
 		foreach my $obj_ref (@$objects) {
 			if(my $obj = $$obj_ref) {
+				# Protect the caller's $@ from being clobbered by our internal eval blocks.
+				local $@;
 				eval {
 					_reload_object_config($obj);
 					$reloaded_count++;
