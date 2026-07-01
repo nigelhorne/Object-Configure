@@ -1,5 +1,10 @@
 Revision history for Object::Configure - Runtime Configuration for an Object
 
+0.24
+	[ Bug Fixes ]
+	- Config::Abstraction, Log::Abstraction, and Return::Set all use eval internally
+	  protect the caller's $@ from being clobbered by our internal eval blocks.
+
 0.23	Sun Jun 28 09:55:21 EDT 2026
 	[ Refactoring ]
 	- Replaced hand-rolled _walk_isa / _get_inheritance_chain with mro::get_linear_isa

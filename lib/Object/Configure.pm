@@ -429,6 +429,10 @@ sub configure {
 	croak(__PACKAGE__, ': configure: what class do you want to configure?')
 		if !defined($class) || $class eq '';
 
+	# Config::Abstraction, Log::Abstraction, and Return::Set all use eval internally
+	# Protect the caller's $@ from being clobbered by our internal eval blocks.
+	local $@;
+
 	# Config::Abstraction treats unknown scalar values as config file paths and will
 	# attempt to read them, corrupting coderefs and object references.
 	# Stash them here and restore after merging so callers never need this pattern.
@@ -520,8 +524,6 @@ sub configure {
 			my $cfg_class   = $config_info->{class};
 			my $section_name = $cfg_class;
 			$section_name =~ s/::/__/g;
-			# Protect the caller's $@ from being clobbered by our internal eval blocks.
-			local $@;
 
 			# Load only the specific file; do not re-pass config_dirs to avoid
 			# re-scanning directories and picking up the wrong file for this class.
