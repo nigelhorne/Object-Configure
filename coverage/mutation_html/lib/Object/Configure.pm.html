@@ -293,8 +293,8 @@ a.intra-dot:hover { color: #7700bb; }
 <div class="nav"><a href="../../../index.html">Index</a>
 </div><div class='summary'>
 <strong>Structural Coverage (Approximate)</strong><p>
-TER1 (Statement): 95.48%<br>
-TER2 (Branch): 86.08%<br>
+TER1 (Statement): 96.13%<br>
+TER2 (Branch): 87.34%<br>
 TER3 (LCSAJ): 100.0% (19/19)<br>
 Approximate LCSAJ segments: 159<br>
 </div>
@@ -801,7 +801,7 @@ Approximate LCSAJ segments: 159<br>
 					<ul>
 				<li><b>COND_INV_456_2: Invert condition if to unless</b><br>MEDIUM: Add tests asserting both true and false outcomes
 </li></ul></details>
-<span class="">  457: 		unless $class =~ /\A[A-Za-z_]\w*(?:::\w+)*\z/;
+<span class="">  457: 		unless $class =~ /\A[A-Za-z_]\w*(?:::[A-Za-z_]\w*)*\z/;
 </span><span class="">  458: 
 </span><span class="">  459: 	# Config::Abstraction, Log::Abstraction, and Return::Set all use eval internally
 </span><span class="">  460: 	# Protect the caller&#39;s $@ from being clobbered by our internal eval blocks.
@@ -1901,7 +1901,7 @@ Approximate LCSAJ segments: 159<br>
 </span><span class=""> 1536: # Exit:      Returns nothing; updates $obj in-place.
 </span><span class=""> 1537: # Side:      Reads from disk. Calls $obj-&gt;_on_config_reload if the method exists.
 </span><span class=""> 1538: sub _reload_object_config {
-</span><span class=""><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">1539 → 1549 → 1555</span></span> 1539: 	my $obj = $_[0];
+</span><span class=""><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">1539 → 1549 → 1560</span></span> 1539: 	my $obj = $_[0];
 </span><span class=""> 1540: 
 </span><span class=""> 1541: 	return unless blessed($obj);
 </span><span class=""> 1542: 
@@ -1917,378 +1917,379 @@ Approximate LCSAJ segments: 159<br>
 </span><span class=""> 1552: 		$config_file = $obj-&gt;{_config_file} || $obj-&gt;{config_file};
 </span><span class=""> 1553: 	}
 </span><span class=""> 1554: 
-</span><span class=""><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">1555 → 1561 → 1567</span></span> 1555: 	return unless $config_file &amp;&amp; -f $config_file;
-</span><span class=""> 1556: 
-</span><span class=""> 1557: 	# SECURITY (S1 &acirc;&#128;&#148; path traversal): an attacker who modifies $obj-&gt;{_config_file}
-</span><span class=""> 1558: 	# (e.g., via a deserialization gadget or a malicious config merge) can redirect
-</span><span class=""> 1559: 	# hot-reload to read arbitrary system files.  Reject paths with &quot;..&quot; segments here
-</span><span class=""> 1560: 	# so that even a corrupted object cannot force a traversal read.
-</span><span class=""> 1561: 	if($config_file =~ $RE_PATH_TRAVERSAL) {
-</span><span class=""> 1562: 		carp(__PACKAGE__, &#39;: _reload_object_config: refusing path with traversal sequences: &#39;,
-</span><span class=""> 1563: 			$config_file);
-</span><span class=""> 1564: 		return;
-</span><span class=""> 1565: 	}
-</span><span class=""> 1566: 
-</span><span class=""><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">1567 → 1572 → 1606</span></span> 1567: 	my $config = Config::Abstraction-&gt;new(
-</span><span class=""> 1568: 		config_file =&gt; $config_file,
-</span><span class=""> 1569: 		env_prefix  =&gt; &quot;${class}__&quot;
-</span><span class=""> 1570: 	);
-</span><span class=""> 1571: 
-</span><span class=""> 1572: 	if($config) {
-</span><span class=""> 1573: 		my $new_params = $config-&gt;merge_defaults(
-</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic."> 1574: 			defaults =&gt; {},
-</span><p> <b> Mutants (Total: 2, Killed: 2, Survived: 0)</b><p><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic."> 1575: 			section  =&gt; $class,
-</span><p> <b> Mutants (Total: 2, Killed: 2, Survived: 0)</b><p><span class=""> 1576: 			merge    =&gt; 1,
-</span><span class=""> 1577: 			deep     =&gt; 1
-</span><span class=""> 1578: 		);
-</span><span class=""> 1579: 
-</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic."> 1580: 		foreach my $key (keys %$new_params) {
-</span><p> <b> Mutants (Total: 1, Killed: 1, Survived: 0)</b><p><span class=""> 1581: 			next if $key =~ /^_/;
-</span><span class=""> 1582: 
-</span><span class=""> 1583: 			if($key eq &#39;logger&#39;) {
-</span><span class=""> 1584: 				# Only the exact &#39;logger&#39; key triggers logger reconstruction.
-</span><span class=""> 1585: 				# Keys like &#39;logger.file&#39; are flat config values, not logger specs.
-</span><span class=""> 1586: 				# Guard: assign directly for undef (no logger) or literal &#39;NULL&#39;.
-</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic."> 1587: 				# Premise 1: _build_logger handles every other spec type.
-</span><p> <b> Mutants (Total: 2, Killed: 2, Survived: 0)</b><p><span class=""> 1588: 				# Premise 2: undef/NULL need no construction. Conclusion: rebuild only otherwise.
-</span><span class=""> 1589: 				my $val = $new_params-&gt;{$key};
-</span><span class=""> 1590: 				if(!defined($val) || (!ref($val) &amp;&amp; $val eq $LOGGER_NULL)) {
-</span><span class=""> 1591: 					$obj-&gt;{$key} = $val;
-</span><span class=""> 1592: 				} else {
-</span><span class=""> 1593: 					_reconfigure_logger($obj, $key, $val);
-</span><span class=""> 1594: 				}
-</span><span class=""> 1595: 			} else {
-</span><span class=""> 1596: 				$obj-&gt;{$key} = $new_params-&gt;{$key};
-</span><span class=""> 1597: 			}
-</span><span class=""> 1598: 		}
-</span><span class=""> 1599: 
-</span><span class=""> 1600: 		$obj-&gt;_on_config_reload($new_params) if $obj-&gt;can(&#39;_on_config_reload&#39;);
-</span><span class=""> 1601: 
-</span><span class=""> 1602: 		$obj-&gt;{logger}-&gt;info(&quot;Configuration reloaded for $original_class&quot;)
-</span><span class=""> 1603: 			if $obj-&gt;{logger} &amp;&amp; $obj-&gt;{logger}-&gt;can(&#39;info&#39;);
-</span><span class=""> 1604: 	}
-</span><span class=""> 1605: 
-</span><span class=""> 1606: 	return;
-</span><span class=""> 1607: }
-</span><span class=""> 1608: 
-</span><span class=""> 1609: # Purpose:   Replace the logger on an already-constructed object with one
-</span><span class=""> 1610: #            built from a new config value (typically a YAML hashref).
-</span><span class=""> 1611: #            Delegates to _build_logger so logger-creation logic lives in one place.
-</span><span class=""> 1612: # Entry:     $obj is a blessed hashref. $key is the hash key to update (usually &#39;logger&#39;).
-</span><span class=""> 1613: #            $logger_config is the new spec from the config file.
-</span><span class=""> 1614: # Exit:      Returns nothing; updates $obj-&gt;{$key} in-place.
-</span><span class=""> 1615: # Side:      May allocate a new Log::Abstraction instance.
-</span><span class=""> 1616: sub _reconfigure_logger
-</span><span class=""> 1617: {
-</span><span class=""> 1618: 	my ($obj, $key, $logger_config) = @_;
-</span><span class=""> 1619: 	my $carp_on_warn = $obj-&gt;{carp_on_warn} || 0;
-</span><span class=""> 1620: 	$obj-&gt;{$key} = _build_logger($logger_config, $carp_on_warn);
-</span><span class=""> 1621: 	return;
-</span><span class=""> 1622: }
-</span><span class=""> 1623: 
-</span><span class=""> 1624: # Purpose:   Right-precedence deep merge of two hash references.
-</span><span class=""> 1625: #            Scalar/arrayref values in $overlay replace those in $base entirely;
-</span><span class=""> 1626: #            nested hashrefs are merged recursively.
-</span><span class=""> 1627: # Entry:     Both args should be hashrefs (or undef/non-ref, handled gracefully).
-</span><span class=""> 1628: # Exit:      Returns a new hashref; neither input is modified.
-</span><span class=""> 1629: sub _deep_merge {
-</span><span class=""><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">1630 → 1637 → 1645</span></span> 1630: 	my ($base, $overlay) = @_;
-</span><span class=""> 1631: 
-</span><span class=""> 1632: 	return $overlay unless ref($base)    eq &#39;HASH&#39;;
-</span><span class=""> 1633: 	return $overlay unless ref($overlay) eq &#39;HASH&#39;;
-</span><span class=""> 1634: 
-</span><span class=""> 1635: 	my $result = { %$base };
-</span><span class=""> 1636: 
-</span><span class=""> 1637: 	foreach my $key (keys %$overlay) {
-</span><span class=""> 1638: 		if(ref($overlay-&gt;{$key}) eq &#39;HASH&#39; &amp;&amp; ref($result-&gt;{$key}) eq &#39;HASH&#39;) {
-</span><span class=""> 1639: 			$result-&gt;{$key} = _deep_merge($result-&gt;{$key}, $overlay-&gt;{$key});
-</span><span class=""> 1640: 		} else {
-</span><span class=""> 1641: 			$result-&gt;{$key} = $overlay-&gt;{$key};
-</span><span class=""> 1642: 		}
-</span><span class=""> 1643: 	}
-</span><span class=""> 1644: 
-</span><span class=""> 1645: 	return $result;
-</span><span class=""> 1646: }
-</span><span class=""> 1647: 
-</span><span class=""> 1648: # Clean up the watcher child and restore signal state on interpreter exit.
-</span><span class=""> 1649: END {
-</span><span class=""> 1650: 	disable_hot_reload();
-</span><span class=""> 1651: 	restore_signal_handlers();
-</span><span class=""> 1652: }
-</span><span class=""> 1653: 
-</span><span class=""> 1654: =head1 SEE ALSO
-</span><span class=""> 1655: 
-</span><span class=""> 1656: =over 4
-</span><span class=""> 1657: 
-</span><span class=""> 1658: =item * L&lt;Config::Abstraction&gt;
-</span><span class=""> 1659: 
-</span><span class=""> 1660: =item * L&lt;Log::Abstraction&gt;
-</span><span class=""> 1661: 
-</span><span class=""> 1662: =item * L&lt;Test Dashboard|https://nigelhorne.github.io/Object-Configure/coverage/&gt;
-</span><span class=""> 1663: 
-</span><span class=""> 1664: =back
-</span><span class=""> 1665: 
-</span><span class=""> 1666: =head1 LIMITATIONS
-</span><span class=""> 1667: 
-</span><span class=""> 1668: =over 4
-</span><span class=""> 1669: 
-</span><span class=""> 1670: =item * B&lt;Global singleton state.&gt; C&lt;%_object_registry&gt;, C&lt;%_config_watchers&gt;, and
-</span><span class=""> 1671: C&lt;%_config_file_stats&gt; are package globals.  Two independent subsystems in the same
-</span><span class=""> 1672: process share one hot-reload registry and one SIGUSR1 handler.  There is no
-</span><span class=""> 1673: instance-level isolation.  A proper fix would wrap state in an object and allow
-</span><span class=""> 1674: multiple independent C&lt;Object::Configure&gt; instances, but that would break the
-</span><span class=""> 1675: existing constructor-call API (C&lt;configure($class, \%params)&gt;).
-</span><span class=""> 1676: 
-</span><span class=""> 1677: =item * B&lt;Hot reload is Unix-only.&gt; SIGUSR1 does not exist on Windows.
-</span><span class=""> 1678: All signal-related paths are guarded with C&lt;$^O ne &#39;MSWin32&#39;&gt;, so the module
-</span><span class=""> 1679: loads on Windows but silently skips hot-reload registration.
-</span><span class=""> 1680: 
-</span><span class=""> 1681: =item * B&lt;configure() is a God function.&gt; At ~120 lines it handles arg validation,
-</span><span class=""> 1682: config-file discovery, MRO walking, multi-file merging, env-var merging, logger
-</span><span class=""> 1683: creation, and hot-reload bookkeeping.  Future versions should decompose this into
-</span><span class=""> 1684: smaller, independently testable units.
-</span><span class=""> 1685: 
-</span><span class=""> 1686: =item * B&lt;_deep_merge reimplements CPAN.&gt; L&lt;Hash::Merge::Simple&gt; or L&lt;Hash::Merge&gt;
-</span><span class=""> 1687: provide tested, feature-complete deep merge.  The internal C&lt;_deep_merge&gt; is 15
-</span><span class=""> 1688: lines and correct for the current use, but does not handle arrayrefs (they are
-</span><span class=""> 1689: replaced wholesale, not merged).  If array-merge semantics are ever needed, switch
-</span><span class=""> 1690: to a CPAN module.
-</span><span class=""> 1691: 
-</span><span class=""> 1692: =item * B&lt;No encapsulation enforcement.&gt; Private helpers (C&lt;_build_logger&gt;,
-</span><span class=""> 1693: C&lt;_get_inheritance_chain&gt;, etc.) are accessible to any caller.  L&lt;Sub::Private&gt;
-</span><span class=""> 1694: (enforce mode) would make accidental external use a compile-time error.  It is not
-</span><span class=""> 1695: added here to avoid a smoker dependency on a less-common module.
-</span><span class=""> 1696: 
-</span><span class=""> 1697: =item * B&lt;configure() signature is positional, instantiate() is named.&gt;  The two
-</span><span class=""> 1698: public constructors have inconsistent calling conventions.  Normalising them to named
-</span><span class=""> 1699: args would require a deprecation cycle.
-</span><span class=""> 1700: 
-</span><span class=""> 1701: =item * B&lt;mro::get_linear_isa and UNIVERSAL.&gt;  Perl&#39;s C&lt;mro::get_linear_isa&gt; does
-</span><span class=""> 1702: not include C&lt;UNIVERSAL&gt; in its output unless C&lt;UNIVERSAL&gt; appears explicitly in
-</span><span class=""> 1703: C&lt;@ISA&gt;.  This module appends C&lt;UNIVERSAL&gt; manually so that C&lt;universal.yml&gt; is
-</span><span class=""> 1704: always discovered.  If a future Perl version changes this behaviour the guard
-</span><span class=""> 1705: (C&lt;grep { $_ eq &#39;UNIVERSAL&#39; }&gt;) remains correct.
-</span><span class=""> 1706: 
-</span><span class=""> 1707: =back
-</span><span class=""> 1708: 
-</span><span class=""> 1709: =head1 Formal Specification
-</span><span class=""> 1710: 
-</span><span class=""> 1711: =head2 configure
-</span><span class=""> 1712: 
-</span><span class=""> 1713:     configure: Class x Params -&gt; ConfigHash
-</span><span class=""> 1714: 
-</span><span class=""> 1715:     Given:
-</span><span class=""> 1716:     - C: set of all class names
-</span><span class=""> 1717:     - P: set of all parameter hashes
-</span><span class=""> 1718:     - F: set of all file paths
-</span><span class=""> 1719:     - H: set of all configuration hashes
-</span><span class=""> 1720: 
-</span><span class=""> 1721:     State:
-</span><span class=""> 1722:     - ConfigFiles: F -&gt; H (maps file paths to configuration content)
-</span><span class=""> 1723:     - EnvVars: String -&gt; String (environment variables)
-</span><span class=""> 1724:     - InheritanceChain: C -&gt; seq C (ordered sequence of ancestor classes)
-</span><span class=""> 1725: 
-</span><span class=""> 1726:     Pre-condition:
-</span><span class=""> 1727:     forall class in C, params in P:
-</span><span class=""> 1728:         class != empty
-</span><span class=""> 1729:         (params.config_file != empty =&gt;
-</span><span class=""> 1730:             (exists dir in params.config_dirs: readable(dir/params.config_file))
-</span><span class=""> 1731:             OR readable(params.config_file))
-</span><span class=""> 1732: 
-</span><span class=""> 1733:     Post-condition:
-</span><span class=""> 1734:     forall result in H:
-</span><span class=""> 1735:         result = params
-</span><span class=""> 1736:                  (+) (merge f in InheritanceConfigFiles(class): ConfigFiles(f))
-</span><span class=""> 1737:                  (+) (merge v in RelevantEnvVars(class): v)
-</span><span class=""> 1738:         result.logger in Log::Abstraction
-</span><span class=""> 1739:         (forall k in dom params:
-</span><span class=""> 1740:             (params(k) in CodeRef OR blessed(params(k))) =&gt; result(k) = params(k))
-</span><span class=""> 1741: 
-</span><span class=""> 1742:     where (+) denotes hash merge with right-precedence
-</span><span class=""> 1743: 
-</span><span class=""> 1744: =head2 instantiate
-</span><span class=""> 1745: 
-</span><span class=""> 1746:     instantiate: Params -&gt; Object
-</span><span class=""> 1747: 
-</span><span class=""> 1748:     Given:
-</span><span class=""> 1749:     - P: set of all parameter hashes
-</span><span class=""> 1750:     - C: set of all class names
-</span><span class=""> 1751:     - O: set of all objects
-</span><span class=""> 1752: 
-</span><span class=""> 1753:     Pre-condition:
-</span><span class=""> 1754:     forall params in P:
-</span><span class=""> 1755:         params.class in C
-</span><span class=""> 1756:         params.class.can(&#39;new&#39;)
-</span><span class=""> 1757: 
-</span><span class=""> 1758:     Post-condition:
-</span><span class=""> 1759:     forall result in O:
-</span><span class=""> 1760:         exists config in H:
-</span><span class=""> 1761:             config = configure(params.class, params)
-</span><span class=""> 1762:             result = params.class.new(config)
-</span><span class=""> 1763:             blessed(result) = params.class
-</span><span class=""> 1764:             (config._config_file != empty =&gt;
-</span><span class=""> 1765:                 result in _object_registry(params.class))
-</span><span class=""> 1766: 
-</span><span class=""> 1767: =head2 enable_hot_reload
-</span><span class=""> 1768: 
-</span><span class=""> 1769:     enable_hot_reload: Interval x Callback -&gt; PID
-</span><span class=""> 1770: 
-</span><span class=""> 1771:     Given:
-</span><span class=""> 1772:     - I: set of positive integers (intervals in seconds)
-</span><span class=""> 1773:     - CB: set of code references
-</span><span class=""> 1774:     - PID: set of process identifiers
-</span><span class=""> 1775: 
-</span><span class=""> 1776:     State:
-</span><span class=""> 1777:     - _config_watchers: {pid: PID, callback: CB}
-</span><span class=""> 1778:     - _config_file_stats: F -&gt; Stat
-</span><span class=""> 1779: 
-</span><span class=""> 1780:     Pre-condition:
-</span><span class=""> 1781:     forall interval in I, callback in CB union {empty}:
-</span><span class=""> 1782:         interval &gt;= 1
-</span><span class=""> 1783:         _config_watchers = empty
-</span><span class=""> 1784:         OS != &#39;MSWin32&#39;
-</span><span class=""> 1785: 
-</span><span class=""> 1786:     Post-condition:
-</span><span class=""> 1787:     forall result in PID:
-</span><span class=""> 1788:         result &gt; 0
-</span><span class=""> 1789:         _config_watchers.pid = result
-</span><span class=""> 1790:         _config_watchers.callback = callback
-</span><span class=""> 1791:         (forall t in Time:
-</span><span class=""> 1792:             (t mod interval = 0) =&gt;
-</span><span class=""> 1793:                 (exists f in dom _config_file_stats:
-</span><span class=""> 1794:                     mtime(f) &gt; _config_file_stats(f).mtime =&gt;
-</span><span class=""> 1795:                         send_signal(SIGUSR1, parent_process)))
-</span><span class=""> 1796: 
-</span><span class=""> 1797: =head2 disable_hot_reload
-</span><span class=""> 1798: 
-</span><span class=""> 1799:     disable_hot_reload: () -&gt; ()
-</span><span class=""> 1800: 
-</span><span class=""> 1801:     State:
-</span><span class=""> 1802:     - _config_watchers: {pid: PID, callback: CB}
-</span><span class=""> 1803: 
-</span><span class=""> 1804:     Pre-condition:
-</span><span class=""> 1805:     true
-</span><span class=""> 1806: 
-</span><span class=""> 1807:     Post-condition:
-</span><span class=""> 1808:     _config_watchers = empty
-</span><span class=""> 1809:     (forall p in PID:
-</span><span class=""> 1810:         p = _config_watchers.pid@pre =&gt;
-</span><span class=""> 1811:             NOT alive(p))
-</span><span class=""> 1812: 
-</span><span class=""> 1813: =head2 reload_config
-</span><span class=""> 1814: 
-</span><span class=""> 1815:     reload_config: () -&gt; N
-</span><span class=""> 1816: 
-</span><span class=""> 1817:     State:
-</span><span class=""> 1818:     - _object_registry: C -&gt; seq ObjectRef
-</span><span class=""> 1819:     - ConfigFiles: F -&gt; H
-</span><span class=""> 1820: 
-</span><span class=""> 1821:     Pre-condition:
-</span><span class=""> 1822:     true
-</span><span class=""> 1823: 
-</span><span class=""> 1824:     Post-condition:
-</span><span class=""> 1825:     forall result in N:
-</span><span class=""> 1826:         result = |{obj in flatten(ran _object_registry) |
-</span><span class=""> 1827:                    obj != empty
-</span><span class=""> 1828:                    obj._config_file in dom ConfigFiles}|
-</span><span class=""> 1829:         (forall obj in flatten(ran _object_registry):
-</span><span class=""> 1830:             obj != empty AND obj._config_file in dom ConfigFiles =&gt;
-</span><span class=""> 1831:                 (forall k in dom ConfigFiles(obj._config_file):
-</span><span class=""> 1832:                     k NOT in PrivateKeys =&gt;
-</span><span class=""> 1833:                         obj(k)@post = ConfigFiles(obj._config_file)(k)))
-</span><span class=""> 1834: 
-</span><span class=""> 1835:     where PrivateKeys = {k | k starts with &#39;_&#39;}
-</span><span class=""> 1836: 
-</span><span class=""> 1837: =head2 register_object
-</span><span class=""> 1838: 
-</span><span class=""> 1839:     register_object: C x O -&gt; ()
-</span><span class=""> 1840: 
-</span><span class=""> 1841:     Given:
-</span><span class=""> 1842:     - C: set of class names
-</span><span class=""> 1843:     - O: set of blessed objects
-</span><span class=""> 1844:     - OR: C -&gt; seq WeakRef(O) (object registry)
-</span><span class=""> 1845: 
-</span><span class=""> 1846:     State:
-</span><span class=""> 1847:     - _object_registry: OR
-</span><span class=""> 1848:     - _original_usr1_handler: SignalHandler union {empty}
-</span><span class=""> 1849:     - $SIG{USR1}: SignalHandler
-</span><span class=""> 1850: 
-</span><span class=""> 1851:     Pre-condition:
-</span><span class=""> 1852:     forall class in C, obj in O:
-</span><span class=""> 1853:         class != empty
-</span><span class=""> 1854:         obj != empty
-</span><span class=""> 1855:         blessed(obj) != empty
-</span><span class=""> 1856: 
-</span><span class=""> 1857:     Post-condition:
-</span><span class=""> 1858:     forall class in C, obj in O:
-</span><span class=""> 1859:         exists ref in _object_registry(class):
-</span><span class=""> 1860:             weak(ref) = obj
-</span><span class=""> 1861:         (_original_usr1_handler = empty@pre =&gt;
-</span><span class=""> 1862:             (_original_usr1_handler@post = $SIG{USR1}@pre
-</span><span class=""> 1863:              $SIG{USR1}@post = reload_config_handler))
-</span><span class=""> 1864: 
-</span><span class=""> 1865: =head2 restore_signal_handlers
-</span><span class=""> 1866: 
-</span><span class=""> 1867:     restore_signal_handlers: () -&gt; ()
-</span><span class=""> 1868: 
-</span><span class=""> 1869:     State:
-</span><span class=""> 1870:     - _original_usr1_handler: SignalHandler union {empty}
-</span><span class=""> 1871:     - $SIG{USR1}: SignalHandler
-</span><span class=""> 1872: 
-</span><span class=""> 1873:     Pre-condition:
-</span><span class=""> 1874:     true
-</span><span class=""> 1875: 
-</span><span class=""> 1876:     Post-condition:
-</span><span class=""> 1877:     $SIG{USR1}@post = _original_usr1_handler@pre
-</span><span class=""> 1878:     _original_usr1_handler@post = empty
-</span><span class=""> 1879: 
-</span><span class=""> 1880: =head2 get_sigal_handler_info
-</span><span class=""> 1881: 
-</span><span class=""> 1882:     get_signal_handler_info: () -&gt; InfoHash
-</span><span class=""> 1883: 
-</span><span class=""> 1884:     Given:
-</span><span class=""> 1885:     - IH: set of all info hashes
-</span><span class=""> 1886: 
-</span><span class=""> 1887:     State:
-</span><span class=""> 1888:     - _original_usr1_handler: SignalHandler union {empty}
-</span><span class=""> 1889:     - $SIG{USR1}: SignalHandler union {empty}
-</span><span class=""> 1890:     - _config_watchers: {pid: PID, callback: CB}
-</span><span class=""> 1891: 
-</span><span class=""> 1892:     Pre-condition:
-</span><span class=""> 1893:     true
-</span><span class=""> 1894: 
-</span><span class=""> 1895:     Post-condition:
-</span><span class=""> 1896:     forall result in IH:
-</span><span class=""> 1897:         result.original_usr1 = _original_usr1_handler
-</span><span class=""> 1898:         result.current_usr1 = $SIG{USR1}
-</span><span class=""> 1899:         result.hot_reload_active = (_original_usr1_handler != empty)
-</span><span class=""> 1900:         result.watcher_pid = _config_watchers.pid
-</span><span class=""> 1901: 
-</span><span class=""> 1902: =head1 SUPPORT
-</span><span class=""> 1903: 
-</span><span class=""> 1904: This module is provided as-is without any warranty.
-</span><span class=""> 1905: 
-</span><span class=""> 1906: Please report any bugs or feature requests to C&lt;bug-object-configure at rt.cpan.org&gt;,
-</span><span class=""> 1907: or through the web interface at
-</span><span class=""> 1908: L&lt;http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Object-Configure&gt;.
-</span><span class=""> 1909: I will be notified, and then you&#39;ll
-</span><span class=""> 1910: automatically be notified of progress on your bug as I make changes.
-</span><span class=""> 1911: 
-</span><span class=""> 1912: You can find documentation for this module with the perldoc command.
-</span><span class=""> 1913: 
-</span><span class=""> 1914:     perldoc Object::Configure
-</span><span class=""> 1915: 
-</span><span class=""> 1916: =head1 LICENCE AND COPYRIGHT
-</span><span class=""> 1917: 
-</span><span class=""> 1918: Copyright 2025-2026 Nigel Horne.
-</span><span class=""> 1919: 
-</span><span class=""> 1920: Usage is subject to GPL2 licence terms.
-</span><span class=""> 1921: If you use it,
-</span><span class=""> 1922: please let me know.
-</span><span class=""> 1923: 
-</span><span class=""> 1924: =cut
-</span><span class=""> 1925: 
-</span><span class=""> 1926: 1;
+</span><span class=""> 1555: 	# SECURITY (S1 &acirc;&#128;&#148; path traversal): an attacker who modifies $obj-&gt;{_config_file}
+</span><span class=""> 1556: 	# (e.g., via a deserialization gadget or a malicious config merge) can redirect
+</span><span class=""> 1557: 	# hot-reload to read arbitrary system files.  Reject paths with &quot;..&quot; segments here
+</span><span class=""> 1558: 	# so that even a corrupted object cannot force a traversal read.
+</span><span class=""> 1559: 	# Must come BEFORE the -f check so traversal paths for non-existent files are also rejected.
+</span><span class=""><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">1560 → 1560 → 1566</span></span> 1560: 	if($config_file &amp;&amp; $config_file =~ $RE_PATH_TRAVERSAL) {
+</span><span class=""> 1561: 		carp(__PACKAGE__, &#39;: _reload_object_config: refusing path with traversal sequences: &#39;,
+</span><span class=""> 1562: 			$config_file);
+</span><span class=""> 1563: 		return;
+</span><span class=""> 1564: 	}
+</span><span class=""> 1565: 
+</span><span class=""><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">1566 → 1573 → 1607</span></span> 1566: 	return unless $config_file &amp;&amp; -f $config_file;
+</span><span class=""> 1567: 
+</span><span class=""> 1568: 	my $config = Config::Abstraction-&gt;new(
+</span><span class=""> 1569: 		config_file =&gt; $config_file,
+</span><span class=""> 1570: 		env_prefix  =&gt; &quot;${class}__&quot;
+</span><span class=""> 1571: 	);
+</span><span class=""> 1572: 
+</span><span class=""> 1573: 	if($config) {
+</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic."> 1574: 		my $new_params = $config-&gt;merge_defaults(
+</span><p> <b> Mutants (Total: 2, Killed: 2, Survived: 0)</b><p><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic."> 1575: 			defaults =&gt; {},
+</span><p> <b> Mutants (Total: 2, Killed: 2, Survived: 0)</b><p><span class=""> 1576: 			section  =&gt; $class,
+</span><span class=""> 1577: 			merge    =&gt; 1,
+</span><span class=""> 1578: 			deep     =&gt; 1
+</span><span class=""> 1579: 		);
+</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic."> 1580: 
+</span><p> <b> Mutants (Total: 1, Killed: 1, Survived: 0)</b><p><span class=""> 1581: 		foreach my $key (keys %$new_params) {
+</span><span class=""> 1582: 			next if $key =~ /^_/;
+</span><span class=""> 1583: 
+</span><span class=""> 1584: 			if($key eq &#39;logger&#39;) {
+</span><span class=""> 1585: 				# Only the exact &#39;logger&#39; key triggers logger reconstruction.
+</span><span class=""> 1586: 				# Keys like &#39;logger.file&#39; are flat config values, not logger specs.
+</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic."> 1587: 				# Guard: assign directly for undef (no logger) or literal &#39;NULL&#39;.
+</span><p> <b> Mutants (Total: 2, Killed: 2, Survived: 0)</b><p><span class=""> 1588: 				# Premise 1: _build_logger handles every other spec type.
+</span><span class=""> 1589: 				# Premise 2: undef/NULL need no construction. Conclusion: rebuild only otherwise.
+</span><span class=""> 1590: 				my $val = $new_params-&gt;{$key};
+</span><span class=""> 1591: 				if(!defined($val) || (!ref($val) &amp;&amp; $val eq $LOGGER_NULL)) {
+</span><span class=""> 1592: 					$obj-&gt;{$key} = $val;
+</span><span class=""> 1593: 				} else {
+</span><span class=""> 1594: 					_reconfigure_logger($obj, $key, $val);
+</span><span class=""> 1595: 				}
+</span><span class=""> 1596: 			} else {
+</span><span class=""> 1597: 				$obj-&gt;{$key} = $new_params-&gt;{$key};
+</span><span class=""> 1598: 			}
+</span><span class=""> 1599: 		}
+</span><span class=""> 1600: 
+</span><span class=""> 1601: 		$obj-&gt;_on_config_reload($new_params) if $obj-&gt;can(&#39;_on_config_reload&#39;);
+</span><span class=""> 1602: 
+</span><span class=""> 1603: 		$obj-&gt;{logger}-&gt;info(&quot;Configuration reloaded for $original_class&quot;)
+</span><span class=""> 1604: 			if $obj-&gt;{logger} &amp;&amp; $obj-&gt;{logger}-&gt;can(&#39;info&#39;);
+</span><span class=""> 1605: 	}
+</span><span class=""> 1606: 
+</span><span class=""> 1607: 	return;
+</span><span class=""> 1608: }
+</span><span class=""> 1609: 
+</span><span class=""> 1610: # Purpose:   Replace the logger on an already-constructed object with one
+</span><span class=""> 1611: #            built from a new config value (typically a YAML hashref).
+</span><span class=""> 1612: #            Delegates to _build_logger so logger-creation logic lives in one place.
+</span><span class=""> 1613: # Entry:     $obj is a blessed hashref. $key is the hash key to update (usually &#39;logger&#39;).
+</span><span class=""> 1614: #            $logger_config is the new spec from the config file.
+</span><span class=""> 1615: # Exit:      Returns nothing; updates $obj-&gt;{$key} in-place.
+</span><span class=""> 1616: # Side:      May allocate a new Log::Abstraction instance.
+</span><span class=""> 1617: sub _reconfigure_logger
+</span><span class=""> 1618: {
+</span><span class=""> 1619: 	my ($obj, $key, $logger_config) = @_;
+</span><span class=""> 1620: 	my $carp_on_warn = $obj-&gt;{carp_on_warn} || 0;
+</span><span class=""> 1621: 	$obj-&gt;{$key} = _build_logger($logger_config, $carp_on_warn);
+</span><span class=""> 1622: 	return;
+</span><span class=""> 1623: }
+</span><span class=""> 1624: 
+</span><span class=""> 1625: # Purpose:   Right-precedence deep merge of two hash references.
+</span><span class=""> 1626: #            Scalar/arrayref values in $overlay replace those in $base entirely;
+</span><span class=""> 1627: #            nested hashrefs are merged recursively.
+</span><span class=""> 1628: # Entry:     Both args should be hashrefs (or undef/non-ref, handled gracefully).
+</span><span class=""> 1629: # Exit:      Returns a new hashref; neither input is modified.
+</span><span class=""> 1630: sub _deep_merge {
+</span><span class=""><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">1631 → 1638 → 1646</span></span> 1631: 	my ($base, $overlay) = @_;
+</span><span class=""> 1632: 
+</span><span class=""> 1633: 	return $overlay unless ref($base)    eq &#39;HASH&#39;;
+</span><span class=""> 1634: 	return $overlay unless ref($overlay) eq &#39;HASH&#39;;
+</span><span class=""> 1635: 
+</span><span class=""> 1636: 	my $result = { %$base };
+</span><span class=""> 1637: 
+</span><span class=""> 1638: 	foreach my $key (keys %$overlay) {
+</span><span class=""> 1639: 		if(ref($overlay-&gt;{$key}) eq &#39;HASH&#39; &amp;&amp; ref($result-&gt;{$key}) eq &#39;HASH&#39;) {
+</span><span class=""> 1640: 			$result-&gt;{$key} = _deep_merge($result-&gt;{$key}, $overlay-&gt;{$key});
+</span><span class=""> 1641: 		} else {
+</span><span class=""> 1642: 			$result-&gt;{$key} = $overlay-&gt;{$key};
+</span><span class=""> 1643: 		}
+</span><span class=""> 1644: 	}
+</span><span class=""> 1645: 
+</span><span class=""> 1646: 	return $result;
+</span><span class=""> 1647: }
+</span><span class=""> 1648: 
+</span><span class=""> 1649: # Clean up the watcher child and restore signal state on interpreter exit.
+</span><span class=""> 1650: END {
+</span><span class=""> 1651: 	disable_hot_reload();
+</span><span class=""> 1652: 	restore_signal_handlers();
+</span><span class=""> 1653: }
+</span><span class=""> 1654: 
+</span><span class=""> 1655: =head1 SEE ALSO
+</span><span class=""> 1656: 
+</span><span class=""> 1657: =over 4
+</span><span class=""> 1658: 
+</span><span class=""> 1659: =item * L&lt;Config::Abstraction&gt;
+</span><span class=""> 1660: 
+</span><span class=""> 1661: =item * L&lt;Log::Abstraction&gt;
+</span><span class=""> 1662: 
+</span><span class=""> 1663: =item * L&lt;Test Dashboard|https://nigelhorne.github.io/Object-Configure/coverage/&gt;
+</span><span class=""> 1664: 
+</span><span class=""> 1665: =back
+</span><span class=""> 1666: 
+</span><span class=""> 1667: =head1 LIMITATIONS
+</span><span class=""> 1668: 
+</span><span class=""> 1669: =over 4
+</span><span class=""> 1670: 
+</span><span class=""> 1671: =item * B&lt;Global singleton state.&gt; C&lt;%_object_registry&gt;, C&lt;%_config_watchers&gt;, and
+</span><span class=""> 1672: C&lt;%_config_file_stats&gt; are package globals.  Two independent subsystems in the same
+</span><span class=""> 1673: process share one hot-reload registry and one SIGUSR1 handler.  There is no
+</span><span class=""> 1674: instance-level isolation.  A proper fix would wrap state in an object and allow
+</span><span class=""> 1675: multiple independent C&lt;Object::Configure&gt; instances, but that would break the
+</span><span class=""> 1676: existing constructor-call API (C&lt;configure($class, \%params)&gt;).
+</span><span class=""> 1677: 
+</span><span class=""> 1678: =item * B&lt;Hot reload is Unix-only.&gt; SIGUSR1 does not exist on Windows.
+</span><span class=""> 1679: All signal-related paths are guarded with C&lt;$^O ne &#39;MSWin32&#39;&gt;, so the module
+</span><span class=""> 1680: loads on Windows but silently skips hot-reload registration.
+</span><span class=""> 1681: 
+</span><span class=""> 1682: =item * B&lt;configure() is a God function.&gt; At ~120 lines it handles arg validation,
+</span><span class=""> 1683: config-file discovery, MRO walking, multi-file merging, env-var merging, logger
+</span><span class=""> 1684: creation, and hot-reload bookkeeping.  Future versions should decompose this into
+</span><span class=""> 1685: smaller, independently testable units.
+</span><span class=""> 1686: 
+</span><span class=""> 1687: =item * B&lt;_deep_merge reimplements CPAN.&gt; L&lt;Hash::Merge::Simple&gt; or L&lt;Hash::Merge&gt;
+</span><span class=""> 1688: provide tested, feature-complete deep merge.  The internal C&lt;_deep_merge&gt; is 15
+</span><span class=""> 1689: lines and correct for the current use, but does not handle arrayrefs (they are
+</span><span class=""> 1690: replaced wholesale, not merged).  If array-merge semantics are ever needed, switch
+</span><span class=""> 1691: to a CPAN module.
+</span><span class=""> 1692: 
+</span><span class=""> 1693: =item * B&lt;No encapsulation enforcement.&gt; Private helpers (C&lt;_build_logger&gt;,
+</span><span class=""> 1694: C&lt;_get_inheritance_chain&gt;, etc.) are accessible to any caller.  L&lt;Sub::Private&gt;
+</span><span class=""> 1695: (enforce mode) would make accidental external use a compile-time error.  It is not
+</span><span class=""> 1696: added here to avoid a smoker dependency on a less-common module.
+</span><span class=""> 1697: 
+</span><span class=""> 1698: =item * B&lt;configure() signature is positional, instantiate() is named.&gt;  The two
+</span><span class=""> 1699: public constructors have inconsistent calling conventions.  Normalising them to named
+</span><span class=""> 1700: args would require a deprecation cycle.
+</span><span class=""> 1701: 
+</span><span class=""> 1702: =item * B&lt;mro::get_linear_isa and UNIVERSAL.&gt;  Perl&#39;s C&lt;mro::get_linear_isa&gt; does
+</span><span class=""> 1703: not include C&lt;UNIVERSAL&gt; in its output unless C&lt;UNIVERSAL&gt; appears explicitly in
+</span><span class=""> 1704: C&lt;@ISA&gt;.  This module appends C&lt;UNIVERSAL&gt; manually so that C&lt;universal.yml&gt; is
+</span><span class=""> 1705: always discovered.  If a future Perl version changes this behaviour the guard
+</span><span class=""> 1706: (C&lt;grep { $_ eq &#39;UNIVERSAL&#39; }&gt;) remains correct.
+</span><span class=""> 1707: 
+</span><span class=""> 1708: =back
+</span><span class=""> 1709: 
+</span><span class=""> 1710: =head1 Formal Specification
+</span><span class=""> 1711: 
+</span><span class=""> 1712: =head2 configure
+</span><span class=""> 1713: 
+</span><span class=""> 1714:     configure: Class x Params -&gt; ConfigHash
+</span><span class=""> 1715: 
+</span><span class=""> 1716:     Given:
+</span><span class=""> 1717:     - C: set of all class names
+</span><span class=""> 1718:     - P: set of all parameter hashes
+</span><span class=""> 1719:     - F: set of all file paths
+</span><span class=""> 1720:     - H: set of all configuration hashes
+</span><span class=""> 1721: 
+</span><span class=""> 1722:     State:
+</span><span class=""> 1723:     - ConfigFiles: F -&gt; H (maps file paths to configuration content)
+</span><span class=""> 1724:     - EnvVars: String -&gt; String (environment variables)
+</span><span class=""> 1725:     - InheritanceChain: C -&gt; seq C (ordered sequence of ancestor classes)
+</span><span class=""> 1726: 
+</span><span class=""> 1727:     Pre-condition:
+</span><span class=""> 1728:     forall class in C, params in P:
+</span><span class=""> 1729:         class != empty
+</span><span class=""> 1730:         (params.config_file != empty =&gt;
+</span><span class=""> 1731:             (exists dir in params.config_dirs: readable(dir/params.config_file))
+</span><span class=""> 1732:             OR readable(params.config_file))
+</span><span class=""> 1733: 
+</span><span class=""> 1734:     Post-condition:
+</span><span class=""> 1735:     forall result in H:
+</span><span class=""> 1736:         result = params
+</span><span class=""> 1737:                  (+) (merge f in InheritanceConfigFiles(class): ConfigFiles(f))
+</span><span class=""> 1738:                  (+) (merge v in RelevantEnvVars(class): v)
+</span><span class=""> 1739:         result.logger in Log::Abstraction
+</span><span class=""> 1740:         (forall k in dom params:
+</span><span class=""> 1741:             (params(k) in CodeRef OR blessed(params(k))) =&gt; result(k) = params(k))
+</span><span class=""> 1742: 
+</span><span class=""> 1743:     where (+) denotes hash merge with right-precedence
+</span><span class=""> 1744: 
+</span><span class=""> 1745: =head2 instantiate
+</span><span class=""> 1746: 
+</span><span class=""> 1747:     instantiate: Params -&gt; Object
+</span><span class=""> 1748: 
+</span><span class=""> 1749:     Given:
+</span><span class=""> 1750:     - P: set of all parameter hashes
+</span><span class=""> 1751:     - C: set of all class names
+</span><span class=""> 1752:     - O: set of all objects
+</span><span class=""> 1753: 
+</span><span class=""> 1754:     Pre-condition:
+</span><span class=""> 1755:     forall params in P:
+</span><span class=""> 1756:         params.class in C
+</span><span class=""> 1757:         params.class.can(&#39;new&#39;)
+</span><span class=""> 1758: 
+</span><span class=""> 1759:     Post-condition:
+</span><span class=""> 1760:     forall result in O:
+</span><span class=""> 1761:         exists config in H:
+</span><span class=""> 1762:             config = configure(params.class, params)
+</span><span class=""> 1763:             result = params.class.new(config)
+</span><span class=""> 1764:             blessed(result) = params.class
+</span><span class=""> 1765:             (config._config_file != empty =&gt;
+</span><span class=""> 1766:                 result in _object_registry(params.class))
+</span><span class=""> 1767: 
+</span><span class=""> 1768: =head2 enable_hot_reload
+</span><span class=""> 1769: 
+</span><span class=""> 1770:     enable_hot_reload: Interval x Callback -&gt; PID
+</span><span class=""> 1771: 
+</span><span class=""> 1772:     Given:
+</span><span class=""> 1773:     - I: set of positive integers (intervals in seconds)
+</span><span class=""> 1774:     - CB: set of code references
+</span><span class=""> 1775:     - PID: set of process identifiers
+</span><span class=""> 1776: 
+</span><span class=""> 1777:     State:
+</span><span class=""> 1778:     - _config_watchers: {pid: PID, callback: CB}
+</span><span class=""> 1779:     - _config_file_stats: F -&gt; Stat
+</span><span class=""> 1780: 
+</span><span class=""> 1781:     Pre-condition:
+</span><span class=""> 1782:     forall interval in I, callback in CB union {empty}:
+</span><span class=""> 1783:         interval &gt;= 1
+</span><span class=""> 1784:         _config_watchers = empty
+</span><span class=""> 1785:         OS != &#39;MSWin32&#39;
+</span><span class=""> 1786: 
+</span><span class=""> 1787:     Post-condition:
+</span><span class=""> 1788:     forall result in PID:
+</span><span class=""> 1789:         result &gt; 0
+</span><span class=""> 1790:         _config_watchers.pid = result
+</span><span class=""> 1791:         _config_watchers.callback = callback
+</span><span class=""> 1792:         (forall t in Time:
+</span><span class=""> 1793:             (t mod interval = 0) =&gt;
+</span><span class=""> 1794:                 (exists f in dom _config_file_stats:
+</span><span class=""> 1795:                     mtime(f) &gt; _config_file_stats(f).mtime =&gt;
+</span><span class=""> 1796:                         send_signal(SIGUSR1, parent_process)))
+</span><span class=""> 1797: 
+</span><span class=""> 1798: =head2 disable_hot_reload
+</span><span class=""> 1799: 
+</span><span class=""> 1800:     disable_hot_reload: () -&gt; ()
+</span><span class=""> 1801: 
+</span><span class=""> 1802:     State:
+</span><span class=""> 1803:     - _config_watchers: {pid: PID, callback: CB}
+</span><span class=""> 1804: 
+</span><span class=""> 1805:     Pre-condition:
+</span><span class=""> 1806:     true
+</span><span class=""> 1807: 
+</span><span class=""> 1808:     Post-condition:
+</span><span class=""> 1809:     _config_watchers = empty
+</span><span class=""> 1810:     (forall p in PID:
+</span><span class=""> 1811:         p = _config_watchers.pid@pre =&gt;
+</span><span class=""> 1812:             NOT alive(p))
+</span><span class=""> 1813: 
+</span><span class=""> 1814: =head2 reload_config
+</span><span class=""> 1815: 
+</span><span class=""> 1816:     reload_config: () -&gt; N
+</span><span class=""> 1817: 
+</span><span class=""> 1818:     State:
+</span><span class=""> 1819:     - _object_registry: C -&gt; seq ObjectRef
+</span><span class=""> 1820:     - ConfigFiles: F -&gt; H
+</span><span class=""> 1821: 
+</span><span class=""> 1822:     Pre-condition:
+</span><span class=""> 1823:     true
+</span><span class=""> 1824: 
+</span><span class=""> 1825:     Post-condition:
+</span><span class=""> 1826:     forall result in N:
+</span><span class=""> 1827:         result = |{obj in flatten(ran _object_registry) |
+</span><span class=""> 1828:                    obj != empty
+</span><span class=""> 1829:                    obj._config_file in dom ConfigFiles}|
+</span><span class=""> 1830:         (forall obj in flatten(ran _object_registry):
+</span><span class=""> 1831:             obj != empty AND obj._config_file in dom ConfigFiles =&gt;
+</span><span class=""> 1832:                 (forall k in dom ConfigFiles(obj._config_file):
+</span><span class=""> 1833:                     k NOT in PrivateKeys =&gt;
+</span><span class=""> 1834:                         obj(k)@post = ConfigFiles(obj._config_file)(k)))
+</span><span class=""> 1835: 
+</span><span class=""> 1836:     where PrivateKeys = {k | k starts with &#39;_&#39;}
+</span><span class=""> 1837: 
+</span><span class=""> 1838: =head2 register_object
+</span><span class=""> 1839: 
+</span><span class=""> 1840:     register_object: C x O -&gt; ()
+</span><span class=""> 1841: 
+</span><span class=""> 1842:     Given:
+</span><span class=""> 1843:     - C: set of class names
+</span><span class=""> 1844:     - O: set of blessed objects
+</span><span class=""> 1845:     - OR: C -&gt; seq WeakRef(O) (object registry)
+</span><span class=""> 1846: 
+</span><span class=""> 1847:     State:
+</span><span class=""> 1848:     - _object_registry: OR
+</span><span class=""> 1849:     - _original_usr1_handler: SignalHandler union {empty}
+</span><span class=""> 1850:     - $SIG{USR1}: SignalHandler
+</span><span class=""> 1851: 
+</span><span class=""> 1852:     Pre-condition:
+</span><span class=""> 1853:     forall class in C, obj in O:
+</span><span class=""> 1854:         class != empty
+</span><span class=""> 1855:         obj != empty
+</span><span class=""> 1856:         blessed(obj) != empty
+</span><span class=""> 1857: 
+</span><span class=""> 1858:     Post-condition:
+</span><span class=""> 1859:     forall class in C, obj in O:
+</span><span class=""> 1860:         exists ref in _object_registry(class):
+</span><span class=""> 1861:             weak(ref) = obj
+</span><span class=""> 1862:         (_original_usr1_handler = empty@pre =&gt;
+</span><span class=""> 1863:             (_original_usr1_handler@post = $SIG{USR1}@pre
+</span><span class=""> 1864:              $SIG{USR1}@post = reload_config_handler))
+</span><span class=""> 1865: 
+</span><span class=""> 1866: =head2 restore_signal_handlers
+</span><span class=""> 1867: 
+</span><span class=""> 1868:     restore_signal_handlers: () -&gt; ()
+</span><span class=""> 1869: 
+</span><span class=""> 1870:     State:
+</span><span class=""> 1871:     - _original_usr1_handler: SignalHandler union {empty}
+</span><span class=""> 1872:     - $SIG{USR1}: SignalHandler
+</span><span class=""> 1873: 
+</span><span class=""> 1874:     Pre-condition:
+</span><span class=""> 1875:     true
+</span><span class=""> 1876: 
+</span><span class=""> 1877:     Post-condition:
+</span><span class=""> 1878:     $SIG{USR1}@post = _original_usr1_handler@pre
+</span><span class=""> 1879:     _original_usr1_handler@post = empty
+</span><span class=""> 1880: 
+</span><span class=""> 1881: =head2 get_sigal_handler_info
+</span><span class=""> 1882: 
+</span><span class=""> 1883:     get_signal_handler_info: () -&gt; InfoHash
+</span><span class=""> 1884: 
+</span><span class=""> 1885:     Given:
+</span><span class=""> 1886:     - IH: set of all info hashes
+</span><span class=""> 1887: 
+</span><span class=""> 1888:     State:
+</span><span class=""> 1889:     - _original_usr1_handler: SignalHandler union {empty}
+</span><span class=""> 1890:     - $SIG{USR1}: SignalHandler union {empty}
+</span><span class=""> 1891:     - _config_watchers: {pid: PID, callback: CB}
+</span><span class=""> 1892: 
+</span><span class=""> 1893:     Pre-condition:
+</span><span class=""> 1894:     true
+</span><span class=""> 1895: 
+</span><span class=""> 1896:     Post-condition:
+</span><span class=""> 1897:     forall result in IH:
+</span><span class=""> 1898:         result.original_usr1 = _original_usr1_handler
+</span><span class=""> 1899:         result.current_usr1 = $SIG{USR1}
+</span><span class=""> 1900:         result.hot_reload_active = (_original_usr1_handler != empty)
+</span><span class=""> 1901:         result.watcher_pid = _config_watchers.pid
+</span><span class=""> 1902: 
+</span><span class=""> 1903: =head1 SUPPORT
+</span><span class=""> 1904: 
+</span><span class=""> 1905: This module is provided as-is without any warranty.
+</span><span class=""> 1906: 
+</span><span class=""> 1907: Please report any bugs or feature requests to C&lt;bug-object-configure at rt.cpan.org&gt;,
+</span><span class=""> 1908: or through the web interface at
+</span><span class=""> 1909: L&lt;http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Object-Configure&gt;.
+</span><span class=""> 1910: I will be notified, and then you&#39;ll
+</span><span class=""> 1911: automatically be notified of progress on your bug as I make changes.
+</span><span class=""> 1912: 
+</span><span class=""> 1913: You can find documentation for this module with the perldoc command.
+</span><span class=""> 1914: 
+</span><span class=""> 1915:     perldoc Object::Configure
+</span><span class=""> 1916: 
+</span><span class=""> 1917: =head1 LICENCE AND COPYRIGHT
+</span><span class=""> 1918: 
+</span><span class=""> 1919: Copyright 2025-2026 Nigel Horne.
+</span><span class=""> 1920: 
+</span><span class=""> 1921: Usage is subject to GPL2 licence terms.
+</span><span class=""> 1922: If you use it,
+</span><span class=""> 1923: please let me know.
+</span><span class=""> 1924: 
+</span><span class=""> 1925: =cut
+</span><span class=""> 1926: 
+</span><span class=""> 1927: 1;
 </span></pre>
 
 <script>
