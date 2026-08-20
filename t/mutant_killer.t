@@ -605,15 +605,23 @@ subtest 'COND_INV_589_3: ancestor env vars are merged into child configure()' =>
 		@{'MK589::Child::ISA'} = ('MK589::Ancestor');
 	}
 
-	# Set env var for the ANCESTOR class.  env_prefix for MK589::Ancestor is
-	# "MK589__Ancestor__" (:: → __ twice), so the env key is that prefix + "mk589key".
+	# The outer elsif gate at configure() line ~692 is:
+	#   elsif(my $config = Config::Abstraction->new(env_prefix => "MK589__Child__"))
+	# Config::Abstraction->new returns falsy when NO env vars match its prefix.
+	# We MUST set at least one MK589__Child__ var so the gate opens and the
+	# ancestor-loop code (the mutant target) is actually reached.
+	local $ENV{'MK589__Child__oc589gate'} = '1';
+
+	# This is the env var for the ANCESTOR class.  env_prefix for MK589::Ancestor is
+	# "MK589__Ancestor__", so Config::Abstraction strips the prefix and exposes
+	# mk589key as a top-level key when merge_defaults(section=>'MK589__Ancestor') runs.
 	local $ENV{'MK589__Ancestor__mk589key'} = 'from_ancestor_env';
 
 	my $params = Object::Configure::configure('MK589::Child', {});
 
-	# With original code: ancestor_env_config is truthy → if-block merges env vars
-	# → mk589key appears in $params.
-	# With mutant: unless-block is skipped when truthy → env var never merged → absent.
+	# With original code: if($ancestor_env_config) is truthy → block runs →
+	# merge_defaults merges the ancestor's env vars → mk589key present in result.
+	# With mutant (unless): block is SKIPPED for truthy → mk589key absent.
 	ok(exists $params->{mk589key},
 		'COND_INV_589_3: ancestor env var key present in child configure() result');
 	is($params->{mk589key}, 'from_ancestor_env',
