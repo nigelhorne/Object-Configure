@@ -1,6 +1,3 @@
-[![CPAN version](https://badge.fury.io/pl/Object-Configure.svg)](https://metacpan.org/pod/Object::Configure)
-![Perl CI](https://github.com/nigelhorne/Object-Configure/actions/workflows/perl-ci.yml/badge.svg)
-
 # NAME
 
 Object::Configure - Runtime Configuration for an Object
@@ -8,6 +5,25 @@ Object::Configure - Runtime Configuration for an Object
 # VERSION
 
 0.23
+
+# DESCRIPTION
+
+`Object::Configure` injects runtime configuration and logging into Perl class
+constructors.  It is a thin layer on top of [Config::Abstraction](https://metacpan.org/pod/Config%3A%3AAbstraction) (reads config
+files and environment variables) and [Log::Abstraction](https://metacpan.org/pod/Log%3A%3AAbstraction) (logging).
+
+Call `configure($class, \%params)` at the start of your `new()` method.  It:
+
+- 1. Walks `@ISA` and finds config files for every class in the inheritance chain.
+- 2. Merges those files, then overlays environment variables named `ClassName__key`.
+- 3. Creates a [Log::Abstraction](https://metacpan.org/pod/Log%3A%3AAbstraction) logger and stores it in `$params->{logger}`.
+- 4. Returns a hashref ready to pass to `bless`.
+
+The module also provides optional hot-reload support: a background process watches
+config files and sends `SIGUSR1` to trigger an in-place update of registered objects
+without restarting the application.
+
+**Hot reload is not supported on Windows** (`SIGUSR1` does not exist there).
 
 # SYNOPSIS
 
@@ -121,25 +137,6 @@ Object::Configure - Runtime Configuration for an Object
 
     my $obj = My::Module->new;
     # $obj->{log_level} eq 'debug'   $obj->{timeout} == 120
-
-# DESCRIPTION
-
-`Object::Configure` injects runtime configuration and logging into Perl class
-constructors.  It is a thin layer on top of [Config::Abstraction](https://metacpan.org/pod/Config%3A%3AAbstraction) (reads config
-files and environment variables) and [Log::Abstraction](https://metacpan.org/pod/Log%3A%3AAbstraction) (logging).
-
-Call `configure($class, \%params)` at the start of your `new()` method.  It:
-
-- 1. Walks `@ISA` and finds config files for every class in the inheritance chain.
-- 2. Merges those files, then overlays environment variables named `ClassName__key`.
-- 3. Creates a [Log::Abstraction](https://metacpan.org/pod/Log%3A%3AAbstraction) logger and stores it in `$params->{logger}`.
-- 4. Returns a hashref ready to pass to `bless`.
-
-The module also provides optional hot-reload support: a background process watches
-config files and sends `SIGUSR1` to trigger an in-place update of registered objects
-without restarting the application.
-
-**Hot reload is not supported on Windows** (`SIGUSR1` does not exist there).
 
 # CONFIGURATION
 

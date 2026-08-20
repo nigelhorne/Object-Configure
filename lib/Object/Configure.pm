@@ -60,6 +60,32 @@ Object::Configure - Runtime Configuration for an Object
 
 our $VERSION = 0.23;
 
+=head1 DESCRIPTION
+
+C<Object::Configure> injects runtime configuration and logging into Perl class
+constructors.  It is a thin layer on top of L<Config::Abstraction> (reads config
+files and environment variables) and L<Log::Abstraction> (logging).
+
+Call C<configure($class, \%params)> at the start of your C<new()> method.  It:
+
+=over 4
+
+=item 1. Walks C<@ISA> and finds config files for every class in the inheritance chain.
+
+=item 2. Merges those files, then overlays environment variables named C<ClassName__key>.
+
+=item 3. Creates a L<Log::Abstraction> logger and stores it in C<$params-E<gt>{logger}>.
+
+=item 4. Returns a hashref ready to pass to C<bless>.
+
+=back
+
+The module also provides optional hot-reload support: a background process watches
+config files and sends C<SIGUSR1> to trigger an in-place update of registered objects
+without restarting the application.
+
+B<Hot reload is not supported on Windows> (C<SIGUSR1> does not exist there).
+
 =head1 SYNOPSIS
 
 =head2 Example 1: Add configurable logging to your own class
@@ -172,32 +198,6 @@ our $VERSION = 0.23;
 
     my $obj = My::Module->new;
     # $obj->{log_level} eq 'debug'   $obj->{timeout} == 120
-
-=head1 DESCRIPTION
-
-C<Object::Configure> injects runtime configuration and logging into Perl class
-constructors.  It is a thin layer on top of L<Config::Abstraction> (reads config
-files and environment variables) and L<Log::Abstraction> (logging).
-
-Call C<configure($class, \%params)> at the start of your C<new()> method.  It:
-
-=over 4
-
-=item 1. Walks C<@ISA> and finds config files for every class in the inheritance chain.
-
-=item 2. Merges those files, then overlays environment variables named C<ClassName__key>.
-
-=item 3. Creates a L<Log::Abstraction> logger and stores it in C<$params-E<gt>{logger}>.
-
-=item 4. Returns a hashref ready to pass to C<bless>.
-
-=back
-
-The module also provides optional hot-reload support: a background process watches
-config files and sends C<SIGUSR1> to trigger an in-place update of registered objects
-without restarting the application.
-
-B<Hot reload is not supported on Windows> (C<SIGUSR1> does not exist there).
 
 =head1 CONFIGURATION
 
