@@ -29,6 +29,10 @@ Revision history for Object::Configure - Runtime Configuration for an Object
 	  poisoning, signal safety, arbitrary file read, deep-merge DoS, and input
 	  validation guard clauses.
 	[ Bug Fixes ]
+	- Fixed instantiate(): 'class' key was read from %params but not deleted, causing
+	  it to propagate through configure() as a spurious config key and end up in the
+	  blessed object's hash, polluting its namespace. Changed $params->{'class'} to
+	  delete $params->{'class'} (D~ data-flow anomaly — dead store without delete).
 	- Fixed class-name validation regex: \w+ after :: permitted digit-first components
 	  (e.g. Bad::1Bad was accepted). Corrected to [A-Za-z_]\w* so each :: component
 	  must start with a letter or underscore, matching Perl's actual identifier rules.
@@ -69,6 +73,15 @@ Revision history for Object::Configure - Runtime Configuration for an Object
 	    * Regressions: digit-first :: component still rejected; traversal guard fires
 	      before -f for non-existent paths; instantiate() with undef/missing class croaks;
 	      caller-supplied _config_file/_config_files keys preserved in result.
+	- Added t/data-flow.t: 24 Define-Use (DU) chain subtests covering %stashed_values
+	  stash-restore, $array_logger priority, %_find_cache memoization (both hit and
+	  undef sentinel), %_chain_cache copy semantics, @config_files_to_load sort order,
+	  _deep_merge non-mutation of inputs, carp_on_warn propagation, weak-ref GC
+	  lifecycle, reload_config() dead-ref pruning, caller params non-mutation,
+	  _config_file set-once semantics, %_config_file_stats synchronous population,
+	  env_prefix :: → __ conversion, %tracked_files duplicate-file guard, O~ file
+	  descriptor leak check (/proc/self/fd), $@/$_ non-pollution, _build_logger()
+	  paths (undef/NULL/passthrough), and instantiate() 'class' key non-leakage.
 	- Expanded t/integration.t from 19 to 27 subtests: added optional-deps subtest
 	  (Test::Without::Module), env-var precedence E2E, GC weak-ref pruning verification
 	  (exercises the reload_config() bug fix), arrayref logger capture, logger isolation

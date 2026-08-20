@@ -54,6 +54,7 @@ WriteMakefile(
 		'Test::Needs' => 0,
 		'Test::NoWarnings' => 0,
 		'Time::HiRes' => 0,
+		'Test::Without::Module' => 0,
 		'YAML::XS' => 0,
 	}, dist => $dist,
 	clean	 => { FILES => 'Object-Configure-*', },
