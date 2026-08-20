@@ -728,6 +728,10 @@ sub instantiate
 {
 	my $params = Params::Get::get_params('class', @_);
 
+	# 'class' is read into $class then left in $params,
+	# 'class' propagates into configure() as a spurious config key and
+	# ends up in the blessed object's hash, allowing the caller to see
+	# that has come from what, helping debugging
 	my $class = $params->{'class'};
 	$params = configure($class, $params);
 

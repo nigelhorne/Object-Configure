@@ -13,6 +13,7 @@ t/30-basics.t
 t/cgi_security.t
 t/coderef.t
 t/complex.t
+t/data-flow.t
 t/edge_cases.t
 t/env.t
 t/eof.t

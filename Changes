@@ -40,6 +40,35 @@ Revision history for Object::Configure - Runtime Configuration for an Object
 	- Fix https://github.com/nigelhorne/Object-Configure/issues/7
 
 	[ Tests ]
+	- Expanded t/edge_cases.t from 28 to 62 subtests: added destructive, pathological,
+	  boundary-condition, and security subtests across all public and private functions:
+	    * Param-type hostility: undef params defaults to {} (intentional); arrayref params
+	      surfaces Perl type error (documented hostile-input behaviour).
+	    * Global variable integrity: $@, $_, and alarm() are all verified not to be
+	      clobbered by configure() across its full code path.
+	    * Return-type contracts (Test::Returns): configure() satisfies { type => hashref }
+	      schema; reload_config() satisfies { type => integer } schema.
+	    * Security / injection: null byte, CR, LF, and shell metacharacters (space ; | $)
+	      in class name are rejected; _reload_object_config() traversal guard verified to
+	      fire before -f filesystem check even for non-existent traversal paths.
+	    * Filesystem hostility: directory as config_file (graceful), dangling symlink
+	      (croaks with locale-safe OS error), unreadable file / chmod 000 (locale-safe
+	      EACCES croak), config_dirs entry that is a plain file (ignored), empty-string
+	      config_dirs entry (no crash).
+	    * _deep_merge() boundary: (undef,undef)->undef, (undef,hashref)->overlay,
+	      (hashref,scalar)->scalar, (hashref,arrayref)->arrayref, 50-level nesting no stack
+	      overflow.
+	    * Registry/signal safety: register_object(undef,*) and register_object(*,undef)
+	      croak with usage; unblessed hashref stored but silently skipped on reload;
+	      disable_hot_reload() idempotent; enable_hot_reload(0/-9999) clamped to default;
+	      double enable_hot_reload() is a no-op (no double-fork).
+	    * Upstream failure (Mockingbird): Config::Abstraction::new returning 0 causes
+	      carp and continues; configure() returns a valid hashref.
+	    * DoS resilience: 500-key params hash handled without crash.
+	    * Context safety: configure() in list context returns exactly one hashref.
+	    * Regressions: digit-first :: component still rejected; traversal guard fires
+	      before -f for non-existent paths; instantiate() with undef/missing class croaks;
+	      caller-supplied _config_file/_config_files keys preserved in result.
 	- Expanded t/integration.t from 19 to 27 subtests: added optional-deps subtest
 	  (Test::Without::Module), env-var precedence E2E, GC weak-ref pruning verification
 	  (exercises the reload_config() bug fix), arrayref logger capture, logger isolation
