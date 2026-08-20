@@ -29,9 +29,32 @@ Revision history for Object::Configure - Runtime Configuration for an Object
 	  poisoning, signal safety, arbitrary file read, deep-merge DoS, and input
 	  validation guard clauses.
 	[ Bug Fixes ]
+	- Fixed class-name validation regex: \w+ after :: permitted digit-first components
+	  (e.g. Bad::1Bad was accepted). Corrected to [A-Za-z_]\w* so each :: component
+	  must start with a letter or underscore, matching Perl's actual identifier rules.
+	- Fixed _reload_object_config(): the $RE_PATH_TRAVERSAL guard was positioned AFTER
+	  the -f filesystem test, meaning traversal paths for non-existent files were silently
+	  ignored rather than rejected. Guard now fires before the -f check.
 	- Config::Abstraction, Log::Abstraction, and Return::Set all use eval internally
 	  protect the caller's $@ from being clobbered by our internal eval blocks.
 	- Fix https://github.com/nigelhorne/Object-Configure/issues/7
+
+	[ Tests ]
+	- Expanded t/function.t from 35 to 55 subtests: added white-box coverage for the
+	  S2 class-name guard (8 invalid partitions + 2 valid boundary cases), S1 path-traversal
+	  guard, _reconfigure_logger() (2 subtests), _reload_object_config() (3 subtests
+	  including traversal and private-key filtering), register_object() weak-reference
+	  storage, restore_signal_handlers() after synthetic install, enable_hot_reload()
+	  early-return guard, _find_class_config_file() trailing-slash non-mutation,
+	  _get_inheritance_chain() memoisation cache, _deep_merge() arrayref replacement,
+	  configure() env-var merge flow, and Test::Memory::Cycle circular-reference check.
+	- Expanded t/unit.t from 35 to 48 subtests: added API message ledger (tracks all
+	  POD-documented error/warning messages; final subtest asserts ledger is empty),
+	  coverage for the new invalid-class and path-traversal croak messages, mocked
+	  Config::Abstraction::new to trigger the "Warning: Can't load configuration" carp,
+	  $@ preservation test, alarm() non-interference test, _config_files metadata,
+	  arrayref-logger priority over config-file logger, and instantiate() hot-reload
+	  registration side-effect.
 
 0.23	Sun Jun 28 09:55:21 EDT 2026
 	[ Refactoring ]

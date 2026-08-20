@@ -1029,7 +1029,7 @@ sub reload_config {
 	foreach my $class_key (keys %_object_registry) {
 		my $objects = $_object_registry{$class_key};
 
-		@$objects = grep { defined $_ } @$objects;	# prune garbage-collected weak refs
+		@$objects = grep { defined $$_ } @$objects;	# prune garbage-collected weak refs (check referent, not the ref-to-scalar itself)
 
 		foreach my $obj_ref (@$objects) {
 			if(my $obj = $$obj_ref) {
