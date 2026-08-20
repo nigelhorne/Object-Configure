@@ -40,6 +40,19 @@ Revision history for Object::Configure - Runtime Configuration for an Object
 	- Fix https://github.com/nigelhorne/Object-Configure/issues/7
 
 	[ Tests ]
+	- Expanded t/integration.t from 19 to 27 subtests: added optional-deps subtest
+	  (Test::Without::Module), env-var precedence E2E, GC weak-ref pruning verification
+	  (exercises the reload_config() bug fix), arrayref logger capture, logger isolation
+	  between two concurrent objects, 3-level inheritance merge order, _config_file_stats
+	  population, and security E2E (traversal + invalid class in full constructor workflow).
+	  Key fixes applied during test writing:
+	    - Arrayref loggers must use ->warn() (not ->debug()): 'debug' has syslog priority 7,
+	      above the default Log::Abstraction threshold (warning = 4), so debug calls are
+	      silently dropped; hashref logger specs are also not stashed before the config
+	      merge, so a site-local UNIVERSAL logger config can override an explicit level.
+	    - _config_file_stats is only populated via the primary-file branch (-r $config_file);
+	      the fallback directory scan does not record stats.  Tests that verify stat tracking
+	      must supply an absolute config_file path.
 	- Expanded t/function.t from 35 to 55 subtests: added white-box coverage for the
 	  S2 class-name guard (8 invalid partitions + 2 valid boundary cases), S1 path-traversal
 	  guard, _reconfigure_logger() (2 subtests), _reload_object_config() (3 subtests
