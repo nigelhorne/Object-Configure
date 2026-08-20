@@ -878,22 +878,18 @@ subtest 'Guard: register_object() croaks when class or obj is undef' => sub {
 # check beyond the Usage guard; an unblessed hashref is stored as a weak ref.
 # reload_config() should silently skip it (blessed($obj) returns false).
 # =============================================================================
-subtest 'Edge: register_object() with unblessed hashref stored but skipped on reload' => sub {
-	plan tests => 2;
+subtest 'Edge: register_object() rejects unblessed hashref (security fix S2)' => sub {
+	plan tests => 1;
 
+	# Security fix S2: register_object() now enforces blessed() at registration
+	# time to prevent DoS via registry flooding with unblessed entries that
+	# cause reload_config() to iterate over them on every SIGUSR1.
 	my $plain = { _config_file => '/nonexistent.yml' };
 
-	lives_ok {
+	throws_ok {
 		Object::Configure::register_object('Test::UnblessedReg', $plain);
-	} 'Registering an unblessed hashref does not crash';
-
-	# reload_config() checks blessed($obj) and returns early for unblessed refs.
-	my $count;
-	lives_ok {
-		$count = Object::Configure::reload_config();
-	} 'reload_config() with an unblessed registered object does not crash';
-
-	delete $Object::Configure::_object_registry{'Test::UnblessedReg'};
+	} qr/register_object: \$obj must be a blessed reference/,
+		'register_object() croaks when passed an unblessed hashref';
 };
 
 # =============================================================================

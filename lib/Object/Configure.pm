@@ -615,8 +615,19 @@ sub configure {
 
 		$params = _deep_merge($merged_config, $params);
 
-		if($params->{config_path} && -f $params->{config_path}) {
-			$_config_file_stats{ $params->{config_path} } = stat($params->{config_path});
+		# SECURITY (S1 extension — config_path traversal + taint):
+		# config_path arrives from Config::Abstraction, which reads %ENV.  Under
+		# taint mode (-T) the value is tainted; any syscall with a tainted argument
+		# is fatal.  Apply the same $RE_PATH_TRAVERSAL guard as config_file (line 491)
+		# before any filesystem probe, so the two guards stay in sync.
+		# Exploit: ClassName__config_path=../../etc/shadow causes the hot-reload watcher
+		# to stat() and track an arbitrary system file, leaking mtime changes via SIGUSR1.
+		if($params->{config_path}) {
+			croak(__PACKAGE__, ': config_path contains path traversal sequences: ',
+				$params->{config_path})
+				if $params->{config_path} =~ $RE_PATH_TRAVERSAL;
+			$_config_file_stats{ $params->{config_path} } = stat($params->{config_path})
+				if -f $params->{config_path};
 		}
 	}
 
@@ -1149,6 +1160,13 @@ sub register_object
 
 	croak(__PACKAGE__, '::register_object: Usage ($class, $obj)')
 		unless defined($class) && defined($obj);
+
+	# SECURITY: enforce the API contract (POD: "$obj must be a blessed reference").
+	# Accepting unblessed refs silently would allow DoS via registry flooding: an
+	# adversary or buggy caller can push thousands of unblessed entries; reload_config()
+	# iterates every entry on every SIGUSR1, degrading throughput proportionally.
+	croak(__PACKAGE__, '::register_object: $obj must be a blessed reference')
+		unless blessed($obj);
 
 	my $obj_ref = \$obj;
 	weaken($$obj_ref);

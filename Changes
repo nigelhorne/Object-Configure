@@ -43,6 +43,17 @@ Revision history for Object::Configure - Runtime Configuration for an Object
 	  protect the caller's $@ from being clobbered by our internal eval blocks.
 	- Fix https://github.com/nigelhorne/Object-Configure/issues/7
 
+	[ Security ]
+	- configure(): added $RE_PATH_TRAVERSAL guard for config_path (the env-only branch).
+	  Previously, a caller with env-var control could set ClassName__config_path=../../etc/shadow
+	  to force the hot-reload watcher to stat arbitrary system files (mtime side-channel via
+	  SIGUSR1) and cause fatal taint violations under -T. Now rejected with croak before any
+	  filesystem probe, matching the existing config_file guard.
+	- register_object(): added blessed($obj) guard. The POD has always required a blessed
+	  reference, but the code only checked defined(). An adversary or buggy caller could push
+	  thousands of unblessed entries, causing reload_config() to iterate them on every SIGUSR1
+	  and degrading throughput proportionally (DoS). Unblessed refs now croak immediately.
+
 	[ Tests ]
 	- Expanded t/edge_cases.t from 28 to 62 subtests: added destructive, pathological,
 	  boundary-condition, and security subtests across all public and private functions:
@@ -63,7 +74,7 @@ Revision history for Object::Configure - Runtime Configuration for an Object
 	      (hashref,scalar)->scalar, (hashref,arrayref)->arrayref, 50-level nesting no stack
 	      overflow.
 	    * Registry/signal safety: register_object(undef,*) and register_object(*,undef)
-	      croak with usage; unblessed hashref stored but silently skipped on reload;
+	      croak with usage; unblessed hashref now croaks (security fix S2);
 	      disable_hot_reload() idempotent; enable_hot_reload(0/-9999) clamped to default;
 	      double enable_hot_reload() is a no-op (no double-fork).
 	    * Upstream failure (Mockingbird): Config::Abstraction::new returning 0 causes
@@ -110,6 +121,16 @@ Revision history for Object::Configure - Runtime Configuration for an Object
 	  $@ preservation test, alarm() non-interference test, _config_files metadata,
 	  arrayref-logger priority over config-file logger, and instantiate() hot-reload
 	  registration side-effect.
+	- Added t/domain.t: 41 EP/BVA subtests covering all input domains for all public
+	  and private functions: class-name valid/invalid partitions, config_file/config_path
+	  traversal boundaries, logger spec types (undef/NULL/arrayref/hashref/blessed),
+	  register_object() unblessed-croak boundary (security fix S2), _deep_merge() type
+	  combinations, _build_logger() all spec types, and combinatorial edge cases.
+	- Added t/path.t: 52 CFG path-coverage subtests exhausting every branching path
+	  through configure(), register_object(), reload_config(), enable_hot_reload(),
+	  disable_hot_reload(), _build_logger(), _find_class_config_file(), _deep_merge(),
+	  _reload_object_config(), and _reconfigure_logger() — including signal-handler
+	  chaining, config_path env-only stat branch, and injected upstream failures.
 
 0.23	Sun Jun 28 09:55:21 EDT 2026
 	[ Refactoring ]

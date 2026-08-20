@@ -482,15 +482,15 @@ subtest 'EP invalid: register_object() — both args undef' => sub {
 	} $USAGE_CROAK_MSG, 'IP3: both undef → usage croak';
 };
 
-subtest 'BVA: register_object() — unblessed hashref accepted (no blessed guard at registration)' => sub {
+subtest 'BVA: register_object() — unblessed hashref rejected (blessed guard enforced)' => sub {
 	plan tests => 1;
-	# register_object has no blessed() check — it accepts any defined ref.
-	# The blessed guard fires later in _reload_object_config(), not here.
+	# Security fix S2: register_object() now enforces blessed() at registration.
+	# An unblessed ref must croak immediately, not be silently stored.
 	my $unblessed = { key => 'val' };
-	lives_ok {
+	throws_ok {
 		Object::Configure::register_object('Domain::Unreg::Class', $unblessed);
-	} 'BVA: unblessed hashref stored without croak (blessed check deferred to reload)';
-	delete $Object::Configure::_object_registry{'Domain::Unreg::Class'};
+	} qr/register_object: \$obj must be a blessed reference/,
+		'BVA: unblessed hashref causes immediate croak at registration';
 };
 
 # =============================================================================
