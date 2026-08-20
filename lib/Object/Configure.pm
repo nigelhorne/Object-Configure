@@ -423,7 +423,7 @@ Now you can set up a configuration file and environment variables to configure y
 
 sub configure {
 	my $class  = $_[0];
-	my $params = $_[1] || {};	# caller's defaults; config file values override them
+	my $params = $_[1] // {};	# caller's defaults; config file values override them
 	my $array_logger;		# stash for an arrayref logger spec (Config::Abstraction rejects refs)
 
 	croak(__PACKAGE__, ': configure: what class do you want to configure?')
@@ -488,7 +488,8 @@ sub configure {
 			}
 		}
 
-		if($config_file && !$tracked_files{$config_file} && -r $config_file) {
+		# Premise: $config_file is true (we are inside if($config_file) above).
+		if(!$tracked_files{$config_file} && -r $config_file) {
 			push @config_files_to_load, { file => $config_file, class => $original_class };
 			$tracked_files{$config_file} = 1;
 			$_config_file_stats{$config_file} = stat($config_file)
@@ -1367,7 +1368,10 @@ sub _find_class_config_file {
 	$base_ext //= '';
 	my $base_dir = File::Spec->catpath($base_vol, $base_dir_part, '');
 
-	my @base_patterns = (
+	# Dedup: when $base_ext is already .yml/.conf/etc the first candidate would
+	# be a duplicate of a later one, causing a redundant filesystem probe.
+	my %_seen_pat;
+	my @base_patterns = grep { !$_seen_pat{$_}++ } (
 		File::Spec->catfile($base_dir, "${class_file}${base_ext}"),
 		File::Spec->catfile($base_dir, "${class_file}.conf"),
 		File::Spec->catfile($base_dir, "${class_file}.yml"),
@@ -1382,13 +1386,14 @@ sub _find_class_config_file {
 	if($config_dirs && ref($config_dirs) eq 'ARRAY') {
 		foreach my $dir (@$config_dirs) {
 			$dir =~ s{/$}{};
-			foreach my $pattern (
+			my %_seen_dir_pat;
+			foreach my $pattern (grep { !$_seen_dir_pat{$_}++ } (
 				"${dir}/${class_file}${base_ext}",
 				"${dir}/${class_file}.conf",
 				"${dir}/${class_file}.yml",
 				"${dir}/${class_file}.yaml",
 				"${dir}/${class_file}.json",
-			) {
+			)) {
 				return $pattern if -r $pattern && -f $pattern;
 			}
 		}
@@ -1481,11 +1486,14 @@ sub _reload_object_config {
 			if($key eq 'logger') {
 				# Only the exact 'logger' key triggers logger reconstruction.
 				# Keys like 'logger.file' are flat config values, not logger specs.
+				# Guard: assign directly for undef (no logger) or literal 'NULL'.
+				# Premise 1: _build_logger handles every other spec type.
+				# Premise 2: undef/NULL need no construction. Conclusion: rebuild only otherwise.
 				my $val = $new_params->{$key};
-				if(ref($val) || (defined($val) && $val ne $LOGGER_NULL)) {
-					_reconfigure_logger($obj, $key, $val);
-				} else {
+				if(!defined($val) || (!ref($val) && $val eq $LOGGER_NULL)) {
 					$obj->{$key} = $val;
+				} else {
+					_reconfigure_logger($obj, $key, $val);
 				}
 			} else {
 				$obj->{$key} = $new_params->{$key};

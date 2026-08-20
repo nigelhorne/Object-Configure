@@ -76,9 +76,15 @@ subtest 'configure() - preserves blessed objects automatically' => sub {
 };
 
 subtest 'configure() - throws on undefined class' => sub {
+	# Partition boundary: undef and empty string are the two terminal-invalid inputs.
+	# Premise: guard clause fires before any config work — prove both gates.
 	throws_ok {
 		Object::Configure::configure(undef, {});
 	} qr/configure: what class do you want to configure/, 'Croaks on undef class';
+
+	throws_ok {
+		Object::Configure::configure('', {});
+	} qr/configure: what class do you want to configure/, 'Croaks on empty-string class';
 
 	done_testing();
 };
@@ -253,36 +259,6 @@ subtest '_get_inheritance_chain() - class with parent' => sub {
 	done_testing();
 };
 
-subtest '_get_inheritance_chain() - processes class hierarchy' => sub {
-	{
-		package Test::Base;
-		sub new { bless {}, shift }
-	}
-	{
-		package Test::Derived;
-		use base 'Test::Base';
-		sub new { bless {}, shift }
-	}
-
-	my @chain = Object::Configure::_get_inheritance_chain('Test::Derived');
-
-	ok(scalar(@chain) > 0, 'Chain populated');
-	ok((grep { $_ eq 'Test::Derived' } @chain), 'Derived class in chain');
-	ok((grep { $_ eq 'Test::Base'    } @chain), 'Base class in chain');
-	ok((grep { $_ eq 'UNIVERSAL'     } @chain), 'UNIVERSAL in chain');
-
-	done_testing();
-};
-
-subtest '_get_inheritance_chain() - adds UNIVERSAL for classes with no parents' => sub {
-	my @chain = Object::Configure::_get_inheritance_chain('Test::Orphan');
-
-	ok((grep { $_ eq 'UNIVERSAL'    } @chain), 'UNIVERSAL added for orphan class');
-	ok((grep { $_ eq 'Test::Orphan' } @chain), 'Class itself in chain');
-
-	done_testing();
-};
-
 subtest '_get_inheritance_chain() - UNIVERSAL appears exactly once' => sub {
 	my @chain = Object::Configure::_get_inheritance_chain('Test::Solo');
 
@@ -416,32 +392,29 @@ subtest 'restore_signal_handlers() - safe to call when not set' => sub {
 	done_testing();
 };
 
-subtest 'configure() - handles carp_on_warn parameter' => sub {
-	my $class = 'Test::Class::CarpOnWarn';
-	my $params = {
+subtest 'configure() - carp_on_warn is forwarded to the logger' => sub {
+	# Premise 1: configure() extracts carp_on_warn from params.
+	# Premise 2: _build_logger receives it and passes it to Log::Abstraction.
+	# Conclusion: result->{logger}{carp_on_warn} == 1.
+	my $result = Object::Configure::configure('Test::Class::CarpOnWarn', {
 		carp_on_warn => 1,
-		timeout => 30
-	};
+		timeout      => 30,
+	});
 
-	my $result = Object::Configure::configure($class, $params);
-
-	ok(blessed($result->{logger}), 'Logger created');
-	# Note: can't easily test if logger uses carp without triggering warnings
+	isa_ok($result->{logger}, 'Log::Abstraction', 'Logger');
+	is($result->{logger}{carp_on_warn}, 1, 'carp_on_warn propagated to logger');
 
 	done_testing();
 };
 
-subtest 'configure() - handles croak_on_error parameter' => sub {
-	my $class = 'Test::Class::CroakOnError';
-	my $params = {
+subtest 'configure() - croak_on_error=0 is preserved in result' => sub {
+	# Prove the param survives the merge and is not reset by a default.
+	my $result = Object::Configure::configure('Test::Class::CroakOnError', {
 		croak_on_error => 0,
-		timeout => 30
-	};
+		timeout        => 30,
+	});
 
-	my $result = Object::Configure::configure($class, $params);
-
-	ok(defined($result), 'Configuration completed');
-	# Note: can't easily test croak_on_error without triggering errors
+	is($result->{croak_on_error}, 0, 'croak_on_error=0 preserved');
 
 	done_testing();
 };
@@ -490,6 +463,99 @@ subtest 'configure() - preserves multiple coderefs' => sub {
 	is(ref($result->{on_success}), 'CODE', 'Second coderef preserved');
 	is($result->{on_error}->(), 1, 'First coderef works');
 	is($result->{on_success}->(), 2, 'Second coderef works');
+
+	done_testing();
+};
+
+subtest '_build_logger() - undef spec yields default Log::Abstraction' => sub {
+	# Premise: undef means "no preference" — a default logger must be constructed.
+	my $logger = Object::Configure::_build_logger(undef, 0);
+	isa_ok($logger, 'Log::Abstraction', 'Default logger');
+
+	done_testing();
+};
+
+subtest '_build_logger() - NULL string yields the literal NULL sentinel' => sub {
+	# Premise: caller explicitly opts out of logging.
+	# Conclusion: return value is the string 'NULL', not a blessed object.
+	my $logger = Object::Configure::_build_logger('NULL', 0);
+	is($logger, 'NULL', 'NULL sentinel returned as-is');
+	ok(!blessed($logger), 'NULL sentinel is not blessed');
+
+	done_testing();
+};
+
+subtest '_build_logger() - arrayref spec yields logger with array stash' => sub {
+	my @buf;
+	my $logger = Object::Configure::_build_logger(\@buf, 0);
+	isa_ok($logger, 'Log::Abstraction', 'Logger from arrayref');
+	is($logger->{array}, \@buf, 'Buffer wired into logger');
+
+	done_testing();
+};
+
+subtest '_build_logger() - hashref spec merges options' => sub {
+	my $logger = Object::Configure::_build_logger({ level => 'debug' }, 0);
+	isa_ok($logger, 'Log::Abstraction', 'Logger from hashref');
+
+	done_testing();
+};
+
+subtest '_build_logger() - blessed Log::Abstraction passes through unchanged' => sub {
+	# Premise: caller already owns a logger instance — no reconstruction needed.
+	# Conclusion: identity preserved (same reference returned).
+	my $existing = Log::Abstraction->new();
+	my $logger   = Object::Configure::_build_logger($existing, 0);
+	is($logger, $existing, 'Pre-built logger returned by identity');
+
+	done_testing();
+};
+
+subtest '_build_logger() - carp_on_warn forwarded for every constructing spec type' => sub {
+	# Prove the flag reaches the object for the three constructing spec types.
+	for my $spec (undef, { level => 'info' }, []) {
+		my $label  = !defined($spec) ? 'undef' : (ref($spec) || $spec);
+		my $logger = Object::Configure::_build_logger($spec, 1);
+		is($logger->{carp_on_warn}, 1, "carp_on_warn=1 propagated for spec=$label");
+	}
+
+	done_testing();
+};
+
+subtest '_deep_merge() - three-level nesting: grandchild overrides grandparent' => sub {
+	# Boundary: prove recursion depth >= 3 is correct (not just 2).
+	my $base = { a => { b => { c => 1, d => 2 } } };
+	my $over = { a => { b => { c => 9 } } };
+	my $r    = Object::Configure::_deep_merge($base, $over);
+
+	is($r->{a}{b}{c}, 9, 'Grandchild key overridden');
+	is($r->{a}{b}{d}, 2, 'Sibling grandchild key preserved');
+
+	done_testing();
+};
+
+subtest '_find_class_config_file() - finds file in same dir as primary (no config_dirs)' => sub {
+	# Prove the base-dir probe works without config_dirs.
+	# Premise: primary file and ancestor file share the same directory.
+	my $temp_dir = tempdir(CLEANUP => 1);
+	my $primary  = File::Spec->catfile($temp_dir, 'child.yml');
+	open my $fh, '>', $primary or die $!;
+	print $fh "---\n";
+	close $fh;
+
+	my $ancestor = File::Spec->catfile($temp_dir, 'my-ancestor.yml');
+	open $fh, '>', $ancestor or die $!;
+	print $fh "---\n";
+	close $fh;
+
+	my $found = Object::Configure::_find_class_config_file(
+		'My::Ancestor',
+		$primary,
+		undef		# no config_dirs
+	);
+
+	ok(defined($found),                   'File found via primary dir');
+	like($found, qr/my-ancestor\.yml$/, 'Correct ancestor filename');
 
 	done_testing();
 };
