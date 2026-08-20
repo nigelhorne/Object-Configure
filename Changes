@@ -131,6 +131,15 @@ Revision history for Object::Configure - Runtime Configuration for an Object
 	  disable_hot_reload(), _build_logger(), _find_class_config_file(), _deep_merge(),
 	  _reload_object_config(), and _reconfigure_logger() — including signal-handler
 	  chaining, config_path env-only stat branch, and injected upstream failures.
+	- Added t/transaction.t: 14 multi-step lifecycle subtests verifying state
+	  consistency at every phase boundary and correct behaviour on mid-flight
+	  failures: configure() full pipeline (T1), C::A failure rollback (T2),
+	  env-override precedence chain file<env (T3), register→reload→update
+	  synchronous hot-reload flow (T4), GC weak-ref pruning on reload (T5),
+	  multi-object reload with partial GC (T6), same-class push semantics (T7),
+	  nonexistent-config resilience (T8), _reload_object_config exception isolation
+	  (T9), instantiate() lifecycle (T10-T11), and enable/disable watcher lifecycle
+	  including idempotency (T12-T14).
 
 0.23	Sun Jun 28 09:55:21 EDT 2026
 	[ Refactoring ]

@@ -35,6 +35,7 @@ t/prereq.t
 t/reload.t
 t/simple.t
 t/strict.t
+t/transaction.t
 t/unit.t
 t/universal.t
 t/version.t
