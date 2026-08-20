@@ -293,10 +293,10 @@ a.intra-dot:hover { color: #7700bb; }
 <div class="nav"><a href="../../../index.html">Index</a>
 </div><div class='summary'>
 <strong>Structural Coverage (Approximate)</strong><p>
-TER1 (Statement): 97.74%<br>
-TER2 (Branch): 93.67%<br>
+TER1 (Statement): 97.76%<br>
+TER2 (Branch): 92.68%<br>
 TER3 (LCSAJ): 100.0% (19/19)<br>
-Approximate LCSAJ segments: 159<br>
+Approximate LCSAJ segments: 165<br>
 </div>
 
     <div class="legend">
@@ -891,7 +891,7 @@ Approximate LCSAJ segments: 159<br>
 </span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic.">  544: 		}
 </span><p> <b> Mutants (Total: 1, Killed: 1, Survived: 0)</b><p><span class="">  545: 	}
 </span><span class="">  546: 
-</span><span class=""><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">547 → 547 → 623</span></span>  547: 	if(@config_files_to_load) {
+</span><span class=""><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">547 → 547 → 634</span></span>  547: 	if(@config_files_to_load) {
 </span><span class="">  548: 		# Sort so that base-class files are loaded before child files.
 </span><span class="">  549: 		# %class_order is keyed on the chain (UNIVERSAL=0, ..., Child=N).
 </span><span class="">  550: 		my %class_order;
@@ -968,1332 +968,1350 @@ Approximate LCSAJ segments: 159<br>
 </span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic.">  615: 
 </span><p> <b> Mutants (Total: 2, Killed: 2, Survived: 0)</b><p><span class="">  616: 		$params = _deep_merge($merged_config, $params);
 </span><span class="">  617: 
-</span><span class="">  618: 		if($params-&gt;{config_path} &amp;&amp; -f $params-&gt;{config_path}) {
-</span><span class="">  619: 			$_config_file_stats{ $params-&gt;{config_path} } = stat($params-&gt;{config_path});
-</span><span class="">  620: 		}
-</span><span class="">  621: 	}
-</span><span class="">  622: 
-</span><span class=""><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">623 → 633 → 636</span></span>  623: 	my $croak_on_error = exists($params-&gt;{&#39;croak_on_error&#39;}) ? $params-&gt;{&#39;croak_on_error&#39;} : 1;
-</span><span class="">  624: 	my $carp_on_warn   = exists($params-&gt;{&#39;carp_on_warn&#39;})   ? $params-&gt;{&#39;carp_on_warn&#39;}   : 0;
-</span><span class="">  625: 
-</span><span class="">  626: 	# User-supplied logger always wins over config-file logger.
-</span><span class="">  627: 	# $array_logger is defined when the caller passed an arrayref; it was deleted from
-</span><span class="">  628: 	# $params before config merging so the merge couldn&#39;t overwrite it.  Config-file logger
-</span><span class="">  629: 	# (a hashref from YAML) is only used when the caller gave no explicit logger at all.
-</span><span class="">  630: 	my $logger_spec = defined($array_logger) ? $array_logger : $params-&gt;{&#39;logger&#39;};
-</span><span class="">  631: 	$params-&gt;{&#39;logger&#39;} = _build_logger($logger_spec, $carp_on_warn);
-</span><span class="">  632: 
-</span><span class="">  633: 	if(!exists($params-&gt;{_config_file})) {
-</span><span class="">  634: 		$params-&gt;{_config_file} = $config_file if defined $config_file;
-</span><span class="">  635: 	}
-</span><span class=""><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">636 → 636 → 642</span></span>  636: 	if(!exists($params-&gt;{_config_files})) {
-</span><span class="">  637: 		$params-&gt;{_config_files} = [ map { $_-&gt;{file} } @config_files_to_load ]
-</span><span class="">  638: 			if @config_files_to_load;
-</span><span class="">  639: 	}
-</span><span class="">  640: 
-</span><span class="">  641: 	# Re-attach stashed coderefs/objects via hash slice
-</span><span class="">  642: 	@{$params}{ keys %stashed_values } = values %stashed_values if %stashed_values;
+</span><span class="">  618: 		# SECURITY (S1 extension &acirc;&#128;&#148; config_path traversal + taint):
+</span><span class="">  619: 		# config_path arrives from Config::Abstraction, which reads %ENV.  Under
+</span><span class="">  620: 		# taint mode (-T) the value is tainted; any syscall with a tainted argument
+</span><span class="">  621: 		# is fatal.  Apply the same $RE_PATH_TRAVERSAL guard as config_file (line 491)
+</span><span class="">  622: 		# before any filesystem probe, so the two guards stay in sync.
+</span><span class="">  623: 		# Exploit: ClassName__config_path=../../etc/shadow causes the hot-reload watcher
+</span><span class="">  624: 		# to stat() and track an arbitrary system file, leaking mtime changes via SIGUSR1.
+</span><span class="">  625: 		if($params-&gt;{config_path}) {
+</span><span class="">  626: 			croak(__PACKAGE__, &#39;: config_path contains path traversal sequences: &#39;,
+</span><span class="">  627: 				$params-&gt;{config_path})
+</span><span class="">  628: 				if $params-&gt;{config_path} =~ $RE_PATH_TRAVERSAL;
+</span><span class="">  629: 			$_config_file_stats{ $params-&gt;{config_path} } = stat($params-&gt;{config_path})
+</span><span class="">  630: 				if -f $params-&gt;{config_path};
+</span><span class="">  631: 		}
+</span><span class="">  632: 	}
+</span><span class="">  633: 
+</span><span class=""><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">634 → 644 → 647</span></span>  634: 	my $croak_on_error = exists($params-&gt;{&#39;croak_on_error&#39;}) ? $params-&gt;{&#39;croak_on_error&#39;} : 1;
+</span><span class="">  635: 	my $carp_on_warn   = exists($params-&gt;{&#39;carp_on_warn&#39;})   ? $params-&gt;{&#39;carp_on_warn&#39;}   : 0;
+</span><span class="">  636: 
+</span><span class="">  637: 	# User-supplied logger always wins over config-file logger.
+</span><span class="">  638: 	# $array_logger is defined when the caller passed an arrayref; it was deleted from
+</span><span class="">  639: 	# $params before config merging so the merge couldn&#39;t overwrite it.  Config-file logger
+</span><span class="">  640: 	# (a hashref from YAML) is only used when the caller gave no explicit logger at all.
+</span><span class="">  641: 	my $logger_spec = defined($array_logger) ? $array_logger : $params-&gt;{&#39;logger&#39;};
+</span><span class="">  642: 	$params-&gt;{&#39;logger&#39;} = _build_logger($logger_spec, $carp_on_warn);
 </span><span class="">  643: 
-</span><span class="">  644: 	return Return::Set::set_return($params, { &#39;type&#39; =&gt; &#39;hashref&#39; });
-</span><span class="">  645: }
-</span><span class="">  646: 
-</span><span class="">  647: =head2 instantiate($class,...)
-</span><span class="">  648: 
-</span><span class="">  649: Create and configure an object of a third-party class without modifying the class itself.
-</span><span class="">  650: 
-</span><span class="">  651: =head3 Purpose
-</span><span class="">  652: 
-</span><span class="">  653: Provides a convenient way to make third-party classes (those you cannot modify) configurable
-</span><span class="">  654: at runtime using Object::Configure. This is a wrapper that calls C&lt;configure&gt; and then
-</span><span class="">  655: instantiates the class.
-</span><span class="">  656: 
-</span><span class="">  657: =head3 Arguments
-</span><span class="">  658: 
-</span><span class="">  659: Takes a hash or hashref with the following keys:
-</span><span class="">  660: 
-</span><span class="">  661: =over 4
-</span><span class="">  662: 
-</span><span class="">  663: =item * C&lt;class&gt; (Required)
-</span><span class="">  664: 
-</span><span class="">  665: The fully-qualified class name to instantiate (e.g., C&lt;&#39;LWP::UserAgent&#39;&gt;).
-</span><span class="">  666: 
-</span><span class="">  667: =item * Additional keys
-</span><span class="">  668: 
-</span><span class="">  669: Any additional keys are passed through to C&lt;configure&gt; and then to the class constructor.
-</span><span class="">  670: 
-</span><span class="">  671: =back
-</span><span class="">  672: 
-</span><span class="">  673: =head3 Returns
-</span><span class="">  674: 
-</span><span class="">  675: A blessed object of the specified class, configured according to the parameters and
-</span><span class="">  676: configuration files.
+</span><span class="">  644: 	if(!exists($params-&gt;{_config_file})) {
+</span><span class="">  645: 		$params-&gt;{_config_file} = $config_file if defined $config_file;
+</span><span class="">  646: 	}
+</span><span class=""><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">647 → 647 → 653</span></span>  647: 	if(!exists($params-&gt;{_config_files})) {
+</span><span class="">  648: 		$params-&gt;{_config_files} = [ map { $_-&gt;{file} } @config_files_to_load ]
+</span><span class="">  649: 			if @config_files_to_load;
+</span><span class="">  650: 	}
+</span><span class="">  651: 
+</span><span class="">  652: 	# Re-attach stashed coderefs/objects via hash slice
+</span><span class="">  653: 	@{$params}{ keys %stashed_values } = values %stashed_values if %stashed_values;
+</span><span class="">  654: 
+</span><span class="">  655: 	return Return::Set::set_return($params, { &#39;type&#39; =&gt; &#39;hashref&#39; });
+</span><span class="">  656: }
+</span><span class="">  657: 
+</span><span class="">  658: =head2 instantiate($class,...)
+</span><span class="">  659: 
+</span><span class="">  660: Create and configure an object of a third-party class without modifying the class itself.
+</span><span class="">  661: 
+</span><span class="">  662: =head3 Purpose
+</span><span class="">  663: 
+</span><span class="">  664: Provides a convenient way to make third-party classes (those you cannot modify) configurable
+</span><span class="">  665: at runtime using Object::Configure. This is a wrapper that calls C&lt;configure&gt; and then
+</span><span class="">  666: instantiates the class.
+</span><span class="">  667: 
+</span><span class="">  668: =head3 Arguments
+</span><span class="">  669: 
+</span><span class="">  670: Takes a hash or hashref with the following keys:
+</span><span class="">  671: 
+</span><span class="">  672: =over 4
+</span><span class="">  673: 
+</span><span class="">  674: =item * C&lt;class&gt; (Required)
+</span><span class="">  675: 
+</span><span class="">  676: The fully-qualified class name to instantiate (e.g., C&lt;&#39;LWP::UserAgent&#39;&gt;).
 </span><span class="">  677: 
-</span><span class="">  678: =head3 Side Effects
+</span><span class="">  678: =item * Additional keys
 </span><span class="">  679: 
-</span><span class="">  680: =over 4
+</span><span class="">  680: Any additional keys are passed through to C&lt;configure&gt; and then to the class constructor.
 </span><span class="">  681: 
-</span><span class="">  682: =item * Calls C&lt;configure&gt; (see its side effects)
+</span><span class="">  682: =back
 </span><span class="">  683: 
-</span><span class="">  684: =item * Calls the C&lt;new&gt; method on the specified class
+</span><span class="">  684: =head3 Returns
 </span><span class="">  685: 
-</span><span class="">  686: =item * Registers the object for hot reload if a configuration file was used
-</span><span class="">  687: 
-</span><span class="">  688: =back
-</span><span class="">  689: 
-</span><span class="">  690: =head3 Notes
-</span><span class="">  691: 
-</span><span class="">  692: The specified class must have a C&lt;new&gt; method that accepts a hashref of parameters.
-</span><span class="">  693: This is a &quot;quick and dirty&quot; way to add configuration support to classes you don&#39;t control.
+</span><span class="">  686: A blessed object of the specified class, configured according to the parameters and
+</span><span class="">  687: configuration files.
+</span><span class="">  688: 
+</span><span class="">  689: =head3 Side Effects
+</span><span class="">  690: 
+</span><span class="">  691: =over 4
+</span><span class="">  692: 
+</span><span class="">  693: =item * Calls C&lt;configure&gt; (see its side effects)
 </span><span class="">  694: 
-</span><span class="">  695: =head3 Usage Example
+</span><span class="">  695: =item * Calls the C&lt;new&gt; method on the specified class
 </span><span class="">  696: 
-</span><span class="">  697:     use Object::Configure;
+</span><span class="">  697: =item * Registers the object for hot reload if a configuration file was used
 </span><span class="">  698: 
-</span><span class="">  699:     # Configure LWP::UserAgent from a config file
-</span><span class="">  700:     my $ua = Object::Configure::instantiate(
-</span><span class="">  701:         class =&gt; &#39;LWP::UserAgent&#39;,
-</span><span class="">  702:         config_file =&gt; &#39;lwp.yml&#39;,
-</span><span class="">  703:         config_dirs =&gt; [&#39;/etc/myapp&#39;],
-</span><span class="">  704:         timeout =&gt; 30
-</span><span class="">  705:     );
-</span><span class="">  706: 
-</span><span class="">  707: =head3 API Specification
-</span><span class="">  708: 
-</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic.">  709: =head4 Input
-</span><p> <b> Mutants (Total: 2, Killed: 2, Survived: 0)</b><p><span class="">  710: 
-</span><span class="">  711:     schema =&gt; {
-</span><span class="">  712:         class =&gt; {
-</span><span class="">  713:             type =&gt; &#39;string&#39;,
-</span><span class="">  714:             required =&gt; 1,
-</span><span class="">  715:             description =&gt; &#39;Class name to instantiate&#39;,
-</span><span class="">  716:             can =&gt; &#39;new&#39;
-</span><span class="">  717:         }
-</span><span class="">  718:     }
+</span><span class="">  699: =back
+</span><span class="">  700: 
+</span><span class="">  701: =head3 Notes
+</span><span class="">  702: 
+</span><span class="">  703: The specified class must have a C&lt;new&gt; method that accepts a hashref of parameters.
+</span><span class="">  704: This is a &quot;quick and dirty&quot; way to add configuration support to classes you don&#39;t control.
+</span><span class="">  705: 
+</span><span class="">  706: =head3 Usage Example
+</span><span class="">  707: 
+</span><span class="">  708:     use Object::Configure;
+</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic.">  709: 
+</span><p> <b> Mutants (Total: 2, Killed: 2, Survived: 0)</b><p><span class="">  710:     # Configure LWP::UserAgent from a config file
+</span><span class="">  711:     my $ua = Object::Configure::instantiate(
+</span><span class="">  712:         class =&gt; &#39;LWP::UserAgent&#39;,
+</span><span class="">  713:         config_file =&gt; &#39;lwp.yml&#39;,
+</span><span class="">  714:         config_dirs =&gt; [&#39;/etc/myapp&#39;],
+</span><span class="">  715:         timeout =&gt; 30
+</span><span class="">  716:     );
+</span><span class="">  717: 
+</span><span class="">  718: =head3 API Specification
 </span><span class="">  719: 
-</span><span class="">  720: =head4 Output
+</span><span class="">  720: =head4 Input
 </span><span class="">  721: 
-</span><span class="">  722:     type =&gt; &#39;object&#39;,
-</span><span class="">  723:     description =&gt; &#39;Instance of the specified class&#39;
-</span><span class="">  724: 
-</span><span class="">  725: =cut
-</span><span class="">  726: 
-</span><span class="">  727: sub instantiate
-</span><span class="">  728: {
-</span><span class="">  729: 	my $params = Params::Get::get_params(&#39;class&#39;, @_);
+</span><span class="">  722:     schema =&gt; {
+</span><span class="">  723:         class =&gt; {
+</span><span class="">  724:             type =&gt; &#39;string&#39;,
+</span><span class="">  725:             required =&gt; 1,
+</span><span class="">  726:             description =&gt; &#39;Class name to instantiate&#39;,
+</span><span class="">  727:             can =&gt; &#39;new&#39;
+</span><span class="">  728:         }
+</span><span class="">  729:     }
 </span><span class="">  730: 
-</span><span class="">  731: 	# &#39;class&#39; is read into $class then left in $params,
-</span><span class="">  732: 	# &#39;class&#39; propagates into configure() as a spurious config key and
-</span><span class="">  733: 	# ends up in the blessed object&#39;s hash, allowing the caller to see
-</span><span class="">  734: 	# that has come from what, helping debugging
-</span><span class="">  735: 	my $class = $params-&gt;{&#39;class&#39;};
-</span><span class="">  736: 	$params = configure($class, $params);
+</span><span class="">  731: =head4 Output
+</span><span class="">  732: 
+</span><span class="">  733:     type =&gt; &#39;object&#39;,
+</span><span class="">  734:     description =&gt; &#39;Instance of the specified class&#39;
+</span><span class="">  735: 
+</span><span class="">  736: =cut
 </span><span class="">  737: 
-</span><span class="">  738: 	my $obj = $class-&gt;new($params);
-</span><span class="">  739: 
-</span><span class="">  740: 	register_object($class, $obj) if $params-&gt;{_config_file};
+</span><span class="">  738: sub instantiate
+</span><span class="">  739: {
+</span><span class="">  740: 	my $params = Params::Get::get_params(&#39;class&#39;, @_);
 </span><span class="">  741: 
-</span><span class="">  742: 	return $obj;
-</span><span class="">  743: }
-</span><span class="">  744: 
-</span><span class="">  745: =head1 HOT RELOAD FEATURES
-</span><span class="">  746: 
-</span><span class="">  747: =head2 enable_hot_reload
+</span><span class="">  742: 	# &#39;class&#39; is read into $class then left in $params,
+</span><span class="">  743: 	# &#39;class&#39; propagates into configure() as a spurious config key and
+</span><span class="">  744: 	# ends up in the blessed object&#39;s hash, allowing the caller to see
+</span><span class="">  745: 	# that has come from what, helping debugging
+</span><span class="">  746: 	my $class = $params-&gt;{&#39;class&#39;};
+</span><span class="">  747: 	$params = configure($class, $params);
 </span><span class="">  748: 
-</span><span class="">  749: Enable automatic hot reloading of configuration files when they are modified.
+</span><span class="">  749: 	my $obj = $class-&gt;new($params);
 </span><span class="">  750: 
-</span><span class="">  751: =head3 Purpose
+</span><span class="">  751: 	register_object($class, $obj) if $params-&gt;{_config_file};
 </span><span class="">  752: 
-</span><span class="">  753: Starts a background process that monitors configuration files for changes and automatically
-</span><span class="">  754: reloads them into registered objects. This allows runtime configuration updates without
-</span><span class="">  755: restarting the application.
-</span><span class="">  756: 
-</span><span class="">  757: =head3 Arguments
-</span><span class="">  758: 
-</span><span class="">  759: Takes a hash with the following optional keys:
-</span><span class="">  760: 
-</span><span class="">  761: =over 4
-</span><span class="">  762: 
-</span><span class="">  763: =item * C&lt;interval&gt; (Optional, default: 10)
-</span><span class="">  764: 
-</span><span class="">  765: Number of seconds between configuration file checks. Lower values provide faster
-</span><span class="">  766: response to changes but consume more CPU.
+</span><span class="">  753: 	return $obj;
+</span><span class="">  754: }
+</span><span class="">  755: 
+</span><span class="">  756: =head1 HOT RELOAD FEATURES
+</span><span class="">  757: 
+</span><span class="">  758: =head2 enable_hot_reload
+</span><span class="">  759: 
+</span><span class="">  760: Enable automatic hot reloading of configuration files when they are modified.
+</span><span class="">  761: 
+</span><span class="">  762: =head3 Purpose
+</span><span class="">  763: 
+</span><span class="">  764: Starts a background process that monitors configuration files for changes and automatically
+</span><span class="">  765: reloads them into registered objects. This allows runtime configuration updates without
+</span><span class="">  766: restarting the application.
 </span><span class="">  767: 
-</span><span class="">  768: =item * C&lt;callback&gt; (Optional)
+</span><span class="">  768: =head3 Arguments
 </span><span class="">  769: 
-</span><span class="">  770: A coderef to execute after configuration files are reloaded. Useful for logging
-</span><span class="">  771: or triggering application-specific reload behavior.
-</span><span class="">  772: 
-</span><span class="">  773: =back
-</span><span class="">  774: 
-</span><span class="">  775: =head3 Returns
-</span><span class="">  776: 
-</span><span class="">  777: The process ID (PID) of the background watcher process on success.
-</span><span class="">  778: Returns immediately if hot reload is already enabled.
-</span><span class="">  779: 
-</span><span class="">  780: =head3 Side Effects
-</span><span class="">  781: 
-</span><span class="">  782: =over 4
+</span><span class="">  770: Takes a hash with the following optional keys:
+</span><span class="">  771: 
+</span><span class="">  772: =over 4
+</span><span class="">  773: 
+</span><span class="">  774: =item * C&lt;interval&gt; (Optional, default: 10)
+</span><span class="">  775: 
+</span><span class="">  776: Number of seconds between configuration file checks. Lower values provide faster
+</span><span class="">  777: response to changes but consume more CPU.
+</span><span class="">  778: 
+</span><span class="">  779: =item * C&lt;callback&gt; (Optional)
+</span><span class="">  780: 
+</span><span class="">  781: A coderef to execute after configuration files are reloaded. Useful for logging
+</span><span class="">  782: or triggering application-specific reload behavior.
 </span><span class="">  783: 
-</span><span class="">  784: =item * Forks a background process to monitor configuration files
+</span><span class="">  784: =back
 </span><span class="">  785: 
-</span><span class="">  786: =item * The background process sends SIGUSR1 to the parent when changes are detected
+</span><span class="">  786: =head3 Returns
 </span><span class="">  787: 
-</span><span class="">  788: =item * Stores the watcher PID in C&lt;%_config_watchers&gt;
-</span><span class="">  789: 
-</span><span class="">  790: =item * May throw an exception (via C&lt;croak&gt;) if the fork fails
-</span><span class="">  791: 
-</span><span class="">  792: =back
-</span><span class="">  793: 
-</span><span class="">  794: =head3 Notes
-</span><span class="">  795: 
-</span><span class="">  796: Hot reload is not supported on Windows due to lack of SIGUSR1 signal support.
-</span><span class="">  797: The background process runs indefinitely until C&lt;disable_hot_reload&gt; is called.
-</span><span class="">  798: Objects must be registered via C&lt;register_object&gt; to receive configuration updates.
-</span><span class="">  799: 
-</span><span class="">  800: =head3 Usage Example
-</span><span class="">  801: 
-</span><span class="">  802:     use Object::Configure;
-</span><span class="">  803: 
-</span><span class="">  804:     # Enable hot reload with 5-second check interval
-</span><span class="">  805:     Object::Configure::enable_hot_reload(
-</span><span class="">  806:         interval =&gt; 5,
-</span><span class="">  807:         callback =&gt; sub {
-</span><span class="">  808:             my $timestamp = localtime;
-</span><span class="">  809:             print &quot;[$timestamp] Configuration reloaded\n&quot;;
-</span><span class="">  810:         }
-</span><span class="">  811:     );
+</span><span class="">  788: The process ID (PID) of the background watcher process on success.
+</span><span class="">  789: Returns immediately if hot reload is already enabled.
+</span><span class="">  790: 
+</span><span class="">  791: =head3 Side Effects
+</span><span class="">  792: 
+</span><span class="">  793: =over 4
+</span><span class="">  794: 
+</span><span class="">  795: =item * Forks a background process to monitor configuration files
+</span><span class="">  796: 
+</span><span class="">  797: =item * The background process sends SIGUSR1 to the parent when changes are detected
+</span><span class="">  798: 
+</span><span class="">  799: =item * Stores the watcher PID in C&lt;%_config_watchers&gt;
+</span><span class="">  800: 
+</span><span class="">  801: =item * May throw an exception (via C&lt;croak&gt;) if the fork fails
+</span><span class="">  802: 
+</span><span class="">  803: =back
+</span><span class="">  804: 
+</span><span class="">  805: =head3 Notes
+</span><span class="">  806: 
+</span><span class="">  807: Hot reload is not supported on Windows due to lack of SIGUSR1 signal support.
+</span><span class="">  808: The background process runs indefinitely until C&lt;disable_hot_reload&gt; is called.
+</span><span class="">  809: Objects must be registered via C&lt;register_object&gt; to receive configuration updates.
+</span><span class="">  810: 
+</span><span class="">  811: =head3 Usage Example
 </span><span class="">  812: 
-</span><span class="">  813:     # Application continues running...
-</span><span class="">  814:     while (1) {
-</span><span class="">  815:         # Do work...
-</span><span class="">  816:         sleep(1);
-</span><span class="">  817:     }
-</span><span class="">  818: 
-</span><span class="">  819: =head3 API Specification
-</span><span class="">  820: 
-</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic.">  821: =head4 Input
-</span><p> <b> Mutants (Total: 1, Killed: 1, Survived: 0)</b><p><span class="">  822: 
-</span><span class="">  823:     schema =&gt; {
-</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic.">  824:         interval =&gt; {
-</span><p> <b> Mutants (Total: 2, Killed: 2, Survived: 0)</b><p><span class="">  825:             type =&gt; &#39;integer&#39;,
-</span><span class="">  826:             optional =&gt; 1,
-</span><span class="">  827:             default =&gt; 10,
-</span><span class="">  828:             min =&gt; 1,
-</span><span class="">  829:             description =&gt; &#39;Check interval in seconds&#39;
-</span><span class="">  830:         },
-</span><span class="">  831:         callback =&gt; {
-</span><span class="">  832:             type =&gt; &#39;coderef&#39;,
-</span><span class="">  833:             optional =&gt; 1,
-</span><span class="">  834:             description =&gt; &#39;Code to execute after reload&#39;
-</span><span class="">  835:         }
-</span><span class="">  836:     }
-</span><span class="">  837: 
-</span><span class="">  838: =head4 Output
-</span><span class="">  839: 
-</span><span class="">  840:     type =&gt; &#39;integer&#39;,
-</span><span class="">  841:     description =&gt; &#39;PID of background watcher process&#39;,
-</span><span class="">  842:     condition =&gt; &#39;value &gt; 0&#39;
-</span><span class="">  843: 
-</span><span class="">  844: =cut
-</span><span class="">  845: 
-</span><span class="">  846: sub enable_hot_reload {
-</span><span class=""><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">847 → 858 → 0</span></span>  847: 	my %params = @_;
+</span><span class="">  813:     use Object::Configure;
+</span><span class="">  814: 
+</span><span class="">  815:     # Enable hot reload with 5-second check interval
+</span><span class="">  816:     Object::Configure::enable_hot_reload(
+</span><span class="">  817:         interval =&gt; 5,
+</span><span class="">  818:         callback =&gt; sub {
+</span><span class="">  819:             my $timestamp = localtime;
+</span><span class="">  820:             print &quot;[$timestamp] Configuration reloaded\n&quot;;
+</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic.">  821:         }
+</span><p> <b> Mutants (Total: 1, Killed: 1, Survived: 0)</b><p><span class="">  822:     );
+</span><span class="">  823: 
+</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic.">  824:     # Application continues running...
+</span><p> <b> Mutants (Total: 2, Killed: 2, Survived: 0)</b><p><span class="">  825:     while (1) {
+</span><span class="">  826:         # Do work...
+</span><span class="">  827:         sleep(1);
+</span><span class="">  828:     }
+</span><span class="">  829: 
+</span><span class="">  830: =head3 API Specification
+</span><span class="">  831: 
+</span><span class="">  832: =head4 Input
+</span><span class="">  833: 
+</span><span class="">  834:     schema =&gt; {
+</span><span class="">  835:         interval =&gt; {
+</span><span class="">  836:             type =&gt; &#39;integer&#39;,
+</span><span class="">  837:             optional =&gt; 1,
+</span><span class="">  838:             default =&gt; 10,
+</span><span class="">  839:             min =&gt; 1,
+</span><span class="">  840:             description =&gt; &#39;Check interval in seconds&#39;
+</span><span class="">  841:         },
+</span><span class="">  842:         callback =&gt; {
+</span><span class="">  843:             type =&gt; &#39;coderef&#39;,
+</span><span class="">  844:             optional =&gt; 1,
+</span><span class="">  845:             description =&gt; &#39;Code to execute after reload&#39;
+</span><span class="">  846:         }
+</span><span class="">  847:     }
 </span><span class="">  848: 
-</span><span class="">  849: 	# SECURITY (S4): use defined-or (//) not truth-or (||) so that interval=&gt;0
-</span><span class="">  850: 	# is not silently replaced.  Then guard: a zero or negative interval would make
-</span><span class="">  851: 	# the child busy-loop, consuming 100% CPU (internal DoS vector).
-</span><span class="">  852: 	my $interval = $params{interval} // $DEFAULT_INTERVAL;
-</span><span class="">  853: 	$interval    = $DEFAULT_INTERVAL unless $interval &gt; 0;
-</span><span class="">  854: 	my $callback = $params{callback};
-</span><span class="">  855: 
-</span><span class="">  856: 	return if %_config_watchers;	# already watching; avoid double-fork
-</span><span class="">  857: 
-</span><span class="">  858: 	if(my $pid = fork()) {
-</span><span class="">  859: 		$_config_watchers{pid}      = $pid;
-</span><span class="">  860: 		$_config_watchers{callback} = $callback;
-</span><span class="">  861: 		return $pid;
-</span><span class="">  862: 	} elsif(defined $pid) {
-</span><span class="">  863: 		# Child: run forever, signal parent on change
-</span><span class="">  864: 		_run_config_watcher($interval, $callback);
-</span><span class="">  865: 		exit 0;
-</span><span class="">  866: 	} else {
-</span><span class="">  867: 		croak(&quot;Failed to fork config watcher: $!&quot;);
-</span><span class="">  868: 	}
-</span><span class="">  869: }
-</span><span class="">  870: 
-</span><span class="">  871: =head2 disable_hot_reload
-</span><span class="">  872: 
-</span><span class="">  873: Disable hot reloading and terminate the background watcher process.
-</span><span class="">  874: 
-</span><span class="">  875: =head3 Purpose
-</span><span class="">  876: 
-</span><span class="">  877: Cleanly shuts down the hot reload system by terminating the background watcher
-</span><span class="">  878: process and clearing internal state.
-</span><span class="">  879: 
-</span><span class="">  880: =head3 Arguments
+</span><span class="">  849: =head4 Output
+</span><span class="">  850: 
+</span><span class="">  851:     type =&gt; &#39;integer&#39;,
+</span><span class="">  852:     description =&gt; &#39;PID of background watcher process&#39;,
+</span><span class="">  853:     condition =&gt; &#39;value &gt; 0&#39;
+</span><span class="">  854: 
+</span><span class="">  855: =cut
+</span><span class="">  856: 
+</span><span class="">  857: sub enable_hot_reload {
+</span><span class=""><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">858 → 869 → 0</span></span>  858: 	my %params = @_;
+</span><span class="">  859: 
+</span><span class="">  860: 	# SECURITY (S4): use defined-or (//) not truth-or (||) so that interval=&gt;0
+</span><span class="">  861: 	# is not silently replaced.  Then guard: a zero or negative interval would make
+</span><span class="">  862: 	# the child busy-loop, consuming 100% CPU (internal DoS vector).
+</span><span class="">  863: 	my $interval = $params{interval} // $DEFAULT_INTERVAL;
+</span><span class="">  864: 	$interval    = $DEFAULT_INTERVAL unless $interval &gt; 0;
+</span><span class="">  865: 	my $callback = $params{callback};
+</span><span class="">  866: 
+</span><span class="">  867: 	return if %_config_watchers;	# already watching; avoid double-fork
+</span><span class="">  868: 
+</span><span class="">  869: 	if(my $pid = fork()) {
+</span><span class="">  870: 		$_config_watchers{pid}      = $pid;
+</span><span class="">  871: 		$_config_watchers{callback} = $callback;
+</span><span class="">  872: 		return $pid;
+</span><span class="">  873: 	} elsif(defined $pid) {
+</span><span class="">  874: 		# Child: run forever, signal parent on change
+</span><span class="">  875: 		_run_config_watcher($interval, $callback);
+</span><span class="">  876: 		exit 0;
+</span><span class="">  877: 	} else {
+</span><span class="">  878: 		croak(&quot;Failed to fork config watcher: $!&quot;);
+</span><span class="">  879: 	}
+</span><span class="">  880: }
 </span><span class="">  881: 
-</span><span class="">  882: None.
+</span><span class="">  882: =head2 disable_hot_reload
 </span><span class="">  883: 
-</span><span class="">  884: =head3 Returns
+</span><span class="">  884: Disable hot reloading and terminate the background watcher process.
 </span><span class="">  885: 
-</span><span class="">  886: Nothing.
+</span><span class="">  886: =head3 Purpose
 </span><span class="">  887: 
-</span><span class="">  888: =head3 Side Effects
-</span><span class="">  889: 
-</span><span class="">  890: =over 4
-</span><span class="">  891: 
-</span><span class="">  892: =item * Sends SIGTERM to the background watcher process
-</span><span class="">  893: 
-</span><span class="">  894: =item * Waits for the watcher process to terminate
-</span><span class="">  895: 
-</span><span class="">  896: =item * Clears C&lt;%_config_watchers&gt; state
-</span><span class="">  897: 
-</span><span class="">  898: =back
-</span><span class="">  899: 
-</span><span class="">  900: =head3 Notes
-</span><span class="">  901: 
-</span><span class="">  902: Safe to call even if hot reload is not currently enabled.
-</span><span class="">  903: The function blocks until the watcher process has fully terminated.
+</span><span class="">  888: Cleanly shuts down the hot reload system by terminating the background watcher
+</span><span class="">  889: process and clearing internal state.
+</span><span class="">  890: 
+</span><span class="">  891: =head3 Arguments
+</span><span class="">  892: 
+</span><span class="">  893: None.
+</span><span class="">  894: 
+</span><span class="">  895: =head3 Returns
+</span><span class="">  896: 
+</span><span class="">  897: Nothing.
+</span><span class="">  898: 
+</span><span class="">  899: =head3 Side Effects
+</span><span class="">  900: 
+</span><span class="">  901: =over 4
+</span><span class="">  902: 
+</span><span class="">  903: =item * Sends SIGTERM to the background watcher process
 </span><span class="">  904: 
-</span><span class="">  905: =head3 Usage Example
+</span><span class="">  905: =item * Waits for the watcher process to terminate
 </span><span class="">  906: 
-</span><span class="">  907:     use Object::Configure;
+</span><span class="">  907: =item * Clears C&lt;%_config_watchers&gt; state
 </span><span class="">  908: 
-</span><span class="">  909:     # Enable hot reload
-</span><span class="">  910:     Object::Configure::enable_hot_reload(interval =&gt; 5);
-</span><span class="">  911: 
-</span><span class="">  912:     # ... application runs ...
-</span><span class="">  913: 
-</span><span class="">  914:     # Clean shutdown
-</span><span class="">  915:     Object::Configure::disable_hot_reload();
-</span><span class="">  916: 
-</span><span class="">  917: =head3 API Specification
-</span><span class="">  918: 
-</span><span class="">  919: =head4 Input
-</span><span class="">  920: 
-</span><span class="">  921:     schema =&gt; {}
+</span><span class="">  909: =back
+</span><span class="">  910: 
+</span><span class="">  911: =head3 Notes
+</span><span class="">  912: 
+</span><span class="">  913: Safe to call even if hot reload is not currently enabled.
+</span><span class="">  914: The function blocks until the watcher process has fully terminated.
+</span><span class="">  915: 
+</span><span class="">  916: =head3 Usage Example
+</span><span class="">  917: 
+</span><span class="">  918:     use Object::Configure;
+</span><span class="">  919: 
+</span><span class="">  920:     # Enable hot reload
+</span><span class="">  921:     Object::Configure::enable_hot_reload(interval =&gt; 5);
 </span><span class="">  922: 
-</span><span class="">  923: =head4 Output
+</span><span class="">  923:     # ... application runs ...
 </span><span class="">  924: 
-</span><span class="">  925:     type =&gt; &#39;void&#39;
-</span><span class="">  926: 
-</span><span class="">  927: =cut
-</span><span class="">  928: 
-</span><span class="">  929: sub disable_hot_reload {
-</span><span class="">  930: 	## MUTANT_SKIP_BEGIN
-</span><span class=""><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">931 → 931 → 0</span></span>  931: 	if(my $pid = $_config_watchers{pid}) {
-</span><span class="">  932: 		# SECURITY (S3 &acirc;&#128;&#148; PID safety):
-</span><span class="">  933: 		#   $pid &gt; 1  excludes PID 0 (sends SIGTERM to whole process group &acirc;&#128;&#148; DoS)
-</span><span class="">  934: 		#             and PID 1 (init &acirc;&#128;&#148; catastrophic as root).
-</span><span class="">  935: 		#   $pid != $$ prevents self-signaling if %_config_watchers is corrupted.
-</span><span class="">  936: 		# Exploit mechanism: if global state is poisoned with pid=0 or pid=1,
-</span><span class="">  937: 		# kill(&#39;TERM&#39;, 0) signals every process in the group; kill(&#39;TERM&#39;, 1) kills
-</span><span class="">  938: 		# init as root.  Both are now rejected at the comparison level.
-</span><span class="">  939: 		if($pid =~ /\A[0-9]+\z/ &amp;&amp; $pid &gt; 1 &amp;&amp; $pid != $$) {
-</span><span class="">  940: 			kill(&#39;TERM&#39;, $pid);
-</span><span class="">  941: 
-</span><span class="">  942: 			# Poll up to KILL_TIMEOUT seconds; escalate to SIGKILL if SIGTERM is ignored.
-</span><span class="">  943: 			# SIGKILL cannot be caught or deferred so the subsequent waitpid is always safe.
-</span><span class="">  944: 			my $deadline = time() + $KILL_TIMEOUT;
-</span><span class="">  945: 			my $kid;
-</span><span class="">  946: 			do {
-</span><span class="">  947: 				$kid = waitpid($pid, WNOHANG);
-</span><span class="">  948: 				if($kid == 0 &amp;&amp; time() &lt; $deadline) {
-</span><span class="">  949: 					select undef, undef, undef, $POLL_SLEEP;
-</span><span class="">  950: 				}
-</span><span class="">  951: 			} while($kid == 0 &amp;&amp; time() &lt; $deadline);
+</span><span class="">  925:     # Clean shutdown
+</span><span class="">  926:     Object::Configure::disable_hot_reload();
+</span><span class="">  927: 
+</span><span class="">  928: =head3 API Specification
+</span><span class="">  929: 
+</span><span class="">  930: =head4 Input
+</span><span class="">  931: 
+</span><span class="">  932:     schema =&gt; {}
+</span><span class="">  933: 
+</span><span class="">  934: =head4 Output
+</span><span class="">  935: 
+</span><span class="">  936:     type =&gt; &#39;void&#39;
+</span><span class="">  937: 
+</span><span class="">  938: =cut
+</span><span class="">  939: 
+</span><span class="">  940: sub disable_hot_reload {
+</span><span class="">  941: 	## MUTANT_SKIP_BEGIN
+</span><span class=""><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">942 → 942 → 0</span></span>  942: 	if(my $pid = $_config_watchers{pid}) {
+</span><span class="">  943: 		# SECURITY (S3 &acirc;&#128;&#148; PID safety):
+</span><span class="">  944: 		#   $pid &gt; 1  excludes PID 0 (sends SIGTERM to whole process group &acirc;&#128;&#148; DoS)
+</span><span class="">  945: 		#             and PID 1 (init &acirc;&#128;&#148; catastrophic as root).
+</span><span class="">  946: 		#   $pid != $$ prevents self-signaling if %_config_watchers is corrupted.
+</span><span class="">  947: 		# Exploit mechanism: if global state is poisoned with pid=0 or pid=1,
+</span><span class="">  948: 		# kill(&#39;TERM&#39;, 0) signals every process in the group; kill(&#39;TERM&#39;, 1) kills
+</span><span class="">  949: 		# init as root.  Both are now rejected at the comparison level.
+</span><span class="">  950: 		if($pid =~ /\A[0-9]+\z/ &amp;&amp; $pid &gt; 1 &amp;&amp; $pid != $$) {
+</span><span class="">  951: 			kill(&#39;TERM&#39;, $pid);
 </span><span class="">  952: 
-</span><span class="">  953: 			if($kid == 0) {
-</span><span class="">  954: 				kill(&#39;KILL&#39;, $pid);
-</span><span class="">  955: 				waitpid($pid, 0);
-</span><span class="">  956: 			}
-</span><span class="">  957: 		}
-</span><span class="">  958: 		%_config_watchers = ();
-</span><span class="">  959: 	}
-</span><span class="">  960: 	## MUTANT_SKIP_END
-</span><span class="">  961: }
-</span><span class="">  962: 
-</span><span class="">  963: =head2 reload_config
-</span><span class="">  964: 
-</span><span class="">  965: Manually trigger configuration reload for all registered objects.
-</span><span class="">  966: 
-</span><span class="">  967: =head3 Purpose
-</span><span class="">  968: 
-</span><span class="">  969: Forces an immediate reload of configuration from files for all objects that have been
-</span><span class="">  970: registered for hot reload. This is useful for testing or forcing a reload without
-</span><span class="">  971: waiting for the automatic file monitoring to detect changes.
-</span><span class="">  972: 
-</span><span class="">  973: =head3 Arguments
-</span><span class="">  974: 
-</span><span class="">  975: None.
-</span><span class="">  976: 
-</span><span class="">  977: =head3 Returns
-</span><span class="">  978: 
-</span><span class="">  979: An integer count of how many objects had their configuration successfully reloaded.
-</span><span class="">  980: 
-</span><span class="">  981: =head3 Side Effects
-</span><span class="">  982: 
-</span><span class="">  983: =over 4
-</span><span class="">  984: 
-</span><span class="">  985: =item * Reads configuration files from disk
-</span><span class="">  986: 
-</span><span class="">  987: =item * Updates object properties with new configuration values
-</span><span class="">  988: 
-</span><span class="">  989: =item * Calls C&lt;_on_config_reload&gt; hook on objects that implement it
-</span><span class="">  990: 
-</span><span class="">  991: =item * Cleans up dead weak references from C&lt;%_object_registry&gt;
-</span><span class="">  992: 
-</span><span class="">  993: =item * May emit warnings if configuration reload fails for any object
-</span><span class="">  994: 
-</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic.">  995: =back
-</span><p> <b> Mutants (Total: 1, Killed: 1, Survived: 0)</b><p><span class="">  996: 
-</span><span class="">  997: =head3 Notes
-</span><span class="">  998: 
-</span><span class="">  999: Only objects registered via C&lt;register_object&gt; are reloaded.
-</span><span class=""> 1000: Objects are updated in-place; their identity does not change.
-</span><span class=""> 1001: Private properties (those starting with C&lt;_&gt;) are not updated during reload.
-</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic."> 1002: 
-</span><p> <b> Mutants (Total: 1, Killed: 1, Survived: 0)</b><p><span class=""> 1003: =head3 Usage Example
-</span><span class=""> 1004: 
-</span><span class=""> 1005:     use Object::Configure;
-</span><span class=""> 1006: 
-</span><span class=""> 1007:     # Create and register objects
-</span><span class=""> 1008:     my $obj = My::Module-&gt;new(config_file =&gt; &#39;app.yml&#39;);
+</span><span class="">  953: 			# Poll up to KILL_TIMEOUT seconds; escalate to SIGKILL if SIGTERM is ignored.
+</span><span class="">  954: 			# SIGKILL cannot be caught or deferred so the subsequent waitpid is always safe.
+</span><span class="">  955: 			my $deadline = time() + $KILL_TIMEOUT;
+</span><span class="">  956: 			my $kid;
+</span><span class="">  957: 			do {
+</span><span class="">  958: 				$kid = waitpid($pid, WNOHANG);
+</span><span class="">  959: 				if($kid == 0 &amp;&amp; time() &lt; $deadline) {
+</span><span class="">  960: 					select undef, undef, undef, $POLL_SLEEP;
+</span><span class="">  961: 				}
+</span><span class="">  962: 			} while($kid == 0 &amp;&amp; time() &lt; $deadline);
+</span><span class="">  963: 
+</span><span class="">  964: 			if($kid == 0) {
+</span><span class="">  965: 				kill(&#39;KILL&#39;, $pid);
+</span><span class="">  966: 				waitpid($pid, 0);
+</span><span class="">  967: 			}
+</span><span class="">  968: 		}
+</span><span class="">  969: 		%_config_watchers = ();
+</span><span class="">  970: 	}
+</span><span class="">  971: 	## MUTANT_SKIP_END
+</span><span class="">  972: }
+</span><span class="">  973: 
+</span><span class="">  974: =head2 reload_config
+</span><span class="">  975: 
+</span><span class="">  976: Manually trigger configuration reload for all registered objects.
+</span><span class="">  977: 
+</span><span class="">  978: =head3 Purpose
+</span><span class="">  979: 
+</span><span class="">  980: Forces an immediate reload of configuration from files for all objects that have been
+</span><span class="">  981: registered for hot reload. This is useful for testing or forcing a reload without
+</span><span class="">  982: waiting for the automatic file monitoring to detect changes.
+</span><span class="">  983: 
+</span><span class="">  984: =head3 Arguments
+</span><span class="">  985: 
+</span><span class="">  986: None.
+</span><span class="">  987: 
+</span><span class="">  988: =head3 Returns
+</span><span class="">  989: 
+</span><span class="">  990: An integer count of how many objects had their configuration successfully reloaded.
+</span><span class="">  991: 
+</span><span class="">  992: =head3 Side Effects
+</span><span class="">  993: 
+</span><span class="">  994: =over 4
+</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic.">  995: 
+</span><p> <b> Mutants (Total: 1, Killed: 1, Survived: 0)</b><p><span class="">  996: =item * Reads configuration files from disk
+</span><span class="">  997: 
+</span><span class="">  998: =item * Updates object properties with new configuration values
+</span><span class="">  999: 
+</span><span class=""> 1000: =item * Calls C&lt;_on_config_reload&gt; hook on objects that implement it
+</span><span class=""> 1001: 
+</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic."> 1002: =item * Cleans up dead weak references from C&lt;%_object_registry&gt;
+</span><p> <b> Mutants (Total: 1, Killed: 1, Survived: 0)</b><p><span class=""> 1003: 
+</span><span class=""> 1004: =item * May emit warnings if configuration reload fails for any object
+</span><span class=""> 1005: 
+</span><span class=""> 1006: =back
+</span><span class=""> 1007: 
+</span><span class=""> 1008: =head3 Notes
 </span><span class=""> 1009: 
-</span><span class=""> 1010:     # Manually edit app.yml...
-</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic."> 1011: 
-</span><p> <b> Mutants (Total: 2, Killed: 2, Survived: 0)</b><p><span class=""> 1012:     # Force immediate reload
-</span><span class=""> 1013:     my $count = Object::Configure::reload_config();
-</span><span class=""> 1014:     print &quot;Reloaded configuration for $count objects\n&quot;;
+</span><span class=""> 1010: Only objects registered via C&lt;register_object&gt; are reloaded.
+</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic."> 1011: Objects are updated in-place; their identity does not change.
+</span><p> <b> Mutants (Total: 2, Killed: 2, Survived: 0)</b><p><span class=""> 1012: Private properties (those starting with C&lt;_&gt;) are not updated during reload.
+</span><span class=""> 1013: 
+</span><span class=""> 1014: =head3 Usage Example
 </span><span class=""> 1015: 
-</span><span class=""> 1016: =head3 API Specification
+</span><span class=""> 1016:     use Object::Configure;
 </span><span class=""> 1017: 
-</span><span class=""> 1018: =head4 Input
-</span><span class=""> 1019: 
-</span><span class=""> 1020:     schema =&gt; {}
-</span><span class=""> 1021: 
-</span><span class=""> 1022: =head4 Output
-</span><span class=""> 1023: 
-</span><span class=""> 1024:     type =&gt; &#39;integer&#39;,
-</span><span class=""> 1025:     description =&gt; &#39;Number of objects successfully reloaded&#39;,
-</span><span class=""> 1026:     condition =&gt; &#39;value &gt;= 0&#39;
-</span><span class=""> 1027: 
-</span><span class=""> 1028: =cut
-</span><span class=""> 1029: 
-</span><span class=""> 1030: sub reload_config {
-</span><span class=""><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">1031 → 1033 → 1055</span></span> 1031: 	my $reloaded_count = 0;
+</span><span class=""> 1018:     # Create and register objects
+</span><span class=""> 1019:     my $obj = My::Module-&gt;new(config_file =&gt; &#39;app.yml&#39;);
+</span><span class=""> 1020: 
+</span><span class=""> 1021:     # Manually edit app.yml...
+</span><span class=""> 1022: 
+</span><span class=""> 1023:     # Force immediate reload
+</span><span class=""> 1024:     my $count = Object::Configure::reload_config();
+</span><span class=""> 1025:     print &quot;Reloaded configuration for $count objects\n&quot;;
+</span><span class=""> 1026: 
+</span><span class=""> 1027: =head3 API Specification
+</span><span class=""> 1028: 
+</span><span class=""> 1029: =head4 Input
+</span><span class=""> 1030: 
+</span><span class=""> 1031:     schema =&gt; {}
 </span><span class=""> 1032: 
-</span><span class=""> 1033: 	foreach my $class_key (keys %_object_registry) {
-</span><span class=""> 1034: 		my $objects = $_object_registry{$class_key};
-</span><span class=""> 1035: 
-</span><span class=""> 1036: 		@$objects = grep { defined $$_ } @$objects;	# prune garbage-collected weak refs (check referent, not the ref-to-scalar itself)
-</span><span class=""> 1037: 
-</span><span class=""> 1038: 		foreach my $obj_ref (@$objects) {
-</span><span class=""> 1039: 			if(my $obj = $$obj_ref) {
-</span><span class=""> 1040: 				# Protect the caller&#39;s $@ from being clobbered by our internal eval blocks.
-</span><span class=""> 1041: 				local $@;
-</span><span class=""> 1042: 				eval {
-</span><span class=""> 1043: 					_reload_object_config($obj);
-</span><span class=""> 1044: 					$reloaded_count++;
-</span><span class=""> 1045: 				};
-</span><span class=""> 1046: 				if($@) {
-</span><span class=""> 1047: 					carp(&quot;Failed to reload config for object: $@&quot;);
-</span><span class=""> 1048: 				}
-</span><span class=""> 1049: 			}
-</span><span class=""> 1050: 		}
-</span><span class=""> 1051: 
-</span><span class=""> 1052: 		delete $_object_registry{$class_key} unless @$objects;
-</span><span class=""> 1053: 	}
-</span><span class=""> 1054: 
-</span><span class=""> 1055: 	return $reloaded_count;
-</span><span class=""> 1056: }
-</span><span class=""> 1057: 
-</span><span class=""> 1058: =head2 register_object($class, $obj)
-</span><span class=""> 1059: 
-</span><span class=""> 1060: Register an object for hot reload monitoring.
-</span><span class=""> 1061: 
-</span><span class=""> 1062: =head3 Purpose
-</span><span class=""> 1063: 
-</span><span class=""> 1064: Adds an object to the hot reload registry so it will receive automatic configuration
-</span><span class=""> 1065: updates when files change. Uses weak references to prevent memory leaks.
-</span><span class=""> 1066: 
-</span><span class=""> 1067: =head3 Arguments
+</span><span class=""> 1033: =head4 Output
+</span><span class=""> 1034: 
+</span><span class=""> 1035:     type =&gt; &#39;integer&#39;,
+</span><span class=""> 1036:     description =&gt; &#39;Number of objects successfully reloaded&#39;,
+</span><span class=""> 1037:     condition =&gt; &#39;value &gt;= 0&#39;
+</span><span class=""> 1038: 
+</span><span class=""> 1039: =cut
+</span><span class=""> 1040: 
+</span><span class=""> 1041: sub reload_config {
+</span><span class=""><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">1042 → 1044 → 1066</span></span> 1042: 	my $reloaded_count = 0;
+</span><span class=""> 1043: 
+</span><span class=""> 1044: 	foreach my $class_key (keys %_object_registry) {
+</span><span class=""> 1045: 		my $objects = $_object_registry{$class_key};
+</span><span class=""> 1046: 
+</span><span class=""> 1047: 		@$objects = grep { defined $$_ } @$objects;	# prune garbage-collected weak refs (check referent, not the ref-to-scalar itself)
+</span><span class=""> 1048: 
+</span><span class=""> 1049: 		foreach my $obj_ref (@$objects) {
+</span><span class=""> 1050: 			if(my $obj = $$obj_ref) {
+</span><span class=""> 1051: 				# Protect the caller&#39;s $@ from being clobbered by our internal eval blocks.
+</span><span class=""> 1052: 				local $@;
+</span><span class=""> 1053: 				eval {
+</span><span class=""> 1054: 					_reload_object_config($obj);
+</span><span class=""> 1055: 					$reloaded_count++;
+</span><span class=""> 1056: 				};
+</span><span class=""> 1057: 				if($@) {
+</span><span class=""> 1058: 					carp(&quot;Failed to reload config for object: $@&quot;);
+</span><span class=""> 1059: 				}
+</span><span class=""> 1060: 			}
+</span><span class=""> 1061: 		}
+</span><span class=""> 1062: 
+</span><span class=""> 1063: 		delete $_object_registry{$class_key} unless @$objects;
+</span><span class=""> 1064: 	}
+</span><span class=""> 1065: 
+</span><span class=""> 1066: 	return $reloaded_count;
+</span><span class=""> 1067: }
 </span><span class=""> 1068: 
-</span><span class=""> 1069: =over 4
+</span><span class=""> 1069: =head2 register_object($class, $obj)
 </span><span class=""> 1070: 
-</span><span class=""> 1071: =item * C&lt;class&gt; (Required)
+</span><span class=""> 1071: Register an object for hot reload monitoring.
 </span><span class=""> 1072: 
-</span><span class=""> 1073: The class name of the object, used for organizing the registry.
+</span><span class=""> 1073: =head3 Purpose
 </span><span class=""> 1074: 
-</span><span class=""> 1075: =item * C&lt;obj&gt; (Required)
-</span><span class=""> 1076: 
-</span><span class=""> 1077: The object instance to register. Must be a blessed reference.
-</span><span class=""> 1078: 
-</span><span class=""> 1079: =back
-</span><span class=""> 1080: 
-</span><span class=""> 1081: =head3 Returns
-</span><span class=""> 1082: 
-</span><span class=""> 1083: Nothing.
-</span><span class=""> 1084: 
-</span><span class=""> 1085: =head3 Side Effects
-</span><span class=""> 1086: 
-</span><span class=""> 1087: =over 4
-</span><span class=""> 1088: 
-</span><span class=""> 1089: =item * Adds a weak reference to the object in C&lt;%_object_registry&gt;
-</span><span class=""> 1090: 
-</span><span class=""> 1091: =item * Sets up SIGUSR1 signal handler on first call (Unix-like systems only)
-</span><span class=""> 1092: 
-</span><span class=""> 1093: =item * Stores the original SIGUSR1 handler for later restoration
-</span><span class=""> 1094: 
-</span><span class=""> 1095: =back
-</span><span class=""> 1096: 
-</span><span class=""> 1097: =head3 Notes
-</span><span class=""> 1098: 
-</span><span class=""> 1099: Objects are stored using weak references, so they will be automatically
-</span><span class=""> 1100: garbage collected when no other references exist.
-</span><span class=""> 1101: The SIGUSR1 handler chains to any existing handler that was installed.
-</span><span class=""> 1102: On Windows, the signal handler is not installed (SIGUSR1 does not exist).
+</span><span class=""> 1075: Adds an object to the hot reload registry so it will receive automatic configuration
+</span><span class=""> 1076: updates when files change. Uses weak references to prevent memory leaks.
+</span><span class=""> 1077: 
+</span><span class=""> 1078: =head3 Arguments
+</span><span class=""> 1079: 
+</span><span class=""> 1080: =over 4
+</span><span class=""> 1081: 
+</span><span class=""> 1082: =item * C&lt;class&gt; (Required)
+</span><span class=""> 1083: 
+</span><span class=""> 1084: The class name of the object, used for organizing the registry.
+</span><span class=""> 1085: 
+</span><span class=""> 1086: =item * C&lt;obj&gt; (Required)
+</span><span class=""> 1087: 
+</span><span class=""> 1088: The object instance to register. Must be a blessed reference.
+</span><span class=""> 1089: 
+</span><span class=""> 1090: =back
+</span><span class=""> 1091: 
+</span><span class=""> 1092: =head3 Returns
+</span><span class=""> 1093: 
+</span><span class=""> 1094: Nothing.
+</span><span class=""> 1095: 
+</span><span class=""> 1096: =head3 Side Effects
+</span><span class=""> 1097: 
+</span><span class=""> 1098: =over 4
+</span><span class=""> 1099: 
+</span><span class=""> 1100: =item * Adds a weak reference to the object in C&lt;%_object_registry&gt;
+</span><span class=""> 1101: 
+</span><span class=""> 1102: =item * Sets up SIGUSR1 signal handler on first call (Unix-like systems only)
 </span><span class=""> 1103: 
-</span><span class=""> 1104: =head3 Usage Example
+</span><span class=""> 1104: =item * Stores the original SIGUSR1 handler for later restoration
 </span><span class=""> 1105: 
-</span><span class=""> 1106:     package My::Module;
-</span><span class=""> 1107:     use Object::Configure;
-</span><span class=""> 1108: 
-</span><span class=""> 1109:     sub new {
-</span><span class=""> 1110:         my $class = shift;
-</span><span class=""> 1111:         my $params = Object::Configure::configure($class, {
-</span><span class=""> 1112:             config_file =&gt; &#39;mymodule.yml&#39;,
-</span><span class=""> 1113:         });
-</span><span class=""> 1114:         my $self = bless $params, $class;
-</span><span class=""> 1115: 
-</span><span class=""> 1116:         # Register for hot reload
-</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic."> 1117:         Object::Configure::register_object($class, $self)
-</span><p> <b> Mutants (Total: 1, Killed: 1, Survived: 0)</b><p><span class=""> 1118:             if $params-&gt;{_config_file};
+</span><span class=""> 1106: =back
+</span><span class=""> 1107: 
+</span><span class=""> 1108: =head3 Notes
+</span><span class=""> 1109: 
+</span><span class=""> 1110: Objects are stored using weak references, so they will be automatically
+</span><span class=""> 1111: garbage collected when no other references exist.
+</span><span class=""> 1112: The SIGUSR1 handler chains to any existing handler that was installed.
+</span><span class=""> 1113: On Windows, the signal handler is not installed (SIGUSR1 does not exist).
+</span><span class=""> 1114: 
+</span><span class=""> 1115: =head3 Usage Example
+</span><span class=""> 1116: 
+</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic."> 1117:     package My::Module;
+</span><p> <b> Mutants (Total: 1, Killed: 1, Survived: 0)</b><p><span class=""> 1118:     use Object::Configure;
 </span><span class=""> 1119: 
-</span><span class=""> 1120:         return $self;
-</span><span class=""> 1121:     }
-</span><span class=""> 1122: 
-</span><span class=""> 1123: =head3 API Specification
-</span><span class=""> 1124: 
-</span><span class=""> 1125: =head4 Input
+</span><span class=""> 1120:     sub new {
+</span><span class=""> 1121:         my $class = shift;
+</span><span class=""> 1122:         my $params = Object::Configure::configure($class, {
+</span><span class=""> 1123:             config_file =&gt; &#39;mymodule.yml&#39;,
+</span><span class=""> 1124:         });
+</span><span class=""> 1125:         my $self = bless $params, $class;
 </span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic."> 1126: 
-</span><p> <b> Mutants (Total: 1, Killed: 1, Survived: 0)</b><p><span class=""> 1127:     schema =&gt; {
-</span><span class=""> 1128:         class =&gt; {
-</span><span class=""> 1129:             type =&gt; &#39;string&#39;,
-</span><span class=""> 1130:             required =&gt; 1,
-</span><span class=""> 1131:             description =&gt; &#39;Class name for registry organization&#39;
-</span><span class=""> 1132:         },
-</span><span class=""> 1133:         obj =&gt; {
-</span><span class=""> 1134:             type =&gt; &#39;object&#39;,
-</span><span class=""> 1135:             required =&gt; 1,
-</span><span class=""> 1136:             description =&gt; &#39;Blessed object instance to register&#39;
-</span><span class=""> 1137:         }
-</span><span class=""> 1138:     }
-</span><span class=""> 1139: 
-</span><span class=""> 1140: =head4 Output
-</span><span class=""> 1141: 
-</span><span class=""> 1142:     type =&gt; &#39;void&#39;
-</span><span class=""> 1143: 
-</span><span class=""> 1144: =cut
-</span><span class=""> 1145: 
-</span><span class=""> 1146: sub register_object
-</span><span class=""> 1147: {
-</span><span class=""><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">1148 → 1161 → 1181</span></span> 1148: 	my ($class, $obj) = @_;
-</span><span class=""> 1149: 
-</span><span class=""> 1150: 	croak(__PACKAGE__, &#39;::register_object: Usage ($class, $obj)&#39;)
-</span><span class=""> 1151: 		unless defined($class) &amp;&amp; defined($obj);
+</span><p> <b> Mutants (Total: 1, Killed: 1, Survived: 0)</b><p><span class=""> 1127:         # Register for hot reload
+</span><span class=""> 1128:         Object::Configure::register_object($class, $self)
+</span><span class=""> 1129:             if $params-&gt;{_config_file};
+</span><span class=""> 1130: 
+</span><span class=""> 1131:         return $self;
+</span><span class=""> 1132:     }
+</span><span class=""> 1133: 
+</span><span class=""> 1134: =head3 API Specification
+</span><span class=""> 1135: 
+</span><span class=""> 1136: =head4 Input
+</span><span class=""> 1137: 
+</span><span class=""> 1138:     schema =&gt; {
+</span><span class=""> 1139:         class =&gt; {
+</span><span class=""> 1140:             type =&gt; &#39;string&#39;,
+</span><span class=""> 1141:             required =&gt; 1,
+</span><span class=""> 1142:             description =&gt; &#39;Class name for registry organization&#39;
+</span><span class=""> 1143:         },
+</span><span class=""> 1144:         obj =&gt; {
+</span><span class=""> 1145:             type =&gt; &#39;object&#39;,
+</span><span class=""> 1146:             required =&gt; 1,
+</span><span class=""> 1147:             description =&gt; &#39;Blessed object instance to register&#39;
+</span><span class=""> 1148:         }
+</span><span class=""> 1149:     }
+</span><span class=""> 1150: 
+</span><span class=""> 1151: =head4 Output
 </span><span class=""> 1152: 
-</span><span class=""> 1153: 	my $obj_ref = \$obj;
-</span><span class=""> 1154: 	weaken($$obj_ref);
-</span><span class=""> 1155: 	push @{ $_object_registry{$class} }, $obj_ref;
+</span><span class=""> 1153:     type =&gt; &#39;void&#39;
+</span><span class=""> 1154: 
+</span><span class=""> 1155: =cut
 </span><span class=""> 1156: 
-</span><span class=""> 1157: 	# Install SIGUSR1 handler exactly once.  We save the previous handler so
-</span><span class=""> 1158: 	# we can chain to it (another module may have installed one) and restore it
-</span><span class=""> 1159: 	# on shutdown.  On Windows SIGUSR1 does not exist so we skip the signal work
-</span><span class=""> 1160: 	# but still save $_original_usr1_handler so restore_signal_handlers is safe.
-</span><span class=""> 1161: 	if(!defined $_original_usr1_handler) {
-</span><span class=""> 1162: 		$_original_usr1_handler = $SIG{USR1} || $SIG_DEFAULT;
+</span><span class=""> 1157: sub register_object
+</span><span class=""> 1158: {
+</span><span class=""><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">1159 → 1179 → 1199</span></span> 1159: 	my ($class, $obj) = @_;
+</span><span class=""> 1160: 
+</span><span class=""> 1161: 	croak(__PACKAGE__, &#39;::register_object: Usage ($class, $obj)&#39;)
+</span><span class=""> 1162: 		unless defined($class) &amp;&amp; defined($obj);
 </span><span class=""> 1163: 
-</span><span class=""> 1164: 		return if $^O eq $OS_WINDOWS;
-</span><span class=""> 1165: 
-</span><span class=""> 1166: 		$SIG{USR1} = sub {
-</span><span class=""> 1167: 			reload_config();
-</span><span class=""> 1168: 			$_config_watchers{callback}-&gt;() if $_config_watchers{callback};
-</span><span class=""> 1169: 
-</span><span class=""> 1170: 			if(ref($_original_usr1_handler) eq &#39;CODE&#39;) {
-</span><span class=""> 1171: 				$_original_usr1_handler-&gt;();
-</span><span class=""> 1172: 			} elsif($_original_usr1_handler eq $SIG_DEFAULT
-</span><span class=""> 1173: 			     || $_original_usr1_handler eq $SIG_IGNORE) {
-</span><span class=""> 1174: 				# DEFAULT for USR1 is typically a no-op; IGNORE means discard
-</span><span class=""> 1175: 			} else {
-</span><span class=""> 1176: 				carp(&quot;Object::Configure: Cannot chain to non-code USR1 handler: $_original_usr1_handler&quot;);
-</span><span class=""> 1177: 			}
-</span><span class=""> 1178: 		};
-</span><span class=""> 1179: 	}
-</span><span class=""> 1180: 
-</span><span class=""> 1181: 	return;
-</span><span class=""> 1182: }
+</span><span class=""> 1164: 	# SECURITY: enforce the API contract (POD: &quot;$obj must be a blessed reference&quot;).
+</span><span class=""> 1165: 	# Accepting unblessed refs silently would allow DoS via registry flooding: an
+</span><span class=""> 1166: 	# adversary or buggy caller can push thousands of unblessed entries; reload_config()
+</span><span class=""> 1167: 	# iterates every entry on every SIGUSR1, degrading throughput proportionally.
+</span><span class=""> 1168: 	croak(__PACKAGE__, &#39;::register_object: $obj must be a blessed reference&#39;)
+</span><span class=""> 1169: 		unless blessed($obj);
+</span><span class=""> 1170: 
+</span><span class=""> 1171: 	my $obj_ref = \$obj;
+</span><span class=""> 1172: 	weaken($$obj_ref);
+</span><span class=""> 1173: 	push @{ $_object_registry{$class} }, $obj_ref;
+</span><span class=""> 1174: 
+</span><span class=""> 1175: 	# Install SIGUSR1 handler exactly once.  We save the previous handler so
+</span><span class=""> 1176: 	# we can chain to it (another module may have installed one) and restore it
+</span><span class=""> 1177: 	# on shutdown.  On Windows SIGUSR1 does not exist so we skip the signal work
+</span><span class=""> 1178: 	# but still save $_original_usr1_handler so restore_signal_handlers is safe.
+</span><span class=""> 1179: 	if(!defined $_original_usr1_handler) {
+</span><span class=""> 1180: 		$_original_usr1_handler = $SIG{USR1} || $SIG_DEFAULT;
+</span><span class=""> 1181: 
+</span><span class=""> 1182: 		return if $^O eq $OS_WINDOWS;
 </span><span class=""> 1183: 
-</span><span class=""> 1184: =head2 restore_signal_handlers
-</span><span class=""> 1185: 
-</span><span class=""> 1186: Restore original signal handlers and disable hot reload integration.
+</span><span class=""> 1184: 		$SIG{USR1} = sub {
+</span><span class=""> 1185: 			reload_config();
+</span><span class=""> 1186: 			$_config_watchers{callback}-&gt;() if $_config_watchers{callback};
 </span><span class=""> 1187: 
-</span><span class=""> 1188: =head3 Purpose
-</span><span class=""> 1189: 
-</span><span class=""> 1190: Restores the signal handler that was in place before Object::Configure installed
-</span><span class=""> 1191: its SIGUSR1 handler. This is useful for clean shutdown or when transferring
-</span><span class=""> 1192: control to another hot reload system.
-</span><span class=""> 1193: 
-</span><span class=""> 1194: =head3 Arguments
-</span><span class=""> 1195: 
-</span><span class=""> 1196: None.
-</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic."> 1197: 
-</span><p> <b> Mutants (Total: 1, Killed: 1, Survived: 0)</b><p><span class=""> 1198: =head3 Returns
-</span><span class=""> 1199: 
-</span><span class=""> 1200: Nothing.
+</span><span class=""> 1188: 			if(ref($_original_usr1_handler) eq &#39;CODE&#39;) {
+</span><span class=""> 1189: 				$_original_usr1_handler-&gt;();
+</span><span class=""> 1190: 			} elsif($_original_usr1_handler eq $SIG_DEFAULT
+</span><span class=""> 1191: 			     || $_original_usr1_handler eq $SIG_IGNORE) {
+</span><span class=""> 1192: 				# DEFAULT for USR1 is typically a no-op; IGNORE means discard
+</span><span class=""> 1193: 			} else {
+</span><span class=""> 1194: 				carp(&quot;Object::Configure: Cannot chain to non-code USR1 handler: $_original_usr1_handler&quot;);
+</span><span class=""> 1195: 			}
+</span><span class=""> 1196: 		};
+</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic."> 1197: 	}
+</span><p> <b> Mutants (Total: 1, Killed: 1, Survived: 0)</b><p><span class=""> 1198: 
+</span><span class=""> 1199: 	return;
+</span><span class=""> 1200: }
 </span><span class=""> 1201: 
-</span><span class=""> 1202: =head3 Side Effects
+</span><span class=""> 1202: =head2 restore_signal_handlers
 </span><span class=""> 1203: 
-</span><span class=""> 1204: =over 4
+</span><span class=""> 1204: Restore original signal handlers and disable hot reload integration.
 </span><span class=""> 1205: 
-</span><span class=""> 1206: =item * Restores C&lt;$SIG{USR1}&gt; to its original value
+</span><span class=""> 1206: =head3 Purpose
 </span><span class=""> 1207: 
-</span><span class=""> 1208: =item * Clears C&lt;$_original_usr1_handler&gt; internal state
-</span><span class=""> 1209: 
-</span><span class=""> 1210: =back
+</span><span class=""> 1208: Restores the signal handler that was in place before Object::Configure installed
+</span><span class=""> 1209: its SIGUSR1 handler. This is useful for clean shutdown or when transferring
+</span><span class=""> 1210: control to another hot reload system.
 </span><span class=""> 1211: 
-</span><span class=""> 1212: =head3 Notes
+</span><span class=""> 1212: =head3 Arguments
 </span><span class=""> 1213: 
-</span><span class=""> 1214: Safe to call even if Object::Configure never installed a signal handler.
-</span><span class=""> 1215: On Windows, this function has no effect (SIGUSR1 does not exist).
-</span><span class=""> 1216: 
-</span><span class=""> 1217: =head3 Usage Example
-</span><span class=""> 1218: 
-</span><span class=""> 1219:     use Object::Configure;
-</span><span class=""> 1220: 
-</span><span class=""> 1221:     # Objects are registered...
-</span><span class=""> 1222: 
-</span><span class=""> 1223:     # Clean shutdown
-</span><span class=""> 1224:     Object::Configure::disable_hot_reload();
-</span><span class=""> 1225:     Object::Configure::restore_signal_handlers();
-</span><span class=""> 1226: 
-</span><span class=""> 1227: =head3 API Specification
-</span><span class=""> 1228: 
-</span><span class=""> 1229: =head4 Input
-</span><span class=""> 1230: 
-</span><span class=""> 1231:     schema =&gt; {}
-</span><span class=""> 1232: 
-</span><span class=""> 1233: =head4 Output
+</span><span class=""> 1214: None.
+</span><span class=""> 1215: 
+</span><span class=""> 1216: =head3 Returns
+</span><span class=""> 1217: 
+</span><span class=""> 1218: Nothing.
+</span><span class=""> 1219: 
+</span><span class=""> 1220: =head3 Side Effects
+</span><span class=""> 1221: 
+</span><span class=""> 1222: =over 4
+</span><span class=""> 1223: 
+</span><span class=""> 1224: =item * Restores C&lt;$SIG{USR1}&gt; to its original value
+</span><span class=""> 1225: 
+</span><span class=""> 1226: =item * Clears C&lt;$_original_usr1_handler&gt; internal state
+</span><span class=""> 1227: 
+</span><span class=""> 1228: =back
+</span><span class=""> 1229: 
+</span><span class=""> 1230: =head3 Notes
+</span><span class=""> 1231: 
+</span><span class=""> 1232: Safe to call even if Object::Configure never installed a signal handler.
+</span><span class=""> 1233: On Windows, this function has no effect (SIGUSR1 does not exist).
 </span><span class=""> 1234: 
-</span><span class=""> 1235:     type =&gt; &#39;void&#39;
+</span><span class=""> 1235: =head3 Usage Example
 </span><span class=""> 1236: 
-</span><span class=""> 1237: =cut
+</span><span class=""> 1237:     use Object::Configure;
 </span><span class=""> 1238: 
-</span><span class=""> 1239: sub restore_signal_handlers
-</span><span class=""> 1240: {
-</span><span class=""><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">1241 → 1241 → 1246</span></span> 1241: 	if(defined $_original_usr1_handler) {
-</span><span class=""> 1242: 		$SIG{USR1} = $_original_usr1_handler unless $^O eq $OS_WINDOWS;
-</span><span class=""> 1243: 		$_original_usr1_handler = undef;
-</span><span class=""> 1244: 	}
-</span><span class=""> 1245: 
-</span><span class=""> 1246: 	return;
-</span><span class=""> 1247: }
+</span><span class=""> 1239:     # Objects are registered...
+</span><span class=""> 1240: 
+</span><span class=""> 1241:     # Clean shutdown
+</span><span class=""> 1242:     Object::Configure::disable_hot_reload();
+</span><span class=""> 1243:     Object::Configure::restore_signal_handlers();
+</span><span class=""> 1244: 
+</span><span class=""> 1245: =head3 API Specification
+</span><span class=""> 1246: 
+</span><span class=""> 1247: =head4 Input
 </span><span class=""> 1248: 
-</span><span class=""> 1249: =head2 get_signal_handler_info
+</span><span class=""> 1249:     schema =&gt; {}
 </span><span class=""> 1250: 
-</span><span class=""> 1251: Get information about the current signal handler setup for debugging.
+</span><span class=""> 1251: =head4 Output
 </span><span class=""> 1252: 
-</span><span class=""> 1253: =head3 Purpose
+</span><span class=""> 1253:     type =&gt; &#39;void&#39;
 </span><span class=""> 1254: 
-</span><span class=""> 1255: Returns diagnostic information about the signal handler state, useful for
-</span><span class=""> 1256: debugging signal handler chains or verifying hot reload configuration.
-</span><span class=""> 1257: 
-</span><span class=""> 1258: =head3 Arguments
-</span><span class=""> 1259: 
-</span><span class=""> 1260: None.
-</span><span class=""> 1261: 
-</span><span class=""> 1262: =head3 Returns
+</span><span class=""> 1255: =cut
+</span><span class=""> 1256: 
+</span><span class=""> 1257: sub restore_signal_handlers
+</span><span class=""> 1258: {
+</span><span class=""><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">1259 → 1259 → 1264</span></span> 1259: 	if(defined $_original_usr1_handler) {
+</span><span class=""> 1260: 		$SIG{USR1} = $_original_usr1_handler unless $^O eq $OS_WINDOWS;
+</span><span class=""> 1261: 		$_original_usr1_handler = undef;
+</span><span class=""> 1262: 	}
 </span><span class=""> 1263: 
-</span><span class=""> 1264: A hashref containing the following keys:
-</span><span class=""> 1265: 
-</span><span class=""> 1266: =over 4
-</span><span class=""> 1267: 
-</span><span class=""> 1268: =item * C&lt;original_usr1&gt;
-</span><span class=""> 1269: 
-</span><span class=""> 1270: The signal handler that was installed before Object::Configure&#39;s handler,
-</span><span class=""> 1271: or undef if no handler was present.
+</span><span class=""> 1264: 	return;
+</span><span class=""> 1265: }
+</span><span class=""> 1266: 
+</span><span class=""> 1267: =head2 get_signal_handler_info
+</span><span class=""> 1268: 
+</span><span class=""> 1269: Get information about the current signal handler setup for debugging.
+</span><span class=""> 1270: 
+</span><span class=""> 1271: =head3 Purpose
 </span><span class=""> 1272: 
-</span><span class=""> 1273: =item * C&lt;current_usr1&gt;
-</span><span class=""> 1274: 
-</span><span class=""> 1275: The currently installed SIGUSR1 handler.
-</span><span class=""> 1276: 
-</span><span class=""> 1277: =item * C&lt;hot_reload_active&gt;
-</span><span class=""> 1278: 
-</span><span class=""> 1279: Boolean indicating whether Object::Configure&#39;s hot reload handler is active.
-</span><span class=""> 1280: 
-</span><span class=""> 1281: =item * C&lt;watcher_pid&gt;
-</span><span class=""> 1282: 
-</span><span class=""> 1283: The PID of the background watcher process, or undef if not running.
-</span><span class=""> 1284: 
-</span><span class=""> 1285: =back
-</span><span class=""> 1286: 
-</span><span class=""> 1287: =head3 Notes
-</span><span class=""> 1288: 
-</span><span class=""> 1289: This is primarily a debugging aid and is not needed for normal operation.
+</span><span class=""> 1273: Returns diagnostic information about the signal handler state, useful for
+</span><span class=""> 1274: debugging signal handler chains or verifying hot reload configuration.
+</span><span class=""> 1275: 
+</span><span class=""> 1276: =head3 Arguments
+</span><span class=""> 1277: 
+</span><span class=""> 1278: None.
+</span><span class=""> 1279: 
+</span><span class=""> 1280: =head3 Returns
+</span><span class=""> 1281: 
+</span><span class=""> 1282: A hashref containing the following keys:
+</span><span class=""> 1283: 
+</span><span class=""> 1284: =over 4
+</span><span class=""> 1285: 
+</span><span class=""> 1286: =item * C&lt;original_usr1&gt;
+</span><span class=""> 1287: 
+</span><span class=""> 1288: The signal handler that was installed before Object::Configure&#39;s handler,
+</span><span class=""> 1289: or undef if no handler was present.
 </span><span class=""> 1290: 
-</span><span class=""> 1291: =head3 Usage Example
+</span><span class=""> 1291: =item * C&lt;current_usr1&gt;
 </span><span class=""> 1292: 
-</span><span class=""> 1293:     use Object::Configure;
-</span><span class=""> 1294:     use Data::Dumper;
-</span><span class=""> 1295: 
-</span><span class=""> 1296:     Object::Configure::enable_hot_reload();
-</span><span class=""> 1297: 
-</span><span class=""> 1298:     my $info = Object::Configure::get_signal_handler_info();
-</span><span class=""> 1299:     print Dumper($info);
-</span><span class=""> 1300:     # $VAR1 = {
-</span><span class=""> 1301:     #     &#39;original_usr1&#39; =&gt; &#39;DEFAULT&#39;,
-</span><span class=""> 1302:     #     &#39;current_usr1&#39; =&gt; CODE(0x...),
-</span><span class=""> 1303:     #     &#39;hot_reload_active&#39; =&gt; 1,
-</span><span class=""> 1304:     #     &#39;watcher_pid&#39; =&gt; 12345
-</span><span class=""> 1305:     # };
+</span><span class=""> 1293: The currently installed SIGUSR1 handler.
+</span><span class=""> 1294: 
+</span><span class=""> 1295: =item * C&lt;hot_reload_active&gt;
+</span><span class=""> 1296: 
+</span><span class=""> 1297: Boolean indicating whether Object::Configure&#39;s hot reload handler is active.
+</span><span class=""> 1298: 
+</span><span class=""> 1299: =item * C&lt;watcher_pid&gt;
+</span><span class=""> 1300: 
+</span><span class=""> 1301: The PID of the background watcher process, or undef if not running.
+</span><span class=""> 1302: 
+</span><span class=""> 1303: =back
+</span><span class=""> 1304: 
+</span><span class=""> 1305: =head3 Notes
 </span><span class=""> 1306: 
-</span><span class=""> 1307: =head3 API Specification
+</span><span class=""> 1307: This is primarily a debugging aid and is not needed for normal operation.
 </span><span class=""> 1308: 
-</span><span class=""> 1309: =head4 Input
+</span><span class=""> 1309: =head3 Usage Example
 </span><span class=""> 1310: 
-</span><span class=""> 1311:     schema =&gt; {}
-</span><span class=""> 1312: 
-</span><span class=""> 1313: =head4 Output
-</span><span class=""> 1314: 
-</span><span class=""> 1315:     type =&gt; &#39;hashref&#39;,
-</span><span class=""> 1316:     schema =&gt; {
-</span><span class=""> 1317:         original_usr1 =&gt; {
-</span><span class=""> 1318:             type =&gt; [qw(coderef string undef)],
-</span><span class=""> 1319:             description =&gt; &#39;Original SIGUSR1 handler&#39;
-</span><span class=""> 1320:         },
-</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic."> 1321:         current_usr1 =&gt; {
-</span><p> <b> Mutants (Total: 2, Killed: 2, Survived: 0)</b><p><span class=""> 1322:             type =&gt; [qw(coderef string undef)],
-</span><span class=""> 1323:             description =&gt; &#39;Current SIGUSR1 handler&#39;
-</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic."> 1324:         },
-</span><p> <b> Mutants (Total: 2, Killed: 2, Survived: 0)</b><p><span class=""> 1325:         hot_reload_active =&gt; {
-</span><span class=""> 1326:             type =&gt; &#39;boolean&#39;,
-</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic."> 1327:             description =&gt; &#39;Whether hot reload is active&#39;
-</span><p> <b> Mutants (Total: 2, Killed: 2, Survived: 0)</b><p><span class=""> 1328:         },
-</span><span class=""> 1329:         watcher_pid =&gt; {
-</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic."> 1330:             type =&gt; [qw(integer undef)],
-</span><p> <b> Mutants (Total: 1, Killed: 1, Survived: 0)</b><p><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic."> 1331:             description =&gt; &#39;Background watcher process PID&#39;
-</span><p> <b> Mutants (Total: 2, Killed: 2, Survived: 0)</b><p><span class=""> 1332:         }
-</span><span class=""> 1333:     }
-</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic."> 1334: 
-</span><p> <b> Mutants (Total: 1, Killed: 1, Survived: 0)</b><p><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic."> 1335: =cut
-</span><p> <b> Mutants (Total: 2, Killed: 2, Survived: 0)</b><p><span class=""> 1336: 
-</span><span class=""> 1337: sub get_signal_handler_info {
-</span><span class=""> 1338: 	return {
-</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic."> 1339: 		original_usr1    =&gt; $_original_usr1_handler,
-</span><p> <b> Mutants (Total: 2, Killed: 2, Survived: 0)</b><p><span class=""> 1340: 		current_usr1     =&gt; $SIG{USR1},
-</span><span class=""> 1341: 		hot_reload_active =&gt; defined $_original_usr1_handler,
-</span><span class=""> 1342: 		watcher_pid      =&gt; $_config_watchers{pid},
-</span><span class=""> 1343: 	};
-</span><span class=""> 1344: }
-</span><span class=""> 1345: 
-</span><span class=""> 1346: # ----------------------------------------------------------------------------
-</span><span class=""> 1347: # Private helpers
-</span><span class=""> 1348: # All routines below are implementation details; callers must not rely on them.
-</span><span class=""> 1349: # ----------------------------------------------------------------------------
-</span><span class=""> 1350: 
-</span><span class=""> 1351: # Purpose:   Consolidate all logger-creation paths into one place.
-</span><span class=""> 1352: #            Called from configure() and _reconfigure_logger() to eliminate
-</span><span class=""> 1353: #            the duplication that existed between the two.
-</span><span class=""> 1354: # Entry:     $spec may be: undef (want default), the string &#39;NULL&#39; (no logging),
-</span><span class=""> 1355: #            an ARRAY ref (log-capture array), a HASH ref (options for Log::Abstraction),
-</span><span class=""> 1356: #            a pre-built Log::Abstraction instance (pass through), or any other
-</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic."> 1357: #            scalar (treated as a logger name / file path).
-</span><p> <b> Mutants (Total: 2, Killed: 2, Survived: 0)</b><p><span class=""> 1358: #            $carp_on_warn is a boolean controlling Carp::carp integration.
-</span><span class=""> 1359: # Exit:      Returns a Log::Abstraction instance, or the string &#39;NULL&#39;.
-</span><span class=""> 1360: # Side:      May allocate a new Log::Abstraction object.
-</span><span class=""> 1361: sub _build_logger {
-</span><span class=""><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">1362 → 1374 → 1378</span></span> 1362: 	my ($spec, $carp_on_warn) = @_;
-</span><span class=""> 1363: 	$carp_on_warn //= 0;
-</span><span class=""> 1364: 
-</span><span class=""> 1365: 	return Log::Abstraction-&gt;new(carp_on_warn =&gt; $carp_on_warn)
-</span><span class=""> 1366: 		unless defined $spec;
-</span><span class=""> 1367: 
-</span><span class=""> 1368: 	return $LOGGER_NULL
-</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic."> 1369: 		if !ref($spec) &amp;&amp; $spec eq $LOGGER_NULL;
-</span><p> <b> Mutants (Total: 2, Killed: 2, Survived: 0)</b><p><span class=""> 1370: 
-</span><span class=""> 1371: 	return $spec
-</span><span class=""> 1372: 		if blessed($spec) &amp;&amp; $spec-&gt;isa(&#39;Log::Abstraction&#39;);
-</span><span class=""> 1373: 
-</span><span class=""> 1374: 	if(ref($spec) eq &#39;ARRAY&#39;) {
-</span><span class=""> 1375: 		return Log::Abstraction-&gt;new(array =&gt; $spec, carp_on_warn =&gt; $carp_on_warn);
-</span><span class=""> 1376: 	}
-</span><span class=""> 1377: 
-</span><span class=""><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">1378 → 1378 → 1383</span></span> 1378: 	if(ref($spec) eq &#39;HASH&#39;) {
-</span><span class=""> 1379: 		return Log::Abstraction-&gt;new({ carp_on_warn =&gt; $carp_on_warn, %$spec });
-</span><span class=""> 1380: 	}
-</span><span class=""> 1381: 
-</span><span class=""> 1382: 	# Scalar: a logger name, file path, or other string identifier passed to L::A
-</span><span class=""> 1383: 	return Log::Abstraction-&gt;new({ carp_on_warn =&gt; $carp_on_warn, logger =&gt; $spec });
-</span><span class=""> 1384: }
+</span><span class=""> 1311:     use Object::Configure;
+</span><span class=""> 1312:     use Data::Dumper;
+</span><span class=""> 1313: 
+</span><span class=""> 1314:     Object::Configure::enable_hot_reload();
+</span><span class=""> 1315: 
+</span><span class=""> 1316:     my $info = Object::Configure::get_signal_handler_info();
+</span><span class=""> 1317:     print Dumper($info);
+</span><span class=""> 1318:     # $VAR1 = {
+</span><span class=""> 1319:     #     &#39;original_usr1&#39; =&gt; &#39;DEFAULT&#39;,
+</span><span class=""> 1320:     #     &#39;current_usr1&#39; =&gt; CODE(0x...),
+</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic."> 1321:     #     &#39;hot_reload_active&#39; =&gt; 1,
+</span><p> <b> Mutants (Total: 2, Killed: 2, Survived: 0)</b><p><span class=""> 1322:     #     &#39;watcher_pid&#39; =&gt; 12345
+</span><span class=""> 1323:     # };
+</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic."> 1324: 
+</span><p> <b> Mutants (Total: 2, Killed: 2, Survived: 0)</b><p><span class=""> 1325: =head3 API Specification
+</span><span class=""> 1326: 
+</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic."> 1327: =head4 Input
+</span><p> <b> Mutants (Total: 2, Killed: 2, Survived: 0)</b><p><span class=""> 1328: 
+</span><span class=""> 1329:     schema =&gt; {}
+</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic."> 1330: 
+</span><p> <b> Mutants (Total: 1, Killed: 1, Survived: 0)</b><p><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic."> 1331: =head4 Output
+</span><p> <b> Mutants (Total: 2, Killed: 2, Survived: 0)</b><p><span class=""> 1332: 
+</span><span class=""> 1333:     type =&gt; &#39;hashref&#39;,
+</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic."> 1334:     schema =&gt; {
+</span><p> <b> Mutants (Total: 1, Killed: 1, Survived: 0)</b><p><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic."> 1335:         original_usr1 =&gt; {
+</span><p> <b> Mutants (Total: 2, Killed: 2, Survived: 0)</b><p><span class=""> 1336:             type =&gt; [qw(coderef string undef)],
+</span><span class=""> 1337:             description =&gt; &#39;Original SIGUSR1 handler&#39;
+</span><span class=""> 1338:         },
+</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic."> 1339:         current_usr1 =&gt; {
+</span><p> <b> Mutants (Total: 2, Killed: 2, Survived: 0)</b><p><span class=""> 1340:             type =&gt; [qw(coderef string undef)],
+</span><span class=""> 1341:             description =&gt; &#39;Current SIGUSR1 handler&#39;
+</span><span class=""> 1342:         },
+</span><span class=""> 1343:         hot_reload_active =&gt; {
+</span><span class=""> 1344:             type =&gt; &#39;boolean&#39;,
+</span><span class=""> 1345:             description =&gt; &#39;Whether hot reload is active&#39;
+</span><span class=""> 1346:         },
+</span><span class=""> 1347:         watcher_pid =&gt; {
+</span><span class=""> 1348:             type =&gt; [qw(integer undef)],
+</span><span class=""> 1349:             description =&gt; &#39;Background watcher process PID&#39;
+</span><span class=""> 1350:         }
+</span><span class=""> 1351:     }
+</span><span class=""> 1352: 
+</span><span class=""> 1353: =cut
+</span><span class=""> 1354: 
+</span><span class=""> 1355: sub get_signal_handler_info {
+</span><span class=""> 1356: 	return {
+</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic."> 1357: 		original_usr1    =&gt; $_original_usr1_handler,
+</span><p> <b> Mutants (Total: 2, Killed: 2, Survived: 0)</b><p><span class=""> 1358: 		current_usr1     =&gt; $SIG{USR1},
+</span><span class=""> 1359: 		hot_reload_active =&gt; defined $_original_usr1_handler,
+</span><span class=""> 1360: 		watcher_pid      =&gt; $_config_watchers{pid},
+</span><span class=""> 1361: 	};
+</span><span class=""> 1362: }
+</span><span class=""> 1363: 
+</span><span class=""> 1364: # ----------------------------------------------------------------------------
+</span><span class=""> 1365: # Private helpers
+</span><span class=""> 1366: # All routines below are implementation details; callers must not rely on them.
+</span><span class=""> 1367: # ----------------------------------------------------------------------------
+</span><span class=""> 1368: 
+</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic."> 1369: # Purpose:   Consolidate all logger-creation paths into one place.
+</span><p> <b> Mutants (Total: 2, Killed: 2, Survived: 0)</b><p><span class=""> 1370: #            Called from configure() and _reconfigure_logger() to eliminate
+</span><span class=""> 1371: #            the duplication that existed between the two.
+</span><span class=""> 1372: # Entry:     $spec may be: undef (want default), the string &#39;NULL&#39; (no logging),
+</span><span class=""> 1373: #            an ARRAY ref (log-capture array), a HASH ref (options for Log::Abstraction),
+</span><span class=""> 1374: #            a pre-built Log::Abstraction instance (pass through), or any other
+</span><span class=""> 1375: #            scalar (treated as a logger name / file path).
+</span><span class=""> 1376: #            $carp_on_warn is a boolean controlling Carp::carp integration.
+</span><span class=""> 1377: # Exit:      Returns a Log::Abstraction instance, or the string &#39;NULL&#39;.
+</span><span class=""> 1378: # Side:      May allocate a new Log::Abstraction object.
+</span><span class=""> 1379: sub _build_logger {
+</span><span class=""><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">1380 → 1392 → 1396</span></span> 1380: 	my ($spec, $carp_on_warn) = @_;
+</span><span class=""> 1381: 	$carp_on_warn //= 0;
+</span><span class=""> 1382: 
+</span><span class=""> 1383: 	return Log::Abstraction-&gt;new(carp_on_warn =&gt; $carp_on_warn)
+</span><span class=""> 1384: 		unless defined $spec;
 </span><span class=""> 1385: 
-</span><span class=""> 1386: # Purpose:   Build the ancestor chain needed for config-file discovery and env merging.
-</span><span class=""> 1387: #            Uses the class&#39;s own MRO (DFS or C3) via mro::get_linear_isa, which is
-</span><span class=""> 1388: #            more correct than a hardcoded DFS walk and handles diamond inheritance.
-</span><span class=""> 1389: #            UNIVERSAL is added explicitly because mro::get_linear_isa does not include
-</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic."> 1390: #            it unless it appears in @ISA, yet Object::Configure supports universal.yml.
-</span><p> <b> Mutants (Total: 2, Killed: 2, Survived: 0)</b><p><span class=""> 1391: # Entry:     $class is a fully-qualified class name that has already been loaded.
-</span><span class=""> 1392: # Exit:      Returns a list in base-first order: (UNIVERSAL, ..., GrandParent, Parent, Class).
-</span><span class=""> 1393: #            Result is memoized in %_chain_cache; mro::get_linear_isa is not re-invoked
-</span><span class=""> 1394: #            for classes already seen in this process.  The cache is valid for the process
-</span><span class=""> 1395: #            lifetime because @ISA is stable after module load in normal Perl programs.
-</span><span class=""> 1396: #            Algorithmic cost: O(N) first call; O(1) amortised on subsequent calls.
-</span><span class=""> 1397: sub _get_inheritance_chain {
-</span><span class=""> 1398: 	my ($class) = @_;
+</span><span class=""> 1386: 	return $LOGGER_NULL
+</span><span class=""> 1387: 		if !ref($spec) &amp;&amp; $spec eq $LOGGER_NULL;
+</span><span class=""> 1388: 
+</span><span class=""> 1389: 	return $spec
+</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic."> 1390: 		if blessed($spec) &amp;&amp; $spec-&gt;isa(&#39;Log::Abstraction&#39;);
+</span><p> <b> Mutants (Total: 2, Killed: 2, Survived: 0)</b><p><span class=""> 1391: 
+</span><span class=""> 1392: 	if(ref($spec) eq &#39;ARRAY&#39;) {
+</span><span class=""> 1393: 		return Log::Abstraction-&gt;new(array =&gt; $spec, carp_on_warn =&gt; $carp_on_warn);
+</span><span class=""> 1394: 	}
+</span><span class=""> 1395: 
+</span><span class=""><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">1396 → 1396 → 1401</span></span> 1396: 	if(ref($spec) eq &#39;HASH&#39;) {
+</span><span class=""> 1397: 		return Log::Abstraction-&gt;new({ carp_on_warn =&gt; $carp_on_warn, %$spec });
+</span><span class=""> 1398: 	}
 </span><span class=""> 1399: 
-</span><span class=""> 1400: 	# Cache hit: return a copy of the stored list (caller may modify the returned list).
-</span><span class=""> 1401: 	return @{ $_chain_cache{$class} } if $_chain_cache{$class};
-</span><span class=""> 1402: 
-</span><span class=""> 1403: 	my @mro = @{ mro::get_linear_isa($class) };
-</span><span class=""> 1404: 
-</span><span class=""> 1405: 	# mro::get_linear_isa returns child-first; reverse to get base-first.
-</span><span class=""> 1406: 	# UNIVERSAL is implicit in Perl&#39;s type system but not always in the MRO list,
-</span><span class=""> 1407: 	# so append it when absent to ensure universal.yml is picked up.
-</span><span class=""> 1408: 	# List::Util::any is XS and short-circuits on first match -- faster than grep.
-</span><span class=""> 1409: 	push @mro, &#39;UNIVERSAL&#39; unless any { $_ eq &#39;UNIVERSAL&#39; } @mro;
-</span><span class=""> 1410: 
-</span><span class=""> 1411: 	my @chain = reverse @mro;
-</span><span class=""> 1412: 	$_chain_cache{$class} = \@chain;   # store arrayref; return list copy below
-</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic."> 1413: 	return @chain;
-</span><p> <b> Mutants (Total: 1, Killed: 1, Survived: 0)</b><p><span class=""> 1414: }
-</span><span class=""> 1415: 
-</span><span class=""> 1416: # Purpose:   Find a config file for a specific ancestor class using the same
-</span><span class=""> 1417: #            naming convention as the primary config file (directory + extension).
-</span><span class=""> 1418: # Entry:     $class is a fully-qualified class name.
-</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic."> 1419: #            $base_config_file is the primary config file path (provides dir and ext).
-</span><p> <b> Mutants (Total: 1, Killed: 1, Survived: 0)</b><p><span class=""> 1420: #            $config_dirs is an optional arrayref of additional search directories.
-</span><span class=""> 1421: #            Does NOT modify elements of $config_dirs (trailing-slash removal uses a copy).
-</span><span class=""> 1422: # Exit:      Returns a readable file path, or undef if nothing found.
-</span><span class=""> 1423: #            Result (including undef for &quot;not found&quot;) is memoized in %_find_cache, keyed
-</span><span class=""> 1424: #            by (class, base_config_file, config_dirs-elements) joined with NUL bytes.
-</span><span class=""> 1425: #            Subsequent calls with identical arguments skip all filesystem probes.
-</span><span class=""> 1426: #            Algorithmic cost: O(extensions) syscalls first call; O(1) amortised.
-</span><span class=""> 1427: sub _find_class_config_file {
-</span><span class=""> 1428: 	my ($class, $base_config_file, $config_dirs) = @_;
-</span><span class=""> 1429: 
-</span><span class=""> 1430: 	# Build a NUL-separated cache key. NUL cannot appear in Linux file paths (the
-</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic."> 1431: 	# pen-test suite confirms this: Perl&#39;s -r warns and returns undef for NUL paths).
-</span><p> <b> Mutants (Total: 1, Killed: 1, Survived: 0)</b><p><span class=""> 1432: 	my $cache_key = join(&quot;\0&quot;, $class, $base_config_file,
-</span><span class=""> 1433: 		$config_dirs ? @$config_dirs : ());
-</span><span class=""> 1434: 	return $_find_cache{$cache_key} if exists $_find_cache{$cache_key};
-</span><span class=""> 1435: 
-</span><span class=""> 1436: 	my $class_file = lc($class);
-</span><span class=""> 1437: 	$class_file =~ s/::/-/g;
-</span><span class=""> 1438: 
-</span><span class=""> 1439: 	my ($base_vol, $base_dir_part, $base_name_ext) = File::Spec-&gt;splitpath($base_config_file);
-</span><span class=""> 1440: 	my (undef, $base_ext) = $base_name_ext =~ /^(.*?)(\.[^.]+)?$/;
-</span><span class=""> 1441: 	$base_ext //= &#39;&#39;;
-</span><span class=""> 1442: 	my $base_dir = File::Spec-&gt;catpath($base_vol, $base_dir_part, &#39;&#39;);
-</span><span class=""> 1443: 
-</span><span class=""> 1444: 	# Single-exit-point via labeled block so the cache write happens unconditionally.
-</span><span class=""> 1445: 	my $found;
-</span><span class=""> 1446: 	SEARCH: {
-</span><span class=""> 1447: 		# Dedup: when $base_ext is already .yml/.conf/etc the first candidate would
-</span><span class=""> 1448: 		# be a duplicate of a later one, causing a redundant filesystem probe.
-</span><span class=""> 1449: 		my %_seen_pat;
-</span><span class=""> 1450: 		foreach my $pattern (grep { !$_seen_pat{$_}++ } (
-</span><span class=""> 1451: 			File::Spec-&gt;catfile($base_dir, &quot;${class_file}${base_ext}&quot;),
-</span><span class=""> 1452: 			File::Spec-&gt;catfile($base_dir, &quot;${class_file}.conf&quot;),
-</span><span class=""> 1453: 			File::Spec-&gt;catfile($base_dir, &quot;${class_file}.yml&quot;),
-</span><span class=""> 1454: 			File::Spec-&gt;catfile($base_dir, &quot;${class_file}.yaml&quot;),
-</span><span class=""> 1455: 			File::Spec-&gt;catfile($base_dir, &quot;${class_file}.json&quot;),
-</span><span class=""> 1456: 		)) {
-</span><span class=""> 1457: 			if(-r $pattern &amp;&amp; -f $pattern) {
-</span><span class=""> 1458: 				$found = $pattern;
-</span><span class=""> 1459: 				last SEARCH;
-</span><span class=""> 1460: 			}
-</span><span class=""> 1461: 		}
-</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic."> 1462: 
-</span><p> <b> Mutants (Total: 1, Killed: 1, Survived: 0)</b><p><span class=""> 1463: 		if($config_dirs &amp;&amp; ref($config_dirs) eq &#39;ARRAY&#39;) {
-</span><span class=""> 1464: 			foreach my $dir (@$config_dirs) {
-</span><span class=""> 1465: 				# Use a copy so the caller&#39;s arrayref element is never mutated.
-</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic."> 1466: 				(my $clean_dir = $dir) =~ s{/$}{};
-</span><p> <b> Mutants (Total: 4, Killed: 4, Survived: 0)</b><p><span class=""> 1467: 				my %_seen_dir_pat;
-</span><span class=""> 1468: 				foreach my $pattern (grep { !$_seen_dir_pat{$_}++ } (
-</span><span class=""> 1469: 					&quot;${clean_dir}/${class_file}${base_ext}&quot;,
-</span><span class=""> 1470: 					&quot;${clean_dir}/${class_file}.conf&quot;,
-</span><span class=""> 1471: 					&quot;${clean_dir}/${class_file}.yml&quot;,
-</span><span class=""> 1472: 					&quot;${clean_dir}/${class_file}.yaml&quot;,
-</span><span class=""> 1473: 					&quot;${clean_dir}/${class_file}.json&quot;,
-</span><span class=""> 1474: 				)) {
-</span><span class=""> 1475: 					if(-r $pattern &amp;&amp; -f $pattern) {
-</span><span class="survived-1 tooltip" data-tooltip="Mutation survived. Add targeted tests to validate this branch."> 1476: 						$found = $pattern;
+</span><span class=""> 1400: 	# Scalar: a logger name, file path, or other string identifier passed to L::A
+</span><span class=""> 1401: 	return Log::Abstraction-&gt;new({ carp_on_warn =&gt; $carp_on_warn, logger =&gt; $spec });
+</span><span class=""> 1402: }
+</span><span class=""> 1403: 
+</span><span class=""> 1404: # Purpose:   Build the ancestor chain needed for config-file discovery and env merging.
+</span><span class=""> 1405: #            Uses the class&#39;s own MRO (DFS or C3) via mro::get_linear_isa, which is
+</span><span class=""> 1406: #            more correct than a hardcoded DFS walk and handles diamond inheritance.
+</span><span class=""> 1407: #            UNIVERSAL is added explicitly because mro::get_linear_isa does not include
+</span><span class=""> 1408: #            it unless it appears in @ISA, yet Object::Configure supports universal.yml.
+</span><span class=""> 1409: # Entry:     $class is a fully-qualified class name that has already been loaded.
+</span><span class=""> 1410: # Exit:      Returns a list in base-first order: (UNIVERSAL, ..., GrandParent, Parent, Class).
+</span><span class=""> 1411: #            Result is memoized in %_chain_cache; mro::get_linear_isa is not re-invoked
+</span><span class=""> 1412: #            for classes already seen in this process.  The cache is valid for the process
+</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic."> 1413: #            lifetime because @ISA is stable after module load in normal Perl programs.
+</span><p> <b> Mutants (Total: 1, Killed: 1, Survived: 0)</b><p><span class=""> 1414: #            Algorithmic cost: O(N) first call; O(1) amortised on subsequent calls.
+</span><span class=""> 1415: sub _get_inheritance_chain {
+</span><span class=""> 1416: 	my ($class) = @_;
+</span><span class=""> 1417: 
+</span><span class=""> 1418: 	# Cache hit: return a copy of the stored list (caller may modify the returned list).
+</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic."> 1419: 	return @{ $_chain_cache{$class} } if $_chain_cache{$class};
+</span><p> <b> Mutants (Total: 1, Killed: 1, Survived: 0)</b><p><span class=""> 1420: 
+</span><span class=""> 1421: 	my @mro = @{ mro::get_linear_isa($class) };
+</span><span class=""> 1422: 
+</span><span class=""> 1423: 	# mro::get_linear_isa returns child-first; reverse to get base-first.
+</span><span class=""> 1424: 	# UNIVERSAL is implicit in Perl&#39;s type system but not always in the MRO list,
+</span><span class=""> 1425: 	# so append it when absent to ensure universal.yml is picked up.
+</span><span class=""> 1426: 	# List::Util::any is XS and short-circuits on first match -- faster than grep.
+</span><span class=""> 1427: 	push @mro, &#39;UNIVERSAL&#39; unless any { $_ eq &#39;UNIVERSAL&#39; } @mro;
+</span><span class=""> 1428: 
+</span><span class=""> 1429: 	my @chain = reverse @mro;
+</span><span class=""> 1430: 	$_chain_cache{$class} = \@chain;   # store arrayref; return list copy below
+</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic."> 1431: 	return @chain;
+</span><p> <b> Mutants (Total: 1, Killed: 1, Survived: 0)</b><p><span class=""> 1432: }
+</span><span class=""> 1433: 
+</span><span class=""> 1434: # Purpose:   Find a config file for a specific ancestor class using the same
+</span><span class=""> 1435: #            naming convention as the primary config file (directory + extension).
+</span><span class=""> 1436: # Entry:     $class is a fully-qualified class name.
+</span><span class=""> 1437: #            $base_config_file is the primary config file path (provides dir and ext).
+</span><span class=""> 1438: #            $config_dirs is an optional arrayref of additional search directories.
+</span><span class=""> 1439: #            Does NOT modify elements of $config_dirs (trailing-slash removal uses a copy).
+</span><span class=""> 1440: # Exit:      Returns a readable file path, or undef if nothing found.
+</span><span class=""> 1441: #            Result (including undef for &quot;not found&quot;) is memoized in %_find_cache, keyed
+</span><span class=""> 1442: #            by (class, base_config_file, config_dirs-elements) joined with NUL bytes.
+</span><span class=""> 1443: #            Subsequent calls with identical arguments skip all filesystem probes.
+</span><span class=""> 1444: #            Algorithmic cost: O(extensions) syscalls first call; O(1) amortised.
+</span><span class=""> 1445: sub _find_class_config_file {
+</span><span class=""> 1446: 	my ($class, $base_config_file, $config_dirs) = @_;
+</span><span class=""> 1447: 
+</span><span class=""> 1448: 	# Build a NUL-separated cache key. NUL cannot appear in Linux file paths (the
+</span><span class=""> 1449: 	# pen-test suite confirms this: Perl&#39;s -r warns and returns undef for NUL paths).
+</span><span class=""> 1450: 	my $cache_key = join(&quot;\0&quot;, $class, $base_config_file,
+</span><span class=""> 1451: 		$config_dirs ? @$config_dirs : ());
+</span><span class=""> 1452: 	return $_find_cache{$cache_key} if exists $_find_cache{$cache_key};
+</span><span class=""> 1453: 
+</span><span class=""> 1454: 	my $class_file = lc($class);
+</span><span class=""> 1455: 	$class_file =~ s/::/-/g;
+</span><span class=""> 1456: 
+</span><span class=""> 1457: 	my ($base_vol, $base_dir_part, $base_name_ext) = File::Spec-&gt;splitpath($base_config_file);
+</span><span class=""> 1458: 	my (undef, $base_ext) = $base_name_ext =~ /^(.*?)(\.[^.]+)?$/;
+</span><span class=""> 1459: 	$base_ext //= &#39;&#39;;
+</span><span class=""> 1460: 	my $base_dir = File::Spec-&gt;catpath($base_vol, $base_dir_part, &#39;&#39;);
+</span><span class=""> 1461: 
+</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic."> 1462: 	# Single-exit-point via labeled block so the cache write happens unconditionally.
+</span><p> <b> Mutants (Total: 1, Killed: 1, Survived: 0)</b><p><span class=""> 1463: 	my $found;
+</span><span class=""> 1464: 	SEARCH: {
+</span><span class=""> 1465: 		# Dedup: when $base_ext is already .yml/.conf/etc the first candidate would
+</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic."> 1466: 		# be a duplicate of a later one, causing a redundant filesystem probe.
+</span><p> <b> Mutants (Total: 4, Killed: 4, Survived: 0)</b><p><span class=""> 1467: 		my %_seen_pat;
+</span><span class=""> 1468: 		foreach my $pattern (grep { !$_seen_pat{$_}++ } (
+</span><span class=""> 1469: 			File::Spec-&gt;catfile($base_dir, &quot;${class_file}${base_ext}&quot;),
+</span><span class=""> 1470: 			File::Spec-&gt;catfile($base_dir, &quot;${class_file}.conf&quot;),
+</span><span class=""> 1471: 			File::Spec-&gt;catfile($base_dir, &quot;${class_file}.yml&quot;),
+</span><span class=""> 1472: 			File::Spec-&gt;catfile($base_dir, &quot;${class_file}.yaml&quot;),
+</span><span class=""> 1473: 			File::Spec-&gt;catfile($base_dir, &quot;${class_file}.json&quot;),
+</span><span class=""> 1474: 		)) {
+</span><span class=""> 1475: 			if(-r $pattern &amp;&amp; -f $pattern) {
+</span><span class="survived-1 tooltip" data-tooltip="Mutation survived. Add targeted tests to validate this branch."> 1476: 				$found = $pattern;
 </span>
 					<details class="mutant-details">
 					<summary>Mutants (Total: 1, Killed: 0, Survived: 1)</summary>
 					<ul>
 				<li><b>COND_INV_1476_3: Invert condition if to unless</b><br>MEDIUM: Add tests asserting both true and false outcomes
 </li></ul></details>
-<span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic."> 1477: 						last SEARCH;
-</span><p> <b> Mutants (Total: 1, Killed: 1, Survived: 0)</b><p><span class=""> 1478: 					}
-</span><span class=""> 1479: 				}
-</span><span class=""> 1480: 			}
-</span><span class=""> 1481: 		}
-</span><span class=""> 1482: 	}
-</span><span class=""> 1483: 
-</span><span class=""> 1484: 	# Cache stores undef for &quot;not found&quot;; callers must use exists, not defined.
-</span><span class=""> 1485: 	return ($_find_cache{$cache_key} = $found);
-</span><span class=""> 1486: }
-</span><span class=""> 1487: 
-</span><span class=""> 1488: # Purpose:   Run as the forked watcher child.  Polls %_config_file_stats and
-</span><span class=""> 1489: #            sends SIGUSR1 to the parent when any file changes.
-</span><span class=""> 1490: # Entry:     $interval &gt;= 1 (seconds). $callback is unused in the child (it runs
-</span><span class=""> 1491: #            in the parent&#39;s SIGUSR1 handler).
-</span><span class=""> 1492: # Exit:      Never returns; terminates via SIGTERM/SIGINT handlers.
-</span><span class=""> 1493: # Side:      Modifies %_config_file_stats entries in the child&#39;s address space only.
-</span><span class=""> 1494: sub _run_config_watcher {
-</span><span class=""><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">1495 → 1508 → 0</span></span> 1495: 	my ($interval, $callback) = @_;
-</span><span class=""> 1496: 
-</span><span class=""> 1497: 	# SECURITY (S5): re-validate $interval in the child process.
-</span><span class=""> 1498: 	# If the parent&#39;s fork() fires before enable_hot_reload() applies its own guard
-</span><span class=""> 1499: 	# (race) or state is corrupted between fork and here, sleep(0) or sleep(-1) would
-</span><span class=""> 1500: 	# cause a busy-loop that saturates the CPU.  int() also prevents floating-point
-</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic."> 1501: 	# values like 0.001 from reaching the kernel as a near-zero sleep.
-</span><p> <b> Mutants (Total: 1, Killed: 1, Survived: 0)</b><p><span class=""> 1502: 	$interval = int($interval // $DEFAULT_INTERVAL);
-</span><span class=""> 1503: 	$interval = $DEFAULT_INTERVAL unless $interval &gt; 0;
-</span><span class=""> 1504: 
-</span><span class=""> 1505: 	local $SIG{TERM} = sub { exit 0 };
-</span><span class=""> 1506: 	local $SIG{INT}  = sub { exit 0 };
-</span><span class=""> 1507: 
-</span><span class=""> 1508: 	while(1) {
-</span><span class=""> 1509: 		sleep($interval);
-</span><span class=""> 1510: 
-</span><span class=""> 1511: 		my $changes_detected = 0;
-</span><span class=""> 1512: 
-</span><span class=""> 1513: 		foreach my $config_file (keys %_config_file_stats) {
-</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic."> 1514: 			if(-f $config_file) {
-</span><p> <b> Mutants (Total: 1, Killed: 1, Survived: 0)</b><p><span class=""> 1515: 				my $current_stat = stat($config_file);
-</span><span class=""> 1516: 				my $stored_stat  = $_config_file_stats{$config_file};
-</span><span class=""> 1517: 
-</span><span class=""> 1518: 				if(!$stored_stat || $current_stat-&gt;mtime &gt; $stored_stat-&gt;mtime) {
-</span><span class=""> 1519: 					$_config_file_stats{$config_file} = $current_stat;
-</span><span class=""> 1520: 					$changes_detected = 1;
-</span><span class=""> 1521: 				}
-</span><span class=""> 1522: 			} else {
-</span><span class=""> 1523: 				delete $_config_file_stats{$config_file};
-</span><span class=""> 1524: 				$changes_detected = 1;
-</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic."> 1525: 			}
-</span><p> <b> Mutants (Total: 1, Killed: 1, Survived: 0)</b><p><span class=""> 1526: 		}
-</span><span class=""> 1527: 
-</span><span class=""> 1528: 		if($changes_detected &amp;&amp; $^O ne $OS_WINDOWS) {
-</span><span class=""> 1529: 			if(my $parent_pid = getppid()) {
-</span><span class=""> 1530: 				kill(&#39;USR1&#39;, $parent_pid);
-</span><span class=""> 1531: 			}
-</span><span class="survived-1 tooltip" data-tooltip="Mutation survived. Add targeted tests to validate this branch."> 1532: 		}
+<span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic."> 1477: 				last SEARCH;
+</span><p> <b> Mutants (Total: 1, Killed: 1, Survived: 0)</b><p><span class=""> 1478: 			}
+</span><span class=""> 1479: 		}
+</span><span class=""> 1480: 
+</span><span class=""> 1481: 		if($config_dirs &amp;&amp; ref($config_dirs) eq &#39;ARRAY&#39;) {
+</span><span class=""> 1482: 			foreach my $dir (@$config_dirs) {
+</span><span class=""> 1483: 				# Use a copy so the caller&#39;s arrayref element is never mutated.
+</span><span class=""> 1484: 				(my $clean_dir = $dir) =~ s{/$}{};
+</span><span class=""> 1485: 				my %_seen_dir_pat;
+</span><span class=""> 1486: 				foreach my $pattern (grep { !$_seen_dir_pat{$_}++ } (
+</span><span class=""> 1487: 					&quot;${clean_dir}/${class_file}${base_ext}&quot;,
+</span><span class=""> 1488: 					&quot;${clean_dir}/${class_file}.conf&quot;,
+</span><span class=""> 1489: 					&quot;${clean_dir}/${class_file}.yml&quot;,
+</span><span class=""> 1490: 					&quot;${clean_dir}/${class_file}.yaml&quot;,
+</span><span class=""> 1491: 					&quot;${clean_dir}/${class_file}.json&quot;,
+</span><span class=""> 1492: 				)) {
+</span><span class=""> 1493: 					if(-r $pattern &amp;&amp; -f $pattern) {
+</span><span class=""> 1494: 						$found = $pattern;
+</span><span class=""> 1495: 						last SEARCH;
+</span><span class=""> 1496: 					}
+</span><span class=""> 1497: 				}
+</span><span class=""> 1498: 			}
+</span><span class=""> 1499: 		}
+</span><span class=""> 1500: 	}
+</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic."> 1501: 
+</span><p> <b> Mutants (Total: 1, Killed: 1, Survived: 0)</b><p><span class=""> 1502: 	# Cache stores undef for &quot;not found&quot;; callers must use exists, not defined.
+</span><span class=""> 1503: 	return ($_find_cache{$cache_key} = $found);
+</span><span class=""> 1504: }
+</span><span class=""> 1505: 
+</span><span class=""> 1506: # Purpose:   Run as the forked watcher child.  Polls %_config_file_stats and
+</span><span class=""> 1507: #            sends SIGUSR1 to the parent when any file changes.
+</span><span class=""> 1508: # Entry:     $interval &gt;= 1 (seconds). $callback is unused in the child (it runs
+</span><span class=""> 1509: #            in the parent&#39;s SIGUSR1 handler).
+</span><span class=""> 1510: # Exit:      Never returns; terminates via SIGTERM/SIGINT handlers.
+</span><span class=""> 1511: # Side:      Modifies %_config_file_stats entries in the child&#39;s address space only.
+</span><span class=""> 1512: sub _run_config_watcher {
+</span><span class=""><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">1513 → 1526 → 0</span></span> 1513: 	my ($interval, $callback) = @_;
+</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic."> 1514: 
+</span><p> <b> Mutants (Total: 1, Killed: 1, Survived: 0)</b><p><span class=""> 1515: 	# SECURITY (S5): re-validate $interval in the child process.
+</span><span class=""> 1516: 	# If the parent&#39;s fork() fires before enable_hot_reload() applies its own guard
+</span><span class=""> 1517: 	# (race) or state is corrupted between fork and here, sleep(0) or sleep(-1) would
+</span><span class=""> 1518: 	# cause a busy-loop that saturates the CPU.  int() also prevents floating-point
+</span><span class=""> 1519: 	# values like 0.001 from reaching the kernel as a near-zero sleep.
+</span><span class=""> 1520: 	$interval = int($interval // $DEFAULT_INTERVAL);
+</span><span class=""> 1521: 	$interval = $DEFAULT_INTERVAL unless $interval &gt; 0;
+</span><span class=""> 1522: 
+</span><span class=""> 1523: 	local $SIG{TERM} = sub { exit 0 };
+</span><span class=""> 1524: 	local $SIG{INT}  = sub { exit 0 };
+</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic."> 1525: 
+</span><p> <b> Mutants (Total: 1, Killed: 1, Survived: 0)</b><p><span class=""> 1526: 	while(1) {
+</span><span class=""> 1527: 		sleep($interval);
+</span><span class=""> 1528: 
+</span><span class=""> 1529: 		my $changes_detected = 0;
+</span><span class=""> 1530: 
+</span><span class=""> 1531: 		foreach my $config_file (keys %_config_file_stats) {
+</span><span class="survived-1 tooltip" data-tooltip="Mutation survived. Add targeted tests to validate this branch."> 1532: 			if(-f $config_file) {
 </span>
 					<details class="mutant-details">
 					<summary>Mutants (Total: 1, Killed: 0, Survived: 1)</summary>
 					<ul>
 				<li><b>COND_INV_1532_5: Invert condition if to unless</b><br>MEDIUM: Add tests asserting both true and false outcomes
 </li></ul></details>
-<span class=""> 1533: 	}
-</span><span class=""> 1534: }
+<span class=""> 1533: 				my $current_stat = stat($config_file);
+</span><span class=""> 1534: 				my $stored_stat  = $_config_file_stats{$config_file};
 </span><span class=""> 1535: 
-</span><span class=""> 1536: # Purpose:   Reload a single object&#39;s configuration from disk and update its fields.
-</span><span class=""> 1537: #            Private properties (prefix &#39;_&#39;) are intentionally skipped to avoid
-</span><span class=""> 1538: #            clobbering internal bookkeeping set at construction time.
-</span><span class=""> 1539: # Entry:     $obj must be a blessed reference with a {_config_file} or {_config_files} key.
-</span><span class=""> 1540: # Exit:      Returns nothing; updates $obj in-place.
-</span><span class=""> 1541: # Side:      Reads from disk. Calls $obj-&gt;_on_config_reload if the method exists.
-</span><span class=""> 1542: sub _reload_object_config {
-</span><span class=""><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">1543 → 1553 → 1564</span></span> 1543: 	my $obj = $_[0];
-</span><span class=""> 1544: 
-</span><span class=""> 1545: 	return unless blessed($obj);
-</span><span class=""> 1546: 
-</span><span class=""> 1547: 	my $class          = ref($obj);
-</span><span class=""> 1548: 	my $original_class = $class;
-</span><span class=""> 1549: 	$class =~ s/::/__/g;
-</span><span class=""> 1550: 
-</span><span class=""> 1551: 	# Prefer the most-specific (last) file from the full list; fall back to scalar key
-</span><span class=""> 1552: 	my $config_file;
-</span><span class=""> 1553: 	if($obj-&gt;{_config_files} &amp;&amp; ref($obj-&gt;{_config_files}) eq &#39;ARRAY&#39; &amp;&amp; @{ $obj-&gt;{_config_files} }) {
-</span><span class=""> 1554: 		$config_file = $obj-&gt;{_config_files}[-1];
-</span><span class=""> 1555: 	} else {
-</span><span class=""> 1556: 		$config_file = $obj-&gt;{_config_file} || $obj-&gt;{config_file};
-</span><span class=""> 1557: 	}
-</span><span class=""> 1558: 
-</span><span class=""> 1559: 	# SECURITY (S1 &acirc;&#128;&#148; path traversal): an attacker who modifies $obj-&gt;{_config_file}
-</span><span class=""> 1560: 	# (e.g., via a deserialization gadget or a malicious config merge) can redirect
-</span><span class=""> 1561: 	# hot-reload to read arbitrary system files.  Reject paths with &quot;..&quot; segments here
-</span><span class=""> 1562: 	# so that even a corrupted object cannot force a traversal read.
-</span><span class=""> 1563: 	# Must come BEFORE the -f check so traversal paths for non-existent files are also rejected.
-</span><span class=""><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">1564 → 1564 → 1570</span></span> 1564: 	if($config_file &amp;&amp; $config_file =~ $RE_PATH_TRAVERSAL) {
-</span><span class=""> 1565: 		carp(__PACKAGE__, &#39;: _reload_object_config: refusing path with traversal sequences: &#39;,
-</span><span class=""> 1566: 			$config_file);
-</span><span class=""> 1567: 		return;
-</span><span class=""> 1568: 	}
-</span><span class=""> 1569: 
-</span><span class=""><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">1570 → 1577 → 1611</span></span> 1570: 	return unless $config_file &amp;&amp; -f $config_file;
-</span><span class=""> 1571: 
-</span><span class=""> 1572: 	my $config = Config::Abstraction-&gt;new(
-</span><span class=""> 1573: 		config_file =&gt; $config_file,
-</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic."> 1574: 		env_prefix  =&gt; &quot;${class}__&quot;
-</span><p> <b> Mutants (Total: 2, Killed: 2, Survived: 0)</b><p><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic."> 1575: 	);
+</span><span class=""> 1536: 				if(!$stored_stat || $current_stat-&gt;mtime &gt; $stored_stat-&gt;mtime) {
+</span><span class=""> 1537: 					$_config_file_stats{$config_file} = $current_stat;
+</span><span class=""> 1538: 					$changes_detected = 1;
+</span><span class=""> 1539: 				}
+</span><span class=""> 1540: 			} else {
+</span><span class=""> 1541: 				delete $_config_file_stats{$config_file};
+</span><span class=""> 1542: 				$changes_detected = 1;
+</span><span class=""> 1543: 			}
+</span><span class=""> 1544: 		}
+</span><span class=""> 1545: 
+</span><span class=""> 1546: 		if($changes_detected &amp;&amp; $^O ne $OS_WINDOWS) {
+</span><span class=""> 1547: 			if(my $parent_pid = getppid()) {
+</span><span class=""> 1548: 				kill(&#39;USR1&#39;, $parent_pid);
+</span><span class=""> 1549: 			}
+</span><span class=""> 1550: 		}
+</span><span class=""> 1551: 	}
+</span><span class=""> 1552: }
+</span><span class=""> 1553: 
+</span><span class=""> 1554: # Purpose:   Reload a single object&#39;s configuration from disk and update its fields.
+</span><span class=""> 1555: #            Private properties (prefix &#39;_&#39;) are intentionally skipped to avoid
+</span><span class=""> 1556: #            clobbering internal bookkeeping set at construction time.
+</span><span class=""> 1557: # Entry:     $obj must be a blessed reference with a {_config_file} or {_config_files} key.
+</span><span class=""> 1558: # Exit:      Returns nothing; updates $obj in-place.
+</span><span class=""> 1559: # Side:      Reads from disk. Calls $obj-&gt;_on_config_reload if the method exists.
+</span><span class=""> 1560: sub _reload_object_config {
+</span><span class=""><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">1561 → 1571 → 1582</span></span> 1561: 	my $obj = $_[0];
+</span><span class=""> 1562: 
+</span><span class=""> 1563: 	return unless blessed($obj);
+</span><span class=""> 1564: 
+</span><span class=""> 1565: 	my $class          = ref($obj);
+</span><span class=""> 1566: 	my $original_class = $class;
+</span><span class=""> 1567: 	$class =~ s/::/__/g;
+</span><span class=""> 1568: 
+</span><span class=""> 1569: 	# Prefer the most-specific (last) file from the full list; fall back to scalar key
+</span><span class=""> 1570: 	my $config_file;
+</span><span class=""> 1571: 	if($obj-&gt;{_config_files} &amp;&amp; ref($obj-&gt;{_config_files}) eq &#39;ARRAY&#39; &amp;&amp; @{ $obj-&gt;{_config_files} }) {
+</span><span class=""> 1572: 		$config_file = $obj-&gt;{_config_files}[-1];
+</span><span class=""> 1573: 	} else {
+</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic."> 1574: 		$config_file = $obj-&gt;{_config_file} || $obj-&gt;{config_file};
+</span><p> <b> Mutants (Total: 2, Killed: 2, Survived: 0)</b><p><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic."> 1575: 	}
 </span><p> <b> Mutants (Total: 2, Killed: 2, Survived: 0)</b><p><span class=""> 1576: 
-</span><span class=""> 1577: 	if($config) {
-</span><span class=""> 1578: 		my $new_params = $config-&gt;merge_defaults(
-</span><span class=""> 1579: 			defaults =&gt; {},
-</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic."> 1580: 			section  =&gt; $class,
-</span><p> <b> Mutants (Total: 1, Killed: 1, Survived: 0)</b><p><span class=""> 1581: 			merge    =&gt; 1,
-</span><span class=""> 1582: 			deep     =&gt; 1
-</span><span class=""> 1583: 		);
-</span><span class=""> 1584: 
-</span><span class=""> 1585: 		foreach my $key (keys %$new_params) {
-</span><span class=""> 1586: 			next if $key =~ /^_/;
+</span><span class=""> 1577: 	# SECURITY (S1 &acirc;&#128;&#148; path traversal): an attacker who modifies $obj-&gt;{_config_file}
+</span><span class=""> 1578: 	# (e.g., via a deserialization gadget or a malicious config merge) can redirect
+</span><span class=""> 1579: 	# hot-reload to read arbitrary system files.  Reject paths with &quot;..&quot; segments here
+</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic."> 1580: 	# so that even a corrupted object cannot force a traversal read.
+</span><p> <b> Mutants (Total: 1, Killed: 1, Survived: 0)</b><p><span class=""> 1581: 	# Must come BEFORE the -f check so traversal paths for non-existent files are also rejected.
+</span><span class=""><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">1582 → 1582 → 1588</span></span> 1582: 	if($config_file &amp;&amp; $config_file =~ $RE_PATH_TRAVERSAL) {
+</span><span class=""> 1583: 		carp(__PACKAGE__, &#39;: _reload_object_config: refusing path with traversal sequences: &#39;,
+</span><span class=""> 1584: 			$config_file);
+</span><span class=""> 1585: 		return;
+</span><span class=""> 1586: 	}
 </span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic."> 1587: 
-</span><p> <b> Mutants (Total: 2, Killed: 2, Survived: 0)</b><p><span class=""> 1588: 			if($key eq &#39;logger&#39;) {
-</span><span class=""> 1589: 				# Only the exact &#39;logger&#39; key triggers logger reconstruction.
-</span><span class=""> 1590: 				# Keys like &#39;logger.file&#39; are flat config values, not logger specs.
-</span><span class=""> 1591: 				# Guard: assign directly for undef (no logger) or literal &#39;NULL&#39;.
-</span><span class=""> 1592: 				# Premise 1: _build_logger handles every other spec type.
-</span><span class=""> 1593: 				# Premise 2: undef/NULL need no construction. Conclusion: rebuild only otherwise.
-</span><span class=""> 1594: 				my $val = $new_params-&gt;{$key};
-</span><span class=""> 1595: 				if(!defined($val) || (!ref($val) &amp;&amp; $val eq $LOGGER_NULL)) {
-</span><span class=""> 1596: 					$obj-&gt;{$key} = $val;
-</span><span class=""> 1597: 				} else {
-</span><span class=""> 1598: 					_reconfigure_logger($obj, $key, $val);
-</span><span class=""> 1599: 				}
-</span><span class=""> 1600: 			} else {
-</span><span class=""> 1601: 				$obj-&gt;{$key} = $new_params-&gt;{$key};
-</span><span class=""> 1602: 			}
-</span><span class=""> 1603: 		}
-</span><span class=""> 1604: 
-</span><span class=""> 1605: 		$obj-&gt;_on_config_reload($new_params) if $obj-&gt;can(&#39;_on_config_reload&#39;);
-</span><span class=""> 1606: 
-</span><span class=""> 1607: 		$obj-&gt;{logger}-&gt;info(&quot;Configuration reloaded for $original_class&quot;)
-</span><span class=""> 1608: 			if $obj-&gt;{logger} &amp;&amp; $obj-&gt;{logger}-&gt;can(&#39;info&#39;);
-</span><span class=""> 1609: 	}
-</span><span class=""> 1610: 
-</span><span class=""> 1611: 	return;
-</span><span class=""> 1612: }
-</span><span class=""> 1613: 
-</span><span class=""> 1614: # Purpose:   Replace the logger on an already-constructed object with one
-</span><span class=""> 1615: #            built from a new config value (typically a YAML hashref).
-</span><span class=""> 1616: #            Delegates to _build_logger so logger-creation logic lives in one place.
-</span><span class=""> 1617: # Entry:     $obj is a blessed hashref. $key is the hash key to update (usually &#39;logger&#39;).
-</span><span class=""> 1618: #            $logger_config is the new spec from the config file.
-</span><span class=""> 1619: # Exit:      Returns nothing; updates $obj-&gt;{$key} in-place.
-</span><span class=""> 1620: # Side:      May allocate a new Log::Abstraction instance.
-</span><span class=""> 1621: sub _reconfigure_logger
-</span><span class=""> 1622: {
-</span><span class=""> 1623: 	my ($obj, $key, $logger_config) = @_;
-</span><span class=""> 1624: 	my $carp_on_warn = $obj-&gt;{carp_on_warn} || 0;
-</span><span class=""> 1625: 	$obj-&gt;{$key} = _build_logger($logger_config, $carp_on_warn);
-</span><span class=""> 1626: 	return;
-</span><span class=""> 1627: }
+</span><p> <b> Mutants (Total: 2, Killed: 2, Survived: 0)</b><p><span class=""><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">1588 → 1595 → 1629</span></span> 1588: 	return unless $config_file &amp;&amp; -f $config_file;
+</span><span class=""> 1589: 
+</span><span class=""> 1590: 	my $config = Config::Abstraction-&gt;new(
+</span><span class=""> 1591: 		config_file =&gt; $config_file,
+</span><span class=""> 1592: 		env_prefix  =&gt; &quot;${class}__&quot;
+</span><span class=""> 1593: 	);
+</span><span class=""> 1594: 
+</span><span class=""> 1595: 	if($config) {
+</span><span class=""> 1596: 		my $new_params = $config-&gt;merge_defaults(
+</span><span class=""> 1597: 			defaults =&gt; {},
+</span><span class=""> 1598: 			section  =&gt; $class,
+</span><span class=""> 1599: 			merge    =&gt; 1,
+</span><span class=""> 1600: 			deep     =&gt; 1
+</span><span class=""> 1601: 		);
+</span><span class=""> 1602: 
+</span><span class=""> 1603: 		foreach my $key (keys %$new_params) {
+</span><span class=""> 1604: 			next if $key =~ /^_/;
+</span><span class=""> 1605: 
+</span><span class=""> 1606: 			if($key eq &#39;logger&#39;) {
+</span><span class=""> 1607: 				# Only the exact &#39;logger&#39; key triggers logger reconstruction.
+</span><span class=""> 1608: 				# Keys like &#39;logger.file&#39; are flat config values, not logger specs.
+</span><span class=""> 1609: 				# Guard: assign directly for undef (no logger) or literal &#39;NULL&#39;.
+</span><span class=""> 1610: 				# Premise 1: _build_logger handles every other spec type.
+</span><span class=""> 1611: 				# Premise 2: undef/NULL need no construction. Conclusion: rebuild only otherwise.
+</span><span class=""> 1612: 				my $val = $new_params-&gt;{$key};
+</span><span class=""> 1613: 				if(!defined($val) || (!ref($val) &amp;&amp; $val eq $LOGGER_NULL)) {
+</span><span class=""> 1614: 					$obj-&gt;{$key} = $val;
+</span><span class=""> 1615: 				} else {
+</span><span class=""> 1616: 					_reconfigure_logger($obj, $key, $val);
+</span><span class=""> 1617: 				}
+</span><span class=""> 1618: 			} else {
+</span><span class=""> 1619: 				$obj-&gt;{$key} = $new_params-&gt;{$key};
+</span><span class=""> 1620: 			}
+</span><span class=""> 1621: 		}
+</span><span class=""> 1622: 
+</span><span class=""> 1623: 		$obj-&gt;_on_config_reload($new_params) if $obj-&gt;can(&#39;_on_config_reload&#39;);
+</span><span class=""> 1624: 
+</span><span class=""> 1625: 		$obj-&gt;{logger}-&gt;info(&quot;Configuration reloaded for $original_class&quot;)
+</span><span class=""> 1626: 			if $obj-&gt;{logger} &amp;&amp; $obj-&gt;{logger}-&gt;can(&#39;info&#39;);
+</span><span class=""> 1627: 	}
 </span><span class=""> 1628: 
-</span><span class=""> 1629: # Purpose:   Right-precedence deep merge of two hash references.
-</span><span class=""> 1630: #            Scalar/arrayref values in $overlay replace those in $base entirely;
-</span><span class=""> 1631: #            nested hashrefs are merged recursively.
-</span><span class=""> 1632: # Entry:     Both args should be hashrefs (or undef/non-ref, handled gracefully).
-</span><span class=""> 1633: # Exit:      Returns a new hashref; neither input is modified.
-</span><span class=""> 1634: sub _deep_merge {
-</span><span class=""><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">1635 → 1642 → 1650</span></span> 1635: 	my ($base, $overlay) = @_;
-</span><span class=""> 1636: 
-</span><span class=""> 1637: 	return $overlay unless ref($base)    eq &#39;HASH&#39;;
-</span><span class=""> 1638: 	return $overlay unless ref($overlay) eq &#39;HASH&#39;;
-</span><span class=""> 1639: 
-</span><span class=""> 1640: 	my $result = { %$base };
-</span><span class=""> 1641: 
-</span><span class=""> 1642: 	foreach my $key (keys %$overlay) {
-</span><span class=""> 1643: 		if(ref($overlay-&gt;{$key}) eq &#39;HASH&#39; &amp;&amp; ref($result-&gt;{$key}) eq &#39;HASH&#39;) {
-</span><span class=""> 1644: 			$result-&gt;{$key} = _deep_merge($result-&gt;{$key}, $overlay-&gt;{$key});
-</span><span class=""> 1645: 		} else {
-</span><span class=""> 1646: 			$result-&gt;{$key} = $overlay-&gt;{$key};
-</span><span class=""> 1647: 		}
-</span><span class=""> 1648: 	}
-</span><span class=""> 1649: 
-</span><span class=""> 1650: 	return $result;
-</span><span class=""> 1651: }
-</span><span class=""> 1652: 
-</span><span class=""> 1653: # Clean up the watcher child and restore signal state on interpreter exit.
-</span><span class=""> 1654: END {
-</span><span class=""> 1655: 	disable_hot_reload();
-</span><span class=""> 1656: 	restore_signal_handlers();
-</span><span class=""> 1657: }
-</span><span class=""> 1658: 
-</span><span class=""> 1659: =head1 SEE ALSO
-</span><span class=""> 1660: 
-</span><span class=""> 1661: =over 4
-</span><span class=""> 1662: 
-</span><span class=""> 1663: =item * L&lt;Config::Abstraction&gt;
-</span><span class=""> 1664: 
-</span><span class=""> 1665: =item * L&lt;Log::Abstraction&gt;
-</span><span class=""> 1666: 
-</span><span class=""> 1667: =item * L&lt;Test Dashboard|https://nigelhorne.github.io/Object-Configure/coverage/&gt;
-</span><span class=""> 1668: 
-</span><span class=""> 1669: =back
+</span><span class=""> 1629: 	return;
+</span><span class=""> 1630: }
+</span><span class=""> 1631: 
+</span><span class=""> 1632: # Purpose:   Replace the logger on an already-constructed object with one
+</span><span class=""> 1633: #            built from a new config value (typically a YAML hashref).
+</span><span class=""> 1634: #            Delegates to _build_logger so logger-creation logic lives in one place.
+</span><span class=""> 1635: # Entry:     $obj is a blessed hashref. $key is the hash key to update (usually &#39;logger&#39;).
+</span><span class=""> 1636: #            $logger_config is the new spec from the config file.
+</span><span class=""> 1637: # Exit:      Returns nothing; updates $obj-&gt;{$key} in-place.
+</span><span class=""> 1638: # Side:      May allocate a new Log::Abstraction instance.
+</span><span class=""> 1639: sub _reconfigure_logger
+</span><span class=""> 1640: {
+</span><span class=""> 1641: 	my ($obj, $key, $logger_config) = @_;
+</span><span class=""> 1642: 	my $carp_on_warn = $obj-&gt;{carp_on_warn} || 0;
+</span><span class=""> 1643: 	$obj-&gt;{$key} = _build_logger($logger_config, $carp_on_warn);
+</span><span class=""> 1644: 	return;
+</span><span class=""> 1645: }
+</span><span class=""> 1646: 
+</span><span class=""> 1647: # Purpose:   Right-precedence deep merge of two hash references.
+</span><span class=""> 1648: #            Scalar/arrayref values in $overlay replace those in $base entirely;
+</span><span class=""> 1649: #            nested hashrefs are merged recursively.
+</span><span class=""> 1650: # Entry:     Both args should be hashrefs (or undef/non-ref, handled gracefully).
+</span><span class=""> 1651: # Exit:      Returns a new hashref; neither input is modified.
+</span><span class=""> 1652: sub _deep_merge {
+</span><span class=""><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">1653 → 1660 → 1668</span></span> 1653: 	my ($base, $overlay) = @_;
+</span><span class=""> 1654: 
+</span><span class=""> 1655: 	return $overlay unless ref($base)    eq &#39;HASH&#39;;
+</span><span class=""> 1656: 	return $overlay unless ref($overlay) eq &#39;HASH&#39;;
+</span><span class=""> 1657: 
+</span><span class=""> 1658: 	my $result = { %$base };
+</span><span class=""> 1659: 
+</span><span class=""> 1660: 	foreach my $key (keys %$overlay) {
+</span><span class=""> 1661: 		if(ref($overlay-&gt;{$key}) eq &#39;HASH&#39; &amp;&amp; ref($result-&gt;{$key}) eq &#39;HASH&#39;) {
+</span><span class=""> 1662: 			$result-&gt;{$key} = _deep_merge($result-&gt;{$key}, $overlay-&gt;{$key});
+</span><span class=""> 1663: 		} else {
+</span><span class=""> 1664: 			$result-&gt;{$key} = $overlay-&gt;{$key};
+</span><span class=""> 1665: 		}
+</span><span class=""> 1666: 	}
+</span><span class=""> 1667: 
+</span><span class=""> 1668: 	return $result;
+</span><span class=""> 1669: }
 </span><span class=""> 1670: 
-</span><span class=""> 1671: =head1 LIMITATIONS
-</span><span class=""> 1672: 
-</span><span class=""> 1673: =over 4
-</span><span class=""> 1674: 
-</span><span class=""> 1675: =item * B&lt;Global singleton state.&gt; C&lt;%_object_registry&gt;, C&lt;%_config_watchers&gt;, and
-</span><span class=""> 1676: C&lt;%_config_file_stats&gt; are package globals.  Two independent subsystems in the same
-</span><span class=""> 1677: process share one hot-reload registry and one SIGUSR1 handler.  There is no
-</span><span class=""> 1678: instance-level isolation.  A proper fix would wrap state in an object and allow
-</span><span class=""> 1679: multiple independent C&lt;Object::Configure&gt; instances, but that would break the
-</span><span class=""> 1680: existing constructor-call API (C&lt;configure($class, \%params)&gt;).
-</span><span class=""> 1681: 
-</span><span class=""> 1682: =item * B&lt;Hot reload is Unix-only.&gt; SIGUSR1 does not exist on Windows.
-</span><span class=""> 1683: All signal-related paths are guarded with C&lt;$^O ne &#39;MSWin32&#39;&gt;, so the module
-</span><span class=""> 1684: loads on Windows but silently skips hot-reload registration.
-</span><span class=""> 1685: 
-</span><span class=""> 1686: =item * B&lt;configure() is a God function.&gt; At ~120 lines it handles arg validation,
-</span><span class=""> 1687: config-file discovery, MRO walking, multi-file merging, env-var merging, logger
-</span><span class=""> 1688: creation, and hot-reload bookkeeping.  Future versions should decompose this into
-</span><span class=""> 1689: smaller, independently testable units.
+</span><span class=""> 1671: # Clean up the watcher child and restore signal state on interpreter exit.
+</span><span class=""> 1672: END {
+</span><span class=""> 1673: 	disable_hot_reload();
+</span><span class=""> 1674: 	restore_signal_handlers();
+</span><span class=""> 1675: }
+</span><span class=""> 1676: 
+</span><span class=""> 1677: =head1 SEE ALSO
+</span><span class=""> 1678: 
+</span><span class=""> 1679: =over 4
+</span><span class=""> 1680: 
+</span><span class=""> 1681: =item * L&lt;Config::Abstraction&gt;
+</span><span class=""> 1682: 
+</span><span class=""> 1683: =item * L&lt;Log::Abstraction&gt;
+</span><span class=""> 1684: 
+</span><span class=""> 1685: =item * L&lt;Test Dashboard|https://nigelhorne.github.io/Object-Configure/coverage/&gt;
+</span><span class=""> 1686: 
+</span><span class=""> 1687: =back
+</span><span class=""> 1688: 
+</span><span class=""> 1689: =head1 LIMITATIONS
 </span><span class=""> 1690: 
-</span><span class=""> 1691: =item * B&lt;_deep_merge reimplements CPAN.&gt; L&lt;Hash::Merge::Simple&gt; or L&lt;Hash::Merge&gt;
-</span><span class=""> 1692: provide tested, feature-complete deep merge.  The internal C&lt;_deep_merge&gt; is 15
-</span><span class=""> 1693: lines and correct for the current use, but does not handle arrayrefs (they are
-</span><span class=""> 1694: replaced wholesale, not merged).  If array-merge semantics are ever needed, switch
-</span><span class=""> 1695: to a CPAN module.
-</span><span class=""> 1696: 
-</span><span class=""> 1697: =item * B&lt;No encapsulation enforcement.&gt; Private helpers (C&lt;_build_logger&gt;,
-</span><span class=""> 1698: C&lt;_get_inheritance_chain&gt;, etc.) are accessible to any caller.  L&lt;Sub::Private&gt;
-</span><span class=""> 1699: (enforce mode) would make accidental external use a compile-time error.  It is not
-</span><span class=""> 1700: added here to avoid a smoker dependency on a less-common module.
-</span><span class=""> 1701: 
-</span><span class=""> 1702: =item * B&lt;configure() signature is positional, instantiate() is named.&gt;  The two
-</span><span class=""> 1703: public constructors have inconsistent calling conventions.  Normalising them to named
-</span><span class=""> 1704: args would require a deprecation cycle.
-</span><span class=""> 1705: 
-</span><span class=""> 1706: =item * B&lt;mro::get_linear_isa and UNIVERSAL.&gt;  Perl&#39;s C&lt;mro::get_linear_isa&gt; does
-</span><span class=""> 1707: not include C&lt;UNIVERSAL&gt; in its output unless C&lt;UNIVERSAL&gt; appears explicitly in
-</span><span class=""> 1708: C&lt;@ISA&gt;.  This module appends C&lt;UNIVERSAL&gt; manually so that C&lt;universal.yml&gt; is
-</span><span class=""> 1709: always discovered.  If a future Perl version changes this behaviour the guard
-</span><span class=""> 1710: (C&lt;grep { $_ eq &#39;UNIVERSAL&#39; }&gt;) remains correct.
-</span><span class=""> 1711: 
-</span><span class=""> 1712: =back
-</span><span class=""> 1713: 
-</span><span class=""> 1714: =head1 Formal Specification
-</span><span class=""> 1715: 
-</span><span class=""> 1716: =head2 configure
-</span><span class=""> 1717: 
-</span><span class=""> 1718:     configure: Class x Params -&gt; ConfigHash
+</span><span class=""> 1691: =over 4
+</span><span class=""> 1692: 
+</span><span class=""> 1693: =item * B&lt;Global singleton state.&gt; C&lt;%_object_registry&gt;, C&lt;%_config_watchers&gt;, and
+</span><span class=""> 1694: C&lt;%_config_file_stats&gt; are package globals.  Two independent subsystems in the same
+</span><span class=""> 1695: process share one hot-reload registry and one SIGUSR1 handler.  There is no
+</span><span class=""> 1696: instance-level isolation.  A proper fix would wrap state in an object and allow
+</span><span class=""> 1697: multiple independent C&lt;Object::Configure&gt; instances, but that would break the
+</span><span class=""> 1698: existing constructor-call API (C&lt;configure($class, \%params)&gt;).
+</span><span class=""> 1699: 
+</span><span class=""> 1700: =item * B&lt;Hot reload is Unix-only.&gt; SIGUSR1 does not exist on Windows.
+</span><span class=""> 1701: All signal-related paths are guarded with C&lt;$^O ne &#39;MSWin32&#39;&gt;, so the module
+</span><span class=""> 1702: loads on Windows but silently skips hot-reload registration.
+</span><span class=""> 1703: 
+</span><span class=""> 1704: =item * B&lt;configure() is a God function.&gt; At ~120 lines it handles arg validation,
+</span><span class=""> 1705: config-file discovery, MRO walking, multi-file merging, env-var merging, logger
+</span><span class=""> 1706: creation, and hot-reload bookkeeping.  Future versions should decompose this into
+</span><span class=""> 1707: smaller, independently testable units.
+</span><span class=""> 1708: 
+</span><span class=""> 1709: =item * B&lt;_deep_merge reimplements CPAN.&gt; L&lt;Hash::Merge::Simple&gt; or L&lt;Hash::Merge&gt;
+</span><span class=""> 1710: provide tested, feature-complete deep merge.  The internal C&lt;_deep_merge&gt; is 15
+</span><span class=""> 1711: lines and correct for the current use, but does not handle arrayrefs (they are
+</span><span class=""> 1712: replaced wholesale, not merged).  If array-merge semantics are ever needed, switch
+</span><span class=""> 1713: to a CPAN module.
+</span><span class=""> 1714: 
+</span><span class=""> 1715: =item * B&lt;No encapsulation enforcement.&gt; Private helpers (C&lt;_build_logger&gt;,
+</span><span class=""> 1716: C&lt;_get_inheritance_chain&gt;, etc.) are accessible to any caller.  L&lt;Sub::Private&gt;
+</span><span class=""> 1717: (enforce mode) would make accidental external use a compile-time error.  It is not
+</span><span class=""> 1718: added here to avoid a smoker dependency on a less-common module.
 </span><span class=""> 1719: 
-</span><span class=""> 1720:     Given:
-</span><span class=""> 1721:     - C: set of all class names
-</span><span class=""> 1722:     - P: set of all parameter hashes
-</span><span class=""> 1723:     - F: set of all file paths
-</span><span class=""> 1724:     - H: set of all configuration hashes
-</span><span class=""> 1725: 
-</span><span class=""> 1726:     State:
-</span><span class=""> 1727:     - ConfigFiles: F -&gt; H (maps file paths to configuration content)
-</span><span class=""> 1728:     - EnvVars: String -&gt; String (environment variables)
-</span><span class=""> 1729:     - InheritanceChain: C -&gt; seq C (ordered sequence of ancestor classes)
-</span><span class=""> 1730: 
-</span><span class=""> 1731:     Pre-condition:
-</span><span class=""> 1732:     forall class in C, params in P:
-</span><span class=""> 1733:         class != empty
-</span><span class=""> 1734:         (params.config_file != empty =&gt;
-</span><span class=""> 1735:             (exists dir in params.config_dirs: readable(dir/params.config_file))
-</span><span class=""> 1736:             OR readable(params.config_file))
+</span><span class=""> 1720: =item * B&lt;configure() signature is positional, instantiate() is named.&gt;  The two
+</span><span class=""> 1721: public constructors have inconsistent calling conventions.  Normalising them to named
+</span><span class=""> 1722: args would require a deprecation cycle.
+</span><span class=""> 1723: 
+</span><span class=""> 1724: =item * B&lt;mro::get_linear_isa and UNIVERSAL.&gt;  Perl&#39;s C&lt;mro::get_linear_isa&gt; does
+</span><span class=""> 1725: not include C&lt;UNIVERSAL&gt; in its output unless C&lt;UNIVERSAL&gt; appears explicitly in
+</span><span class=""> 1726: C&lt;@ISA&gt;.  This module appends C&lt;UNIVERSAL&gt; manually so that C&lt;universal.yml&gt; is
+</span><span class=""> 1727: always discovered.  If a future Perl version changes this behaviour the guard
+</span><span class=""> 1728: (C&lt;grep { $_ eq &#39;UNIVERSAL&#39; }&gt;) remains correct.
+</span><span class=""> 1729: 
+</span><span class=""> 1730: =back
+</span><span class=""> 1731: 
+</span><span class=""> 1732: =head1 Formal Specification
+</span><span class=""> 1733: 
+</span><span class=""> 1734: =head2 configure
+</span><span class=""> 1735: 
+</span><span class=""> 1736:     configure: Class x Params -&gt; ConfigHash
 </span><span class=""> 1737: 
-</span><span class=""> 1738:     Post-condition:
-</span><span class=""> 1739:     forall result in H:
-</span><span class=""> 1740:         result = params
-</span><span class=""> 1741:                  (+) (merge f in InheritanceConfigFiles(class): ConfigFiles(f))
-</span><span class=""> 1742:                  (+) (merge v in RelevantEnvVars(class): v)
-</span><span class=""> 1743:         result.logger in Log::Abstraction
-</span><span class=""> 1744:         (forall k in dom params:
-</span><span class=""> 1745:             (params(k) in CodeRef OR blessed(params(k))) =&gt; result(k) = params(k))
-</span><span class=""> 1746: 
-</span><span class=""> 1747:     where (+) denotes hash merge with right-precedence
+</span><span class=""> 1738:     Given:
+</span><span class=""> 1739:     - C: set of all class names
+</span><span class=""> 1740:     - P: set of all parameter hashes
+</span><span class=""> 1741:     - F: set of all file paths
+</span><span class=""> 1742:     - H: set of all configuration hashes
+</span><span class=""> 1743: 
+</span><span class=""> 1744:     State:
+</span><span class=""> 1745:     - ConfigFiles: F -&gt; H (maps file paths to configuration content)
+</span><span class=""> 1746:     - EnvVars: String -&gt; String (environment variables)
+</span><span class=""> 1747:     - InheritanceChain: C -&gt; seq C (ordered sequence of ancestor classes)
 </span><span class=""> 1748: 
-</span><span class=""> 1749: =head2 instantiate
-</span><span class=""> 1750: 
-</span><span class=""> 1751:     instantiate: Params -&gt; Object
-</span><span class=""> 1752: 
-</span><span class=""> 1753:     Given:
-</span><span class=""> 1754:     - P: set of all parameter hashes
-</span><span class=""> 1755:     - C: set of all class names
-</span><span class=""> 1756:     - O: set of all objects
-</span><span class=""> 1757: 
-</span><span class=""> 1758:     Pre-condition:
-</span><span class=""> 1759:     forall params in P:
-</span><span class=""> 1760:         params.class in C
-</span><span class=""> 1761:         params.class.can(&#39;new&#39;)
-</span><span class=""> 1762: 
-</span><span class=""> 1763:     Post-condition:
-</span><span class=""> 1764:     forall result in O:
-</span><span class=""> 1765:         exists config in H:
-</span><span class=""> 1766:             config = configure(params.class, params)
-</span><span class=""> 1767:             result = params.class.new(config)
-</span><span class=""> 1768:             blessed(result) = params.class
-</span><span class=""> 1769:             (config._config_file != empty =&gt;
-</span><span class=""> 1770:                 result in _object_registry(params.class))
-</span><span class=""> 1771: 
-</span><span class=""> 1772: =head2 enable_hot_reload
-</span><span class=""> 1773: 
-</span><span class=""> 1774:     enable_hot_reload: Interval x Callback -&gt; PID
+</span><span class=""> 1749:     Pre-condition:
+</span><span class=""> 1750:     forall class in C, params in P:
+</span><span class=""> 1751:         class != empty
+</span><span class=""> 1752:         (params.config_file != empty =&gt;
+</span><span class=""> 1753:             (exists dir in params.config_dirs: readable(dir/params.config_file))
+</span><span class=""> 1754:             OR readable(params.config_file))
+</span><span class=""> 1755: 
+</span><span class=""> 1756:     Post-condition:
+</span><span class=""> 1757:     forall result in H:
+</span><span class=""> 1758:         result = params
+</span><span class=""> 1759:                  (+) (merge f in InheritanceConfigFiles(class): ConfigFiles(f))
+</span><span class=""> 1760:                  (+) (merge v in RelevantEnvVars(class): v)
+</span><span class=""> 1761:         result.logger in Log::Abstraction
+</span><span class=""> 1762:         (forall k in dom params:
+</span><span class=""> 1763:             (params(k) in CodeRef OR blessed(params(k))) =&gt; result(k) = params(k))
+</span><span class=""> 1764: 
+</span><span class=""> 1765:     where (+) denotes hash merge with right-precedence
+</span><span class=""> 1766: 
+</span><span class=""> 1767: =head2 instantiate
+</span><span class=""> 1768: 
+</span><span class=""> 1769:     instantiate: Params -&gt; Object
+</span><span class=""> 1770: 
+</span><span class=""> 1771:     Given:
+</span><span class=""> 1772:     - P: set of all parameter hashes
+</span><span class=""> 1773:     - C: set of all class names
+</span><span class=""> 1774:     - O: set of all objects
 </span><span class=""> 1775: 
-</span><span class=""> 1776:     Given:
-</span><span class=""> 1777:     - I: set of positive integers (intervals in seconds)
-</span><span class=""> 1778:     - CB: set of code references
-</span><span class=""> 1779:     - PID: set of process identifiers
+</span><span class=""> 1776:     Pre-condition:
+</span><span class=""> 1777:     forall params in P:
+</span><span class=""> 1778:         params.class in C
+</span><span class=""> 1779:         params.class.can(&#39;new&#39;)
 </span><span class=""> 1780: 
-</span><span class=""> 1781:     State:
-</span><span class=""> 1782:     - _config_watchers: {pid: PID, callback: CB}
-</span><span class=""> 1783:     - _config_file_stats: F -&gt; Stat
-</span><span class=""> 1784: 
-</span><span class=""> 1785:     Pre-condition:
-</span><span class=""> 1786:     forall interval in I, callback in CB union {empty}:
-</span><span class=""> 1787:         interval &gt;= 1
-</span><span class=""> 1788:         _config_watchers = empty
-</span><span class=""> 1789:         OS != &#39;MSWin32&#39;
-</span><span class=""> 1790: 
-</span><span class=""> 1791:     Post-condition:
-</span><span class=""> 1792:     forall result in PID:
-</span><span class=""> 1793:         result &gt; 0
-</span><span class=""> 1794:         _config_watchers.pid = result
-</span><span class=""> 1795:         _config_watchers.callback = callback
-</span><span class=""> 1796:         (forall t in Time:
-</span><span class=""> 1797:             (t mod interval = 0) =&gt;
-</span><span class=""> 1798:                 (exists f in dom _config_file_stats:
-</span><span class=""> 1799:                     mtime(f) &gt; _config_file_stats(f).mtime =&gt;
-</span><span class=""> 1800:                         send_signal(SIGUSR1, parent_process)))
-</span><span class=""> 1801: 
-</span><span class=""> 1802: =head2 disable_hot_reload
-</span><span class=""> 1803: 
-</span><span class=""> 1804:     disable_hot_reload: () -&gt; ()
-</span><span class=""> 1805: 
-</span><span class=""> 1806:     State:
-</span><span class=""> 1807:     - _config_watchers: {pid: PID, callback: CB}
+</span><span class=""> 1781:     Post-condition:
+</span><span class=""> 1782:     forall result in O:
+</span><span class=""> 1783:         exists config in H:
+</span><span class=""> 1784:             config = configure(params.class, params)
+</span><span class=""> 1785:             result = params.class.new(config)
+</span><span class=""> 1786:             blessed(result) = params.class
+</span><span class=""> 1787:             (config._config_file != empty =&gt;
+</span><span class=""> 1788:                 result in _object_registry(params.class))
+</span><span class=""> 1789: 
+</span><span class=""> 1790: =head2 enable_hot_reload
+</span><span class=""> 1791: 
+</span><span class=""> 1792:     enable_hot_reload: Interval x Callback -&gt; PID
+</span><span class=""> 1793: 
+</span><span class=""> 1794:     Given:
+</span><span class=""> 1795:     - I: set of positive integers (intervals in seconds)
+</span><span class=""> 1796:     - CB: set of code references
+</span><span class=""> 1797:     - PID: set of process identifiers
+</span><span class=""> 1798: 
+</span><span class=""> 1799:     State:
+</span><span class=""> 1800:     - _config_watchers: {pid: PID, callback: CB}
+</span><span class=""> 1801:     - _config_file_stats: F -&gt; Stat
+</span><span class=""> 1802: 
+</span><span class=""> 1803:     Pre-condition:
+</span><span class=""> 1804:     forall interval in I, callback in CB union {empty}:
+</span><span class=""> 1805:         interval &gt;= 1
+</span><span class=""> 1806:         _config_watchers = empty
+</span><span class=""> 1807:         OS != &#39;MSWin32&#39;
 </span><span class=""> 1808: 
-</span><span class=""> 1809:     Pre-condition:
-</span><span class=""> 1810:     true
-</span><span class=""> 1811: 
-</span><span class=""> 1812:     Post-condition:
-</span><span class=""> 1813:     _config_watchers = empty
-</span><span class=""> 1814:     (forall p in PID:
-</span><span class=""> 1815:         p = _config_watchers.pid@pre =&gt;
-</span><span class=""> 1816:             NOT alive(p))
-</span><span class=""> 1817: 
-</span><span class=""> 1818: =head2 reload_config
+</span><span class=""> 1809:     Post-condition:
+</span><span class=""> 1810:     forall result in PID:
+</span><span class=""> 1811:         result &gt; 0
+</span><span class=""> 1812:         _config_watchers.pid = result
+</span><span class=""> 1813:         _config_watchers.callback = callback
+</span><span class=""> 1814:         (forall t in Time:
+</span><span class=""> 1815:             (t mod interval = 0) =&gt;
+</span><span class=""> 1816:                 (exists f in dom _config_file_stats:
+</span><span class=""> 1817:                     mtime(f) &gt; _config_file_stats(f).mtime =&gt;
+</span><span class=""> 1818:                         send_signal(SIGUSR1, parent_process)))
 </span><span class=""> 1819: 
-</span><span class=""> 1820:     reload_config: () -&gt; N
+</span><span class=""> 1820: =head2 disable_hot_reload
 </span><span class=""> 1821: 
-</span><span class=""> 1822:     State:
-</span><span class=""> 1823:     - _object_registry: C -&gt; seq ObjectRef
-</span><span class=""> 1824:     - ConfigFiles: F -&gt; H
-</span><span class=""> 1825: 
-</span><span class=""> 1826:     Pre-condition:
-</span><span class=""> 1827:     true
-</span><span class=""> 1828: 
-</span><span class=""> 1829:     Post-condition:
-</span><span class=""> 1830:     forall result in N:
-</span><span class=""> 1831:         result = |{obj in flatten(ran _object_registry) |
-</span><span class=""> 1832:                    obj != empty
-</span><span class=""> 1833:                    obj._config_file in dom ConfigFiles}|
-</span><span class=""> 1834:         (forall obj in flatten(ran _object_registry):
-</span><span class=""> 1835:             obj != empty AND obj._config_file in dom ConfigFiles =&gt;
-</span><span class=""> 1836:                 (forall k in dom ConfigFiles(obj._config_file):
-</span><span class=""> 1837:                     k NOT in PrivateKeys =&gt;
-</span><span class=""> 1838:                         obj(k)@post = ConfigFiles(obj._config_file)(k)))
+</span><span class=""> 1822:     disable_hot_reload: () -&gt; ()
+</span><span class=""> 1823: 
+</span><span class=""> 1824:     State:
+</span><span class=""> 1825:     - _config_watchers: {pid: PID, callback: CB}
+</span><span class=""> 1826: 
+</span><span class=""> 1827:     Pre-condition:
+</span><span class=""> 1828:     true
+</span><span class=""> 1829: 
+</span><span class=""> 1830:     Post-condition:
+</span><span class=""> 1831:     _config_watchers = empty
+</span><span class=""> 1832:     (forall p in PID:
+</span><span class=""> 1833:         p = _config_watchers.pid@pre =&gt;
+</span><span class=""> 1834:             NOT alive(p))
+</span><span class=""> 1835: 
+</span><span class=""> 1836: =head2 reload_config
+</span><span class=""> 1837: 
+</span><span class=""> 1838:     reload_config: () -&gt; N
 </span><span class=""> 1839: 
-</span><span class=""> 1840:     where PrivateKeys = {k | k starts with &#39;_&#39;}
-</span><span class=""> 1841: 
-</span><span class=""> 1842: =head2 register_object
+</span><span class=""> 1840:     State:
+</span><span class=""> 1841:     - _object_registry: C -&gt; seq ObjectRef
+</span><span class=""> 1842:     - ConfigFiles: F -&gt; H
 </span><span class=""> 1843: 
-</span><span class=""> 1844:     register_object: C x O -&gt; ()
-</span><span class=""> 1845: 
-</span><span class=""> 1846:     Given:
-</span><span class=""> 1847:     - C: set of class names
-</span><span class=""> 1848:     - O: set of blessed objects
-</span><span class=""> 1849:     - OR: C -&gt; seq WeakRef(O) (object registry)
-</span><span class=""> 1850: 
-</span><span class=""> 1851:     State:
-</span><span class=""> 1852:     - _object_registry: OR
-</span><span class=""> 1853:     - _original_usr1_handler: SignalHandler union {empty}
-</span><span class=""> 1854:     - $SIG{USR1}: SignalHandler
-</span><span class=""> 1855: 
-</span><span class=""> 1856:     Pre-condition:
-</span><span class=""> 1857:     forall class in C, obj in O:
-</span><span class=""> 1858:         class != empty
-</span><span class=""> 1859:         obj != empty
-</span><span class=""> 1860:         blessed(obj) != empty
+</span><span class=""> 1844:     Pre-condition:
+</span><span class=""> 1845:     true
+</span><span class=""> 1846: 
+</span><span class=""> 1847:     Post-condition:
+</span><span class=""> 1848:     forall result in N:
+</span><span class=""> 1849:         result = |{obj in flatten(ran _object_registry) |
+</span><span class=""> 1850:                    obj != empty
+</span><span class=""> 1851:                    obj._config_file in dom ConfigFiles}|
+</span><span class=""> 1852:         (forall obj in flatten(ran _object_registry):
+</span><span class=""> 1853:             obj != empty AND obj._config_file in dom ConfigFiles =&gt;
+</span><span class=""> 1854:                 (forall k in dom ConfigFiles(obj._config_file):
+</span><span class=""> 1855:                     k NOT in PrivateKeys =&gt;
+</span><span class=""> 1856:                         obj(k)@post = ConfigFiles(obj._config_file)(k)))
+</span><span class=""> 1857: 
+</span><span class=""> 1858:     where PrivateKeys = {k | k starts with &#39;_&#39;}
+</span><span class=""> 1859: 
+</span><span class=""> 1860: =head2 register_object
 </span><span class=""> 1861: 
-</span><span class=""> 1862:     Post-condition:
-</span><span class=""> 1863:     forall class in C, obj in O:
-</span><span class=""> 1864:         exists ref in _object_registry(class):
-</span><span class=""> 1865:             weak(ref) = obj
-</span><span class=""> 1866:         (_original_usr1_handler = empty@pre =&gt;
-</span><span class=""> 1867:             (_original_usr1_handler@post = $SIG{USR1}@pre
-</span><span class=""> 1868:              $SIG{USR1}@post = reload_config_handler))
-</span><span class=""> 1869: 
-</span><span class=""> 1870: =head2 restore_signal_handlers
-</span><span class=""> 1871: 
-</span><span class=""> 1872:     restore_signal_handlers: () -&gt; ()
+</span><span class=""> 1862:     register_object: C x O -&gt; ()
+</span><span class=""> 1863: 
+</span><span class=""> 1864:     Given:
+</span><span class=""> 1865:     - C: set of class names
+</span><span class=""> 1866:     - O: set of blessed objects
+</span><span class=""> 1867:     - OR: C -&gt; seq WeakRef(O) (object registry)
+</span><span class=""> 1868: 
+</span><span class=""> 1869:     State:
+</span><span class=""> 1870:     - _object_registry: OR
+</span><span class=""> 1871:     - _original_usr1_handler: SignalHandler union {empty}
+</span><span class=""> 1872:     - $SIG{USR1}: SignalHandler
 </span><span class=""> 1873: 
-</span><span class=""> 1874:     State:
-</span><span class=""> 1875:     - _original_usr1_handler: SignalHandler union {empty}
-</span><span class=""> 1876:     - $SIG{USR1}: SignalHandler
-</span><span class=""> 1877: 
-</span><span class=""> 1878:     Pre-condition:
-</span><span class=""> 1879:     true
-</span><span class=""> 1880: 
-</span><span class=""> 1881:     Post-condition:
-</span><span class=""> 1882:     $SIG{USR1}@post = _original_usr1_handler@pre
-</span><span class=""> 1883:     _original_usr1_handler@post = empty
-</span><span class=""> 1884: 
-</span><span class=""> 1885: =head2 get_sigal_handler_info
-</span><span class=""> 1886: 
-</span><span class=""> 1887:     get_signal_handler_info: () -&gt; InfoHash
-</span><span class=""> 1888: 
-</span><span class=""> 1889:     Given:
-</span><span class=""> 1890:     - IH: set of all info hashes
+</span><span class=""> 1874:     Pre-condition:
+</span><span class=""> 1875:     forall class in C, obj in O:
+</span><span class=""> 1876:         class != empty
+</span><span class=""> 1877:         obj != empty
+</span><span class=""> 1878:         blessed(obj) != empty
+</span><span class=""> 1879: 
+</span><span class=""> 1880:     Post-condition:
+</span><span class=""> 1881:     forall class in C, obj in O:
+</span><span class=""> 1882:         exists ref in _object_registry(class):
+</span><span class=""> 1883:             weak(ref) = obj
+</span><span class=""> 1884:         (_original_usr1_handler = empty@pre =&gt;
+</span><span class=""> 1885:             (_original_usr1_handler@post = $SIG{USR1}@pre
+</span><span class=""> 1886:              $SIG{USR1}@post = reload_config_handler))
+</span><span class=""> 1887: 
+</span><span class=""> 1888: =head2 restore_signal_handlers
+</span><span class=""> 1889: 
+</span><span class=""> 1890:     restore_signal_handlers: () -&gt; ()
 </span><span class=""> 1891: 
 </span><span class=""> 1892:     State:
 </span><span class=""> 1893:     - _original_usr1_handler: SignalHandler union {empty}
-</span><span class=""> 1894:     - $SIG{USR1}: SignalHandler union {empty}
-</span><span class=""> 1895:     - _config_watchers: {pid: PID, callback: CB}
-</span><span class=""> 1896: 
-</span><span class=""> 1897:     Pre-condition:
-</span><span class=""> 1898:     true
-</span><span class=""> 1899: 
-</span><span class=""> 1900:     Post-condition:
-</span><span class=""> 1901:     forall result in IH:
-</span><span class=""> 1902:         result.original_usr1 = _original_usr1_handler
-</span><span class=""> 1903:         result.current_usr1 = $SIG{USR1}
-</span><span class=""> 1904:         result.hot_reload_active = (_original_usr1_handler != empty)
-</span><span class=""> 1905:         result.watcher_pid = _config_watchers.pid
+</span><span class=""> 1894:     - $SIG{USR1}: SignalHandler
+</span><span class=""> 1895: 
+</span><span class=""> 1896:     Pre-condition:
+</span><span class=""> 1897:     true
+</span><span class=""> 1898: 
+</span><span class=""> 1899:     Post-condition:
+</span><span class=""> 1900:     $SIG{USR1}@post = _original_usr1_handler@pre
+</span><span class=""> 1901:     _original_usr1_handler@post = empty
+</span><span class=""> 1902: 
+</span><span class=""> 1903: =head2 get_sigal_handler_info
+</span><span class=""> 1904: 
+</span><span class=""> 1905:     get_signal_handler_info: () -&gt; InfoHash
 </span><span class=""> 1906: 
-</span><span class=""> 1907: =head1 SUPPORT
-</span><span class=""> 1908: 
-</span><span class=""> 1909: This module is provided as-is without any warranty.
-</span><span class=""> 1910: 
-</span><span class=""> 1911: Please report any bugs or feature requests to C&lt;bug-object-configure at rt.cpan.org&gt;,
-</span><span class=""> 1912: or through the web interface at
-</span><span class=""> 1913: L&lt;http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Object-Configure&gt;.
-</span><span class=""> 1914: I will be notified, and then you&#39;ll
-</span><span class=""> 1915: automatically be notified of progress on your bug as I make changes.
-</span><span class=""> 1916: 
-</span><span class=""> 1917: You can find documentation for this module with the perldoc command.
-</span><span class=""> 1918: 
-</span><span class=""> 1919:     perldoc Object::Configure
-</span><span class=""> 1920: 
-</span><span class=""> 1921: =head1 LICENCE AND COPYRIGHT
-</span><span class=""> 1922: 
-</span><span class=""> 1923: Copyright 2025-2026 Nigel Horne.
+</span><span class=""> 1907:     Given:
+</span><span class=""> 1908:     - IH: set of all info hashes
+</span><span class=""> 1909: 
+</span><span class=""> 1910:     State:
+</span><span class=""> 1911:     - _original_usr1_handler: SignalHandler union {empty}
+</span><span class=""> 1912:     - $SIG{USR1}: SignalHandler union {empty}
+</span><span class=""> 1913:     - _config_watchers: {pid: PID, callback: CB}
+</span><span class=""> 1914: 
+</span><span class=""> 1915:     Pre-condition:
+</span><span class=""> 1916:     true
+</span><span class=""> 1917: 
+</span><span class=""> 1918:     Post-condition:
+</span><span class=""> 1919:     forall result in IH:
+</span><span class=""> 1920:         result.original_usr1 = _original_usr1_handler
+</span><span class=""> 1921:         result.current_usr1 = $SIG{USR1}
+</span><span class=""> 1922:         result.hot_reload_active = (_original_usr1_handler != empty)
+</span><span class=""> 1923:         result.watcher_pid = _config_watchers.pid
 </span><span class=""> 1924: 
-</span><span class=""> 1925: Usage is subject to GPL2 licence terms.
-</span><span class=""> 1926: If you use it,
-</span><span class=""> 1927: please let me know.
+</span><span class=""> 1925: =head1 SUPPORT
+</span><span class=""> 1926: 
+</span><span class=""> 1927: This module is provided as-is without any warranty.
 </span><span class=""> 1928: 
-</span><span class=""> 1929: =cut
-</span><span class=""> 1930: 
-</span><span class=""> 1931: 1;
+</span><span class=""> 1929: Please report any bugs or feature requests to C&lt;bug-object-configure at rt.cpan.org&gt;,
+</span><span class=""> 1930: or through the web interface at
+</span><span class=""> 1931: L&lt;http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Object-Configure&gt;.
+</span><span class=""> 1932: I will be notified, and then you&#39;ll
+</span><span class=""> 1933: automatically be notified of progress on your bug as I make changes.
+</span><span class=""> 1934: 
+</span><span class=""> 1935: You can find documentation for this module with the perldoc command.
+</span><span class=""> 1936: 
+</span><span class=""> 1937:     perldoc Object::Configure
+</span><span class=""> 1938: 
+</span><span class=""> 1939: =head1 LICENCE AND COPYRIGHT
+</span><span class=""> 1940: 
+</span><span class=""> 1941: Copyright 2025-2026 Nigel Horne.
+</span><span class=""> 1942: 
+</span><span class=""> 1943: Usage is subject to GPL2 licence terms.
+</span><span class=""> 1944: If you use it,
+</span><span class=""> 1945: please let me know.
+</span><span class=""> 1946: 
+</span><span class=""> 1947: =cut
+</span><span class=""> 1948: 
+</span><span class=""> 1949: 1;
 </span></pre>
 
 <script>
