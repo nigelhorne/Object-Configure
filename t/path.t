@@ -515,116 +515,126 @@ subtest 'PATH register_object/PA: undef args → croak' => sub {
 
 subtest 'PATH register_object/P1: first call installs SIGUSR1 handler' => sub {
 	plan tests => 2;
-	SKIP: { skip 'Signal tests not applicable on Windows', 2 if $^O eq 'MSWin32'; }
+	SKIP: {
+		skip 'Signal tests not applicable on Windows', 2 if $^O eq 'MSWin32';
 
-	# Reset handler state so this call is the "first" install
-	Object::Configure::restore_signal_handlers();
-	$Object::Configure::_original_usr1_handler = undef;
-	delete $Object::Configure::_object_registry{'Reg::First'};
+		# Reset handler state so this call is the "first" install
+		Object::Configure::restore_signal_handlers();
+		$Object::Configure::_original_usr1_handler = undef;
+		delete $Object::Configure::_object_registry{'Reg::First'};
 
-	my $obj = bless {}, 'Reg::First';
-	Object::Configure::register_object('Reg::First', $obj);
+		my $obj = bless {}, 'Reg::First';
+		Object::Configure::register_object('Reg::First', $obj);
 
-	ok(defined $Object::Configure::_original_usr1_handler,
-		'P1: $_original_usr1_handler set on first call');
-	ok(ref($SIG{USR1}) eq 'CODE',
-		'P1: $SIG{USR1} is now a coderef installed by register_object');
+		ok(defined $Object::Configure::_original_usr1_handler,
+			'P1: $_original_usr1_handler set on first call');
+		ok(ref($SIG{USR1}) eq 'CODE',
+			'P1: $SIG{USR1} is now a coderef installed by register_object');
 
-	# Cleanup
-	delete $Object::Configure::_object_registry{'Reg::First'};
-	Object::Configure::restore_signal_handlers();
+		# Cleanup
+		delete $Object::Configure::_object_registry{'Reg::First'};
+		Object::Configure::restore_signal_handlers();
+	}
 };
 
 subtest 'PATH register_object/P2: subsequent call skips handler install' => sub {
 	plan tests => 2;
-	SKIP: { skip 'Signal tests not applicable on Windows', 2 if $^O eq 'MSWin32'; }
+	SKIP: {
+		skip 'Signal tests not applicable on Windows', 2 if $^O eq 'MSWin32';
 
-	Object::Configure::restore_signal_handlers();
-	$Object::Configure::_original_usr1_handler = undef;
+		Object::Configure::restore_signal_handlers();
+		$Object::Configure::_original_usr1_handler = undef;
 
-	my $obj1 = bless {}, 'Reg::Sub';
-	Object::Configure::register_object('Reg::Sub', $obj1);
-	my $h1 = $SIG{USR1};   # capture handler after first install
+		my $obj1 = bless {}, 'Reg::Sub';
+		Object::Configure::register_object('Reg::Sub', $obj1);
+		my $h1 = $SIG{USR1};   # capture handler after first install
 
-	my $obj2 = bless {}, 'Reg::Sub';
-	Object::Configure::register_object('Reg::Sub', $obj2);
-	my $h2 = $SIG{USR1};   # handler after second call
+		my $obj2 = bless {}, 'Reg::Sub';
+		Object::Configure::register_object('Reg::Sub', $obj2);
+		my $h2 = $SIG{USR1};   # handler after second call
 
-	is($h1, $h2, 'P2: handler not reinstalled on subsequent call (same ref)');
-	my @reg = @{ $Object::Configure::_object_registry{'Reg::Sub'} };
-	is(scalar(@reg), 2, 'P2: both objects pushed to registry');
+		is($h1, $h2, 'P2: handler not reinstalled on subsequent call (same ref)');
+		my @reg = @{ $Object::Configure::_object_registry{'Reg::Sub'} };
+		is(scalar(@reg), 2, 'P2: both objects pushed to registry');
 
-	delete $Object::Configure::_object_registry{'Reg::Sub'};
-	Object::Configure::restore_signal_handlers();
+		delete $Object::Configure::_object_registry{'Reg::Sub'};
+		Object::Configure::restore_signal_handlers();
+	}
 };
 
 subtest 'PATH register_object/P3: signal handler chains to prior CODE handler' => sub {
 	plan tests => 2;
-	SKIP: { skip 'Signal tests not applicable on Windows', 2 if $^O eq 'MSWin32'; }
+	SKIP: {
+		skip 'Signal tests not applicable on Windows', 2 if $^O eq 'MSWin32';
 
-	Object::Configure::restore_signal_handlers();
-	$Object::Configure::_original_usr1_handler = undef;
+		Object::Configure::restore_signal_handlers();
+		$Object::Configure::_original_usr1_handler = undef;
 
-	# Install a prior CODE handler before register_object
-	my $prior_fired = 0;
-	$SIG{USR1} = sub { $prior_fired++ };
+		# Install a prior CODE handler before register_object
+		my $prior_fired = 0;
+		$SIG{USR1} = sub { $prior_fired++ };
 
-	my $obj = bless { _config_files => [] }, 'Reg::Chain';
-	Object::Configure::register_object('Reg::Chain', $obj);
+		my $obj = bless { _config_files => [] }, 'Reg::Chain';
+		Object::Configure::register_object('Reg::Chain', $obj);
 
-	# Fire the installed handler to verify chaining
-	$SIG{USR1}->();
+		# Fire the installed handler to verify chaining
+		$SIG{USR1}->();
 
-	ok($prior_fired, 'P3: prior CODE handler chained and called by USR1 handler');
-	ok(ref($Object::Configure::_original_usr1_handler) eq 'CODE',
-		'P3: saved original handler is the CODE ref we installed');
+		ok($prior_fired, 'P3: prior CODE handler chained and called by USR1 handler');
+		ok(ref($Object::Configure::_original_usr1_handler) eq 'CODE',
+			'P3: saved original handler is the CODE ref we installed');
 
-	delete $Object::Configure::_object_registry{'Reg::Chain'};
-	Object::Configure::restore_signal_handlers();
+		delete $Object::Configure::_object_registry{'Reg::Chain'};
+		Object::Configure::restore_signal_handlers();
+	}
 };
 
 subtest 'PATH register_object/P4: IGNORE handler — no chain call, no carp' => sub {
 	plan tests => 1;
-	SKIP: { skip 'Signal tests not applicable on Windows', 1 if $^O eq 'MSWin32'; }
+	SKIP: {
+		skip 'Signal tests not applicable on Windows', 1 if $^O eq 'MSWin32';
 
-	Object::Configure::restore_signal_handlers();
-	$Object::Configure::_original_usr1_handler = undef;
+		Object::Configure::restore_signal_handlers();
+		$Object::Configure::_original_usr1_handler = undef;
 
-	$SIG{USR1} = 'IGNORE';
-	my $obj = bless { _config_files => [] }, 'Reg::Ignore';
-	Object::Configure::register_object('Reg::Ignore', $obj);
+		$SIG{USR1} = 'IGNORE';
+		my $obj = bless { _config_files => [] }, 'Reg::Ignore';
+		Object::Configure::register_object('Reg::Ignore', $obj);
 
-	my $warned = '';
-	local $SIG{__WARN__} = sub { $warned .= $_[0] };
+		my $warned = '';
+		local $SIG{__WARN__} = sub { $warned .= $_[0] };
 
-	lives_ok { $SIG{USR1}->() }
-		'P4: IGNORE prior handler → no croak, no carp, handler body runs cleanly';
+		lives_ok { $SIG{USR1}->() }
+			'P4: IGNORE prior handler → no croak, no carp, handler body runs cleanly';
 
-	delete $Object::Configure::_object_registry{'Reg::Ignore'};
-	Object::Configure::restore_signal_handlers();
+		delete $Object::Configure::_object_registry{'Reg::Ignore'};
+		Object::Configure::restore_signal_handlers();
+	}
 };
 
 subtest 'PATH register_object/P5: unknown string handler → carp in signal handler' => sub {
 	plan tests => 2;
-	SKIP: { skip 'Signal tests not applicable on Windows', 2 if $^O eq 'MSWin32'; }
+	SKIP: {
+		skip 'Signal tests not applicable on Windows', 2 if $^O eq 'MSWin32';
 
-	Object::Configure::restore_signal_handlers();
-	$Object::Configure::_original_usr1_handler = undef;
+		Object::Configure::restore_signal_handlers();
+		$Object::Configure::_original_usr1_handler = undef;
 
-	$SIG{USR1} = 'PIPE';    # neither CODE, DEFAULT, nor IGNORE
-	my $obj = bless { _config_files => [] }, 'Reg::Unknown';
-	Object::Configure::register_object('Reg::Unknown', $obj);
+		$SIG{USR1} = 'PIPE';    # neither CODE, DEFAULT, nor IGNORE
+		my $obj = bless { _config_files => [] }, 'Reg::Unknown';
+		Object::Configure::register_object('Reg::Unknown', $obj);
 
-	my $warned = '';
-	local $SIG{__WARN__} = sub { $warned .= $_[0] };
+		my $warned = '';
+		local $SIG{__WARN__} = sub { $warned .= $_[0] };
 
-	$SIG{USR1}->();
+		$SIG{USR1}->();
 
-	like($warned, qr/Cannot chain/, 'P5: unknown handler → "Cannot chain" carp emitted');
-	like($warned, qr/PIPE/, 'P5: unknown handler name included in carp message');
+		like($warned, qr/Cannot chain/, 'P5: unknown handler → "Cannot chain" carp emitted');
+		like($warned, qr/PIPE/, 'P5: unknown handler name included in carp message');
 
-	delete $Object::Configure::_object_registry{'Reg::Unknown'};
-	Object::Configure::restore_signal_handlers();
+		delete $Object::Configure::_object_registry{'Reg::Unknown'};
+		Object::Configure::restore_signal_handlers();
+	}
 };
 
 # =============================================================================
@@ -633,13 +643,15 @@ subtest 'PATH register_object/P5: unknown string handler → carp in signal hand
 
 subtest 'PATH restore_signal_handlers/P1: handler defined → restored' => sub {
 	plan tests => 2;
-	SKIP: { skip 'Signal tests not applicable on Windows', 2 if $^O eq 'MSWin32'; }
+	SKIP: {
+		skip 'Signal tests not applicable on Windows', 2 if $^O eq 'MSWin32';
 
-	$Object::Configure::_original_usr1_handler = 'DEFAULT';
-	Object::Configure::restore_signal_handlers();
-	ok(!defined $Object::Configure::_original_usr1_handler,
-		'restore P1: $_original_usr1_handler cleared after restore');
-	is($SIG{USR1}, 'DEFAULT', 'restore P1: $SIG{USR1} restored to saved value');
+		$Object::Configure::_original_usr1_handler = 'DEFAULT';
+		Object::Configure::restore_signal_handlers();
+		ok(!defined $Object::Configure::_original_usr1_handler,
+			'restore P1: $_original_usr1_handler cleared after restore');
+		is($SIG{USR1}, 'DEFAULT', 'restore P1: $SIG{USR1} restored to saved value');
+	}
 };
 
 subtest 'PATH restore_signal_handlers/P2: handler not defined → no-op' => sub {
@@ -763,14 +775,16 @@ subtest 'PATH disable_hot_reload/P3: pid=$$ (self) → kill skipped, state clear
 
 subtest 'PATH disable_hot_reload/P4: valid PID → child terminated, state cleared' => sub {
 	plan tests => 2;
-	SKIP: { skip 'Fork not applicable on Windows', 2 if $^O eq 'MSWin32'; }
+	SKIP: {
+		skip 'Fork not applicable on Windows', 2 if $^O eq 'MSWin32';
 
-	%Object::Configure::_config_watchers = ();
-	my $pid = Object::Configure::enable_hot_reload(interval => 60);
-	ok($pid > 0, 'disable P4 setup: watcher forked');
-	Object::Configure::disable_hot_reload();
-	ok(!%Object::Configure::_config_watchers,
-		'disable P4: config_watchers cleared after clean shutdown');
+		%Object::Configure::_config_watchers = ();
+		my $pid = Object::Configure::enable_hot_reload(interval => 60);
+		ok($pid > 0, 'disable P4 setup: watcher forked');
+		Object::Configure::disable_hot_reload();
+		ok(!%Object::Configure::_config_watchers,
+			'disable P4: config_watchers cleared after clean shutdown');
+	}
 };
 
 # =============================================================================
