@@ -43,7 +43,6 @@ Revision history for Object::Configure - Runtime Configuration for an Object
 	  protect the caller's $@ from being clobbered by our internal eval blocks.
 	- Fix https://github.com/nigelhorne/Object-Configure/issues/7
 
-	[ Security ]
 	- configure(): added $RE_PATH_TRAVERSAL guard for config_path (the env-only branch).
 	  Previously, a caller with env-var control could set ClassName__config_path=../../etc/shadow
 	  to force the hot-reload watcher to stat arbitrary system files (mtime side-channel via
