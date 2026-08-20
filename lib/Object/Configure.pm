@@ -11,8 +11,9 @@ use mro;
 use Params::Get 0.13;
 use Readonly;
 use Return::Set;
+use List::Util   qw(any);
 use Scalar::Util qw(blessed weaken);
-use Time::HiRes qw(time);
+use Time::HiRes  qw(time);
 use File::stat;
 use POSIX qw(WNOHANG);
 
@@ -31,6 +32,12 @@ Readonly my $KILL_TIMEOUT => 5;     # seconds before SIGKILL escalation after SI
 our %_object_registry   = ();
 our %_config_watchers   = ();
 our %_config_file_stats = ();
+
+# Memoization caches — keyed by inputs; valid for the process lifetime because
+# Perl @ISA hierarchies and filesystem layouts are stable after module load.
+# Both caches include undef sentinels (use exists, not defined, to check hits).
+our %_chain_cache = ();  # class         => [UNIVERSAL, ..., Class] (base-first)
+our %_find_cache  = ();  # "\0"-joined key => file path or undef
 
 # Saved before we install our SIGUSR1 handler so we can chain and restore it.
 our $_original_usr1_handler;
@@ -56,7 +63,8 @@ when instatiating objects.
 L<Log::Abstraction> and L<Config::Abstraction> are modules developed to solve a specific need,
 runtime configurability without needing to rewrite or hardcode behaviours.
 The goal is to allow individual modules to enable or disable features on the fly,
-and to do it using whatever configuration system the user prefers.
+and to do it using whatever configuration system the user prefers,
+and to separate run-time configuration from code.
 
 Although the initial aim was general configurability,
 the primary use case that's emerged has been fine-grained logging control,
@@ -1338,17 +1346,27 @@ sub _build_logger {
 #            it unless it appears in @ISA, yet Object::Configure supports universal.yml.
 # Entry:     $class is a fully-qualified class name that has already been loaded.
 # Exit:      Returns a list in base-first order: (UNIVERSAL, ..., GrandParent, Parent, Class).
+#            Result is memoized in %_chain_cache; mro::get_linear_isa is not re-invoked
+#            for classes already seen in this process.  The cache is valid for the process
+#            lifetime because @ISA is stable after module load in normal Perl programs.
+#            Algorithmic cost: O(N) first call; O(1) amortised on subsequent calls.
 sub _get_inheritance_chain {
 	my ($class) = @_;
+
+	# Cache hit: return a copy of the stored list (caller may modify the returned list).
+	return @{ $_chain_cache{$class} } if $_chain_cache{$class};
 
 	my @mro = @{ mro::get_linear_isa($class) };
 
 	# mro::get_linear_isa returns child-first; reverse to get base-first.
 	# UNIVERSAL is implicit in Perl's type system but not always in the MRO list,
 	# so append it when absent to ensure universal.yml is picked up.
-	push @mro, 'UNIVERSAL' unless grep { $_ eq 'UNIVERSAL' } @mro;
+	# List::Util::any is XS and short-circuits on first match -- faster than grep.
+	push @mro, 'UNIVERSAL' unless any { $_ eq 'UNIVERSAL' } @mro;
 
-	return reverse @mro;
+	my @chain = reverse @mro;
+	$_chain_cache{$class} = \@chain;   # store arrayref; return list copy below
+	return @chain;
 }
 
 # Purpose:   Find a config file for a specific ancestor class using the same
@@ -1356,9 +1374,20 @@ sub _get_inheritance_chain {
 # Entry:     $class is a fully-qualified class name.
 #            $base_config_file is the primary config file path (provides dir and ext).
 #            $config_dirs is an optional arrayref of additional search directories.
+#            Does NOT modify elements of $config_dirs (trailing-slash removal uses a copy).
 # Exit:      Returns a readable file path, or undef if nothing found.
+#            Result (including undef for "not found") is memoized in %_find_cache, keyed
+#            by (class, base_config_file, config_dirs-elements) joined with NUL bytes.
+#            Subsequent calls with identical arguments skip all filesystem probes.
+#            Algorithmic cost: O(extensions) syscalls first call; O(1) amortised.
 sub _find_class_config_file {
 	my ($class, $base_config_file, $config_dirs) = @_;
+
+	# Build a NUL-separated cache key. NUL cannot appear in Linux file paths (the
+	# pen-test suite confirms this: Perl's -r warns and returns undef for NUL paths).
+	my $cache_key = join("\0", $class, $base_config_file,
+		$config_dirs ? @$config_dirs : ());
+	return $_find_cache{$cache_key} if exists $_find_cache{$cache_key};
 
 	my $class_file = lc($class);
 	$class_file =~ s/::/-/g;
@@ -1368,38 +1397,48 @@ sub _find_class_config_file {
 	$base_ext //= '';
 	my $base_dir = File::Spec->catpath($base_vol, $base_dir_part, '');
 
-	# Dedup: when $base_ext is already .yml/.conf/etc the first candidate would
-	# be a duplicate of a later one, causing a redundant filesystem probe.
-	my %_seen_pat;
-	my @base_patterns = grep { !$_seen_pat{$_}++ } (
-		File::Spec->catfile($base_dir, "${class_file}${base_ext}"),
-		File::Spec->catfile($base_dir, "${class_file}.conf"),
-		File::Spec->catfile($base_dir, "${class_file}.yml"),
-		File::Spec->catfile($base_dir, "${class_file}.yaml"),
-		File::Spec->catfile($base_dir, "${class_file}.json"),
-	);
+	# Single-exit-point via labeled block so the cache write happens unconditionally.
+	my $found;
+	SEARCH: {
+		# Dedup: when $base_ext is already .yml/.conf/etc the first candidate would
+		# be a duplicate of a later one, causing a redundant filesystem probe.
+		my %_seen_pat;
+		foreach my $pattern (grep { !$_seen_pat{$_}++ } (
+			File::Spec->catfile($base_dir, "${class_file}${base_ext}"),
+			File::Spec->catfile($base_dir, "${class_file}.conf"),
+			File::Spec->catfile($base_dir, "${class_file}.yml"),
+			File::Spec->catfile($base_dir, "${class_file}.yaml"),
+			File::Spec->catfile($base_dir, "${class_file}.json"),
+		)) {
+			if(-r $pattern && -f $pattern) {
+				$found = $pattern;
+				last SEARCH;
+			}
+		}
 
-	foreach my $pattern (@base_patterns) {
-		return $pattern if -r $pattern && -f $pattern;
-	}
-
-	if($config_dirs && ref($config_dirs) eq 'ARRAY') {
-		foreach my $dir (@$config_dirs) {
-			$dir =~ s{/$}{};
-			my %_seen_dir_pat;
-			foreach my $pattern (grep { !$_seen_dir_pat{$_}++ } (
-				"${dir}/${class_file}${base_ext}",
-				"${dir}/${class_file}.conf",
-				"${dir}/${class_file}.yml",
-				"${dir}/${class_file}.yaml",
-				"${dir}/${class_file}.json",
-			)) {
-				return $pattern if -r $pattern && -f $pattern;
+		if($config_dirs && ref($config_dirs) eq 'ARRAY') {
+			foreach my $dir (@$config_dirs) {
+				# Use a copy so the caller's arrayref element is never mutated.
+				(my $clean_dir = $dir) =~ s{/$}{};
+				my %_seen_dir_pat;
+				foreach my $pattern (grep { !$_seen_dir_pat{$_}++ } (
+					"${clean_dir}/${class_file}${base_ext}",
+					"${clean_dir}/${class_file}.conf",
+					"${clean_dir}/${class_file}.yml",
+					"${clean_dir}/${class_file}.yaml",
+					"${clean_dir}/${class_file}.json",
+				)) {
+					if(-r $pattern && -f $pattern) {
+						$found = $pattern;
+						last SEARCH;
+					}
+				}
 			}
 		}
 	}
 
-	return undef;
+	# Cache stores undef for "not found"; callers must use exists, not defined.
+	return ($_find_cache{$cache_key} = $found);
 }
 
 # Purpose:   Run as the forked watcher child.  Polls %_config_file_stats and

@@ -18,7 +18,8 @@ when instatiating objects.
 [Log::Abstraction](https://metacpan.org/pod/Log%3A%3AAbstraction) and [Config::Abstraction](https://metacpan.org/pod/Config%3A%3AAbstraction) are modules developed to solve a specific need,
 runtime configurability without needing to rewrite or hardcode behaviours.
 The goal is to allow individual modules to enable or disable features on the fly,
-and to do it using whatever configuration system the user prefers.
+and to do it using whatever configuration system the user prefers,
+and to separate run-time configuration from code.
 
 Although the initial aim was general configurability,
 the primary use case that's emerged has been fine-grained logging control,
