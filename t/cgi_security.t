@@ -115,11 +115,19 @@ subtest 'NULL BYTE: null byte in config_file is rejected (no data read)' => sub 
 		});
 	};
 
-	ok(grep({ /null|Invalid|Insecure/i } @warnings),
-		'Null byte in config_file path emits Perl security warning');
+	# The null-byte path ("/tmp/safe.yml\0/../../../etc/passwd") also contains
+	# "/../" traversal sequences.  If the path-traversal guard fires first it
+	# croaks (caught by eval), so no Perl -r warning is emitted.  Both outcomes
+	# (croak OR warning) are valid rejections — accept either.
+	my $threw = $@;
+	ok(
+		($threw && $threw =~ /traversal|null|Invalid|Insecure/i)
+		|| grep({ /null|Invalid|Insecure/i } @warnings),
+		'Null-byte path rejected: traversal guard croaked or Perl -r emitted security warning'
+	);
 
 	ok(!defined($result) || !exists($result->{root}),
-		'No /etc/passwd "root" data injected via null-byte path (path rejected by -r)');
+		'No /etc/passwd "root" data injected via null-byte path (path rejected by guard or -r)');
 
 	done_testing();
 };

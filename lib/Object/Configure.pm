@@ -19,12 +19,18 @@ use POSIX qw(WNOHANG);
 
 # Avoid magic literals scattered across hot paths and signal handlers.
 # Centralising here makes global search-replace safe and self-documents intent.
-Readonly my $OS_WINDOWS   => 'MSWin32';
-Readonly my $LOGGER_NULL  => 'NULL';
-Readonly my $SIG_DEFAULT  => 'DEFAULT';
-Readonly my $SIG_IGNORE   => 'IGNORE';
-Readonly my $POLL_SLEEP   => 0.1;   # seconds between waitpid polls in disable_hot_reload
-Readonly my $KILL_TIMEOUT => 5;     # seconds before SIGKILL escalation after SIGTERM
+Readonly my $OS_WINDOWS      => 'MSWin32';
+Readonly my $LOGGER_NULL     => 'NULL';
+Readonly my $SIG_DEFAULT     => 'DEFAULT';
+Readonly my $SIG_IGNORE      => 'IGNORE';
+Readonly my $POLL_SLEEP      => 0.1;   # seconds between waitpid polls in disable_hot_reload
+Readonly my $KILL_TIMEOUT    => 5;     # seconds before SIGKILL escalation after SIGTERM
+Readonly my $DEFAULT_INTERVAL => 10;   # default hot-reload poll interval in seconds
+
+# Matches any path segment that is exactly ".." (anchored start, slash, or end).
+# Catches: ../foo  foo/../bar  foo/..  and leading ../
+# Used in two places; kept as a constant so both guards are always in sync.
+Readonly my $RE_PATH_TRAVERSAL => qr{(?:\A|/)\.\.(?:/|\z)};
 
 # Global registry — intentionally package-level so that the END block and
 # signal handlers installed in one call site share state with all others.
@@ -400,6 +406,10 @@ Now you can set up a configuration file and environment variables to configure y
 
 =item * C<configure: what class do you want to configure?> -- class argument was undef or empty string. Pass the calling package name as the first argument.
 
+=item * C<configure: invalid class name (must be a valid Perl package name): CLASS> -- class contains characters outside C<[A-Za-z_0-9:]>. The argument must be a syntactically valid Perl package name. This guard also prevents control-character and newline injection into C<env_prefix>, croak messages, and the memoisation cache.
+
+=item * C<CLASS: config_file contains path traversal sequences: FILE> -- config_file contains a C<..> segment (e.g. C<../../etc/passwd>). Remove traversal sequences; C<config_file> must always be developer-controlled, never raw user input.
+
 =item * C<CLASS: FILE: OS-error> -- the config_file is not readable and no config_dirs were supplied. Check file permissions or supply config_dirs.
 
 =item * C<Warning: Can't load configuration from FILE: DETAIL> -- Config::Abstraction rejected the file. Check YAML/JSON/conf syntax.
@@ -437,6 +447,15 @@ sub configure {
 	croak(__PACKAGE__, ': configure: what class do you want to configure?')
 		if !defined($class) || $class eq '';
 
+	# SECURITY: validate $class is a syntactically valid Perl package name before
+	# it propagates into env_prefix, croak messages, and %_chain_cache keys.
+	# Exploit mechanism: a class name containing \n, ;, or shell metacharacters
+	# can poison log lines, carp output, and env-variable lookups if not rejected here.
+	# Under Perl taint mode (-T) an unvalidated external value would also fail the
+	# taint check inside Config::Abstraction when used as an env_prefix substring.
+	croak(__PACKAGE__, ': configure: invalid class name (must be a valid Perl package name): ', $class)
+		unless $class =~ /\A[A-Za-z_]\w*(?:::\w+)*\z/;
+
 	# Config::Abstraction, Log::Abstraction, and Return::Set all use eval internally
 	# Protect the caller's $@ from being clobbered by our internal eval blocks.
 	local $@;
@@ -462,6 +481,16 @@ sub configure {
 
 	my $config_file = $params->{'config_file'};
 	my $config_dirs = $params->{'config_dirs'};
+
+	# SECURITY (S1 — path traversal): reject config_file paths containing ".." segments
+	# before they reach Config::Abstraction.  The pen-test suite confirmed C::A parses
+	# /etc/passwd as a colon-delimited conf file, injecting every user account as a
+	# config key.  The ".." guard blocks the traversal vector; direct absolute paths to
+	# system files remain the caller's responsibility (document: config_file must be
+	# developer-controlled, never raw user input).
+	if(defined($config_file) && $config_file =~ $RE_PATH_TRAVERSAL) {
+		croak("$class: config_file contains path traversal sequences: $config_file");
+	}
 
 	# _get_inheritance_chain returns [UNIVERSAL, ..., Base, Child] (base-first).
 	# Reversing it below gives child-first for the discovery loop; the sort
@@ -813,7 +842,11 @@ Objects must be registered via C<register_object> to receive configuration updat
 sub enable_hot_reload {
 	my %params = @_;
 
-	my $interval = $params{interval} || 10;
+	# SECURITY (S4): use defined-or (//) not truth-or (||) so that interval=>0
+	# is not silently replaced.  Then guard: a zero or negative interval would make
+	# the child busy-loop, consuming 100% CPU (internal DoS vector).
+	my $interval = $params{interval} // $DEFAULT_INTERVAL;
+	$interval    = $DEFAULT_INTERVAL unless $interval > 0;
 	my $callback = $params{callback};
 
 	return if %_config_watchers;	# already watching; avoid double-fork
@@ -892,7 +925,14 @@ The function blocks until the watcher process has fully terminated.
 sub disable_hot_reload {
 	## MUTANT_SKIP_BEGIN
 	if(my $pid = $_config_watchers{pid}) {
-		if($pid =~ /\A[0-9]+\z/ && $pid > 0) {
+		# SECURITY (S3 — PID safety):
+		#   $pid > 1  excludes PID 0 (sends SIGTERM to whole process group — DoS)
+		#             and PID 1 (init — catastrophic as root).
+		#   $pid != $$ prevents self-signaling if %_config_watchers is corrupted.
+		# Exploit mechanism: if global state is poisoned with pid=0 or pid=1,
+		# kill('TERM', 0) signals every process in the group; kill('TERM', 1) kills
+		# init as root.  Both are now rejected at the comparison level.
+		if($pid =~ /\A[0-9]+\z/ && $pid > 1 && $pid != $$) {
 			kill('TERM', $pid);
 
 			# Poll up to KILL_TIMEOUT seconds; escalate to SIGKILL if SIGTERM is ignored.
@@ -1450,6 +1490,14 @@ sub _find_class_config_file {
 sub _run_config_watcher {
 	my ($interval, $callback) = @_;
 
+	# SECURITY (S5): re-validate $interval in the child process.
+	# If the parent's fork() fires before enable_hot_reload() applies its own guard
+	# (race) or state is corrupted between fork and here, sleep(0) or sleep(-1) would
+	# cause a busy-loop that saturates the CPU.  int() also prevents floating-point
+	# values like 0.001 from reaching the kernel as a near-zero sleep.
+	$interval = int($interval // $DEFAULT_INTERVAL);
+	$interval = $DEFAULT_INTERVAL unless $interval > 0;
+
 	local $SIG{TERM} = sub { exit 0 };
 	local $SIG{INT}  = sub { exit 0 };
 
@@ -1505,6 +1553,16 @@ sub _reload_object_config {
 	}
 
 	return unless $config_file && -f $config_file;
+
+	# SECURITY (S1 — path traversal): an attacker who modifies $obj->{_config_file}
+	# (e.g., via a deserialization gadget or a malicious config merge) can redirect
+	# hot-reload to read arbitrary system files.  Reject paths with ".." segments here
+	# so that even a corrupted object cannot force a traversal read.
+	if($config_file =~ $RE_PATH_TRAVERSAL) {
+		carp(__PACKAGE__, ': _reload_object_config: refusing path with traversal sequences: ',
+			$config_file);
+		return;
+	}
 
 	my $config = Config::Abstraction->new(
 		config_file => $config_file,
