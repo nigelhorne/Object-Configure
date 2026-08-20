@@ -158,9 +158,9 @@
 
 <tbody>
 
-<tr class="high"><td><a href="blib-lib-Object-Configure-pm.html" title="View coverage line by line" target="_blank">lib/Object/Configure.pm</a> <a href="https://github.com/nigelhorne/Object-Configure/blob/03b432b94a40bace8e6cc96fc37a9d84c2d4785b/lib/Object/Configure.pm" class="icon-link" title="View source on GitHub">&#128269;</a><canvas class="sparkline" width="80" height="20" data-points="88.1,88.1,88.1,88.1,88.1,88.1,88.5,89.2,90.0,89.1"></canvas></td><td>96.1</td><td>87.3</td><td>75.2</td><td>97.1</td><td><span class="coverage-badge badge-good" title="Excellent coverage">90.0%</span></td><td class="positive" title="Previous: 89.1%">&#9650; 0.9%</td></tr>
+<tr class="high"><td><a href="blib-lib-Object-Configure-pm.html" title="View coverage line by line" target="_blank">lib/Object/Configure.pm</a> <a href="https://github.com/nigelhorne/Object-Configure/blob/ab8b6b12db27b34af1ba37499213296784472cd2/lib/Object/Configure.pm" class="icon-link" title="View source on GitHub">&#128269;</a><canvas class="sparkline" width="80" height="20" data-points="88.1,88.1,88.1,88.1,88.1,88.5,89.2,90.0,89.1,90.0"></canvas></td><td>96.5</td><td>88.6</td><td>75.2</td><td>97.1</td><td><span class="coverage-badge badge-good" title="Excellent coverage">90.5%</span></td><td class="positive" title="Previous: 90.0%">&#9650; 0.5%</td></tr>
 <tr class="summary-row nosort"><td colspan="2"><strong>Summary</strong></td><td colspan="2">1 files</td><td colspan="3">Avg: 90%, Low: 0</td></tr>
-<tr class="high nosort"><td><strong>Total</strong></td><td>96.1</td><td>87.3</td><td>75.2</td><td>97.1</td><td colspan="2"><strong>90.0</strong></td></tr>
+<tr class="high nosort"><td><strong>Total</strong></td><td>96.5</td><td>88.6</td><td>75.2</td><td>97.1</td><td colspan="2"><strong>90.5</strong></td></tr>
 </tbody></table>
 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1em;">
 	<div>
@@ -216,8 +216,8 @@ const dataPoints = [ { x: "2026-06-06T13:16:42+00:00", y: 88.0794701986755, delt
 { x: "2026-07-01T13:43:02-04:00", y: 88.141592920354, delta: 0.0, url: "https://github.com/nigelhorne/Object-Configure/commit/b0736afc4fa5cbdb5f2f37ada1868d8706fafdd1", label: "2026-07-01T13:43:02-04:00", pointBackgroundColor: "gray", comment: "Better protection of $@" },
 { x: "2026-08-19T21:03:03-04:00", y: 88.141592920354, delta: 0.0, url: "https://github.com/nigelhorne/Object-Configure/commit/092f944f4887bade778ee5f77b326770cd97e7f2", label: "2026-08-19T21:03:03-04:00", pointBackgroundColor: "gray", comment: "Latest dashboard" },
 { x: "2026-08-19T21:29:39-04:00", y: 89.9659863945578, delta: 1.8, url: "https://github.com/nigelhorne/Object-Configure/commit/e3d0594abd08770596450e032e23b26772ee25fc", label: "2026-08-19T21:29:39-04:00", pointBackgroundColor: "green", comment: "Performance review" },
-{ x: "2026-08-19T21:46:36-04:00", y: 44.5705024311183, delta: -45.4, url: "https://github.com/nigelhorne/Object-Configure/commit/4e0b7eb945c39d81e5d0b71f532c23a28c625909", label: "2026-08-19T21:46:36-04:00", pointBackgroundColor: "red", comment: "Updated Changes" },
-{ x: "2026-08-20T12:41:17+00:00", y: 90, delta: 45.4, url: "https://github.com/nigelhorne/Object-Configure/commit/03b432b94a40bace8e6cc96fc37a9d84c2d4785b", label: "2026-08-20T12:41:17+00:00", pointBackgroundColor: "green", comment: "Current run" } ];
+{ x: "2026-08-19T21:46:36-04:00", y: 89.1410048622366, delta: -0.8, url: "https://github.com/nigelhorne/Object-Configure/commit/4e0b7eb945c39d81e5d0b71f532c23a28c625909", label: "2026-08-19T21:46:36-04:00", pointBackgroundColor: "red", comment: "Updated Changes" },
+{ x: "2026-08-20T12:52:02+00:00", y: 90.4838709677419, delta: 1.3, url: "https://github.com/nigelhorne/Object-Configure/commit/ab8b6b12db27b34af1ba37499213296784472cd2", label: "2026-08-20T12:52:02+00:00", pointBackgroundColor: "green", comment: "more unit tests" } ];
 const regressionPoints = linearRegression(dataPoints);
 // Try to register the zoom plugin (handles different UMD builds)
 (function registerZoomPlugin(){
@@ -688,101 +688,8 @@ function refresh(){
 
 <p><center>Use mouse wheel or pinch to zoom; drag to pan</center></p>
 <p>No issues active on <a href="https://rt.cpan.org/Public/Dist/Display.html?Name=Object-Configure">RT</a></p>
-<h2>CPAN Testers Failures for Object-Configure 0.23</h2>
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-	const toggleFail = document.getElementById('toggleFail');
-	const toggleUnknown = document.getElementById('toggleUnknown');
-	const toggleNA = document.getElementById('toggleNA');
-	const toggleNew = document.getElementById('toggleNew');
-
-	function update() {
-		document.querySelectorAll('tr').forEach(row => {
-			// Skip header rows
-			if(row.querySelector('th')) return;
-
-			// Determine row status
-			const isFail = row.classList.contains('cpan-fail');
-			const isUnknown = row.classList.contains('cpan-unknown');
-			const isNA = row.classList.contains('cpan-na');
-			const isNew = !!row.querySelector('.new-failure');
-
-			// Decide whether to show the row
-			let show = true;
-
-			if(toggleFail && !toggleFail.checked && isFail) show = false;
-			if(toggleUnknown && !toggleUnknown.checked && isUnknown) show = false;
-			if(toggleNA && !toggleNA.checked && isNA) show = false;
-			if(toggleNew && toggleNew.checked && !isNew) show = false;
-
-			row.style.display = show ? '' : 'none';
-		});
-	}
-
-	[toggleFail, toggleUnknown, toggleNA, toggleNew].forEach(cb => {
-		if(cb) cb.addEventListener('change', update);
-	});
-
-	update();
-});
-</script>
-
-
-<p><em>Showing one failure per OS/Perl combination.</em></p>
-<div style="margin-bottom: 0.5em;">
-	<label>
-		<input type="checkbox" id="toggleFail" checked>
-		FAIL
-	</label>
-	<label style="margin-left: 1em;">
-		<input type="checkbox" id="toggleUnknown">
-		UNKNOWN
-	</label>
-	<label style="margin-left: 1em;">
-		<input type="checkbox" id="toggleNA">
-		NA
-	</label>
-	<label style="margin-left: 1em;">
-		<input type="checkbox" id="toggleNew">
-		NEW only
-	</label>
-</div>
-
-<table class="sortable-table" data-sort-col="0" data-sort-order="asc" data-table-id="cpan">
-<thead>
-<tr>
-	<th class="sortable" onclick="sortTable(this, 0)" data-sort-type="date">
-		<span class="label">Date</span> <span class="arrow">&#x25B2;</span>
-	</th>
-	<th class="sortable" onclick="sortTable(this, 1)">
-		<span class="label">OS</span> <span class="arrow">&#x25B2;</span>
-	</th>
-	<th class="sortable" onclick="sortTable(this, 2)">
-		<span class="label">Perl</span> <span class="arrow">&#x25B2;</span>
-	</th>
-	<th class="sortable" onclick="sortTable(this, 3)">
-		<span class="label">Reporter</span> <span class="arrow">&#x25B2;</span>
-	</th>
-	<th class="sortable" onclick="sortTable(this, 4)" title="Marks failures that did not occur in the previous release. The same OS, Perl version, architecture, and platform were passing before.">
-		<span class="label">New</span> <span class="arrow">&#x25B2;</span>
-	</th>
-	<th>Report</th>
-	<th>Repro</th>
-</tr>
-</thead>
-<tbody>
-
-<tr class="cpan-fail"><td>2026-07-03T19:12:00Z</td><td>freebsd</td><td>5.18.2</td><td>Slaven Rezi&#x107;</td><td></td>
-				<td><a href="https://www.cpantesters.org/cpan/report/22bb2d90-7713-11f1-87ae-200c6e8775ea" target="_blank">View</a></td><td></td></tr>
-<tr class="cpan-fail"><td>2026-08-12T06:49:00Z</td><td>linux</td><td>5.18.4</td><td>Andreas J. K&ouml;nig (ANDK)</td><td></td>
-				<td><a href="https://www.cpantesters.org/cpan/report/f1f71bc6-9619-11f1-a730-80ab3c6d6568" target="_blank">View</a></td><td></td></tr>
-<tr class="cpan-fail"><td>2026-06-29T23:32:00Z</td><td>freebsd</td><td>5.16.3</td><td>David Cantrell (DCANTRELL)</td><td></td>
-				<td><a href="https://www.cpantesters.org/cpan/report/d2e60c98-7412-11f1-a53b-db6f0968179f" target="_blank">View</a></td><td></td></tr>
-<tr class="cpan-fail"><td>2026-08-12T06:46:00Z</td><td>linux</td><td>5.18.4</td><td>Andreas J. K&ouml;nig (ANDK)</td><td></td>
-				<td><a href="https://www.cpantesters.org/cpan/report/9a00d6a0-9619-11f1-a730-80ab3c6d6568" target="_blank">View</a></td><td></td></tr>
-<tr class="cpan-fail"><td>2026-07-04T10:08:00Z</td><td>freebsd</td><td>5.16.3</td><td>Slaven Rezi&#x107;</td><td></td>
-				<td><a href="https://www.cpantesters.org/cpan/report/58963202-7790-11f1-b3c0-ae296e8775ea" target="_blank">View</a></td><td></td></tr>
-</tbody></table>
+<p><a href="https://api.cpantesters.org/v3/summary/Object-Configure">https://api.cpantesters.org/v3/summary/Object-Configure</a>: 599 Internal Exception</p>
+<p><em>CPAN Testers data unavailable: CPAN Testers API temporarily unreachable. Check <a href="https://api.cpantesters.org/v3/summary/Object-Configure">https://api.cpantesters.org/v3/summary/Object-Configure</a> manually.</em></p>
 <h2>Mutation Report</h2>
 <h3>Mutation Summary</h3>
 <ul>
@@ -815,22 +722,22 @@ document.addEventListener("DOMContentLoaded", function () {
 </thead>
 <tbody>
 
-<tr class="high"><td><a href="mutation_html/lib/Object/Configure.pm.html" title="View mutation line by line" target="_blank">lib/Object/Configure.pm</a> <a href="https://github.com/nigelhorne/Object-Configure/blob/03b432b94a40bace8e6cc96fc37a9d84c2d4785b/lib/Object/Configure.pm" class="icon-link" title="View source on GitHub">&#128269;</a></td><td>69</td><td>65</td><td>4</td><td>0</td><td><span class="coverage-badge badge-good" title="Excellent">94.2%</span></td><td><span class="coverage-badge badge-bad" title="Needs improvement">130</span></td><td><span class="coverage-badge badge-good" title="Excellent">96.1%</span> / <span class="coverage-badge badge-warn" title="Moderate">87.3%</span> / <span class="coverage-badge badge-good" title="Excellent">100.0%</span></td><td><span class="coverage-badge badge-good" title="Low duplication">0.0%</span></td></tr>
+<tr class="high"><td><a href="mutation_html/lib/Object/Configure.pm.html" title="View mutation line by line" target="_blank">lib/Object/Configure.pm</a> <a href="https://github.com/nigelhorne/Object-Configure/blob/ab8b6b12db27b34af1ba37499213296784472cd2/lib/Object/Configure.pm" class="icon-link" title="View source on GitHub">&#128269;</a></td><td>69</td><td>65</td><td>4</td><td>0</td><td><span class="coverage-badge badge-good" title="Excellent">94.2%</span></td><td><span class="coverage-badge badge-bad" title="Needs improvement">130</span></td><td><span class="coverage-badge badge-good" title="Excellent">96.5%</span> / <span class="coverage-badge badge-warn" title="Moderate">88.6%</span> / <span class="coverage-badge badge-good" title="Excellent">100.0%</span></td><td><span class="coverage-badge badge-good" title="Low duplication">0.0%</span></td></tr>
 </tbody></table>
 
 <h2>Structural Coverage (Approximate)</h2>
 <div class='summary'>
-Statement Coverage: 96.13% (298 / 310)<br>
-Branch Coverage: 87.34% (138 / 158)<br>
+Statement Coverage: 96.45% (299 / 310)<br>
+Branch Coverage: 88.61% (140 / 158)<br>
 <em>Approximate LCSAJ derived from branch and statement coverage.</em>
 </div>
 <h2>Executive Summary</h2>
 <div class='summary'>
-Tests execute 96.13% of the code and detect 94.20% of injected faults.
+Tests execute 96.45% of the code and detect 94.20% of injected faults.
 </div>
 <footer>
 	<p>Project: <a href="https://github.com/nigelhorne/Object-Configure">Object-Configure</a></p>
-	<p><em>Last updated: 2026-08-20 12:40:59 - <a href="https://github.com/nigelhorne/Object-Configure/commit/03b432b94a40bace8e6cc96fc37a9d84c2d4785b">commit <code>03b432b</code></a></em></p>
+	<p><em>Last updated: 2026-08-20 12:51:44 - <a href="https://github.com/nigelhorne/Object-Configure/commit/ab8b6b12db27b34af1ba37499213296784472cd2">commit <code>ab8b6b1</code></a></em></p>
 	<p style="float: right; font-size: 0.85em; color: #999;">Powered by <a href="https://metacpan.org/dist/App-Test-Generator">App::Test::Generator 0.46</a></p>
 </footer>
 </body>

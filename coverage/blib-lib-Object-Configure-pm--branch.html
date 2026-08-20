@@ -20,7 +20,7 @@ https://pjcj.net
 <h1>Branch Coverage</h1>
 <table>
 <tr><td class="h" align="right">File:</td><td align="left">blib/lib/Object/Configure.pm</td></tr>
-<tr><td class="h" align="right">Coverage:</td><td align="left" class="c1">87.3%</td></tr>
+<tr><td class="h" align="right">Coverage:</td><td align="left" class="c1">88.6%</td></tr>
 </table>
 <div><br/></div>
 <table>
@@ -42,8 +42,8 @@ https://pjcj.net
 <tr><td class="h"><a id="L539">539</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (-r $candidate)</td></tr>
 <tr><td class="h"><a id="L547">547</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (@config_files_to_load) { }</td></tr>
 <tr><td class="h"></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">elsif (my $config = &#39;Config::Abstraction&#39;-&gt;new(&#39;env_prefix&#39;, &quot;${class}__&quot;)) { }</td></tr>
-<tr><td class="h"><a id="L573">573</a></td><td class="c0">50</td><td class="c3">T</td><td class="c0">F</td><td class="s">if ($config) { }</td></tr>
-<tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif ($@) { }</td></tr>
+<tr><td class="h"><a id="L573">573</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if ($config) { }</td></tr>
+<tr><td class="h"></td><td class="c0">50</td><td class="c3">T</td><td class="c0">F</td><td class="s">elsif ($@) { }</td></tr>
 <tr><td class="h"><a id="L598">598</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if ($ancestor_env_config)</td></tr>
 <tr><td class="h"><a id="L618">618</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if ($params-&gt;{&#39;config_path&#39;} and -f $params-&gt;{&#39;config_path&#39;})</td></tr>
 <tr><td class="h"><a id="L623">623</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">exists $params-&gt;{&#39;croak_on_error&#39;} ? :</td></tr>
