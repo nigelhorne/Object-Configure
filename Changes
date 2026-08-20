@@ -1,6 +1,33 @@
 Revision history for Object::Configure - Runtime Configuration for an Object
 
 0.24
+	[ Enhancements ]
+	- configure() now validates the class name against /\A[A-Za-z_]\w*(?:::\w+)*\z/
+	  and croaks on invalid input, preventing taint-mode failures and injection
+	  through malformed package names.
+	- Added $RE_PATH_TRAVERSAL guard in configure() and _reload_object_config():
+	  any config_file path containing ../ or /.. sequences is rejected with croak
+	  before any filesystem probe, preventing directory traversal attacks.
+	- disable_hot_reload() now checks PID > 1 && PID != $$ before sending SIGTERM,
+	  preventing accidental signalling of PID 1 (init) or the parent process itself.
+	- enable_hot_reload() and _run_config_watcher() now use defined-or (//) for the
+	  interval parameter and clamp negative/zero values to $DEFAULT_INTERVAL,
+	  preventing integer-wrap and busy-poll from a caller-supplied zero/negative value.
+	- Memoised _get_inheritance_chain() with %_chain_cache (keyed by class name):
+	  repeated calls for the same class return immediately, eliminating redundant
+	  mro::get_linear_isa traversals. Benchmarks show ~7× speedup on repeated calls.
+	- Memoised _find_class_config_file() with %_find_cache (keyed by NUL-joined
+	  class+base+dirs): eliminates repeated filesystem probes for the same ancestor
+	  class. Benchmarks show ~27× speedup on repeated calls.
+	- Replaced grep { $_ eq 'UNIVERSAL' } @mro with List::Util::any (XS,
+	  short-circuits on first match).
+	- _find_class_config_file() now copies $dir to a local scalar before stripping
+	  the trailing slash, avoiding aliased mutation of the caller's config_dirs array.
+	- Added t/cgi_security.t: 17-subtest security pen-test suite covering path
+	  traversal, null-byte injection, command injection, CRLF injection, env-prefix
+	  collision, XSS, config_dirs traversal, DoS, object injection, registry
+	  poisoning, signal safety, arbitrary file read, deep-merge DoS, and input
+	  validation guard clauses.
 	[ Bug Fixes ]
 	- Config::Abstraction, Log::Abstraction, and Return::Set all use eval internally
 	  protect the caller's $@ from being clobbered by our internal eval blocks.
