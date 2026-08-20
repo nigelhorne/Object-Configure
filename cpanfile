@@ -29,6 +29,7 @@ on 'test' => sub {
 	requires 'Test::Most';
 	requires 'Test::Needs';
 	requires 'Test::NoWarnings';
+	requires 'Test::Returns';
 	requires 'Test::Without::Module';
 	requires 'Time::HiRes';
 	requires 'YAML::XS';

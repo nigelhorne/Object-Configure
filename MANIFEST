@@ -27,6 +27,7 @@ t/integration.t
 t/locales.t
 t/manifest.t
 t/mutant_killer.t
+t/path.t
 t/pod-cm.t
 t/pod-synopsis.t
 t/pod.t
