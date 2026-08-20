@@ -454,7 +454,7 @@ sub configure {
 	# Under Perl taint mode (-T) an unvalidated external value would also fail the
 	# taint check inside Config::Abstraction when used as an env_prefix substring.
 	croak(__PACKAGE__, ': configure: invalid class name (must be a valid Perl package name): ', $class)
-		unless $class =~ /\A[A-Za-z_]\w*(?:::\w+)*\z/;
+		unless $class =~ /\A[A-Za-z_]\w*(?:::[A-Za-z_]\w*)*\z/;
 
 	# Config::Abstraction, Log::Abstraction, and Return::Set all use eval internally
 	# Protect the caller's $@ from being clobbered by our internal eval blocks.
@@ -1552,17 +1552,18 @@ sub _reload_object_config {
 		$config_file = $obj->{_config_file} || $obj->{config_file};
 	}
 
-	return unless $config_file && -f $config_file;
-
 	# SECURITY (S1 — path traversal): an attacker who modifies $obj->{_config_file}
 	# (e.g., via a deserialization gadget or a malicious config merge) can redirect
 	# hot-reload to read arbitrary system files.  Reject paths with ".." segments here
 	# so that even a corrupted object cannot force a traversal read.
-	if($config_file =~ $RE_PATH_TRAVERSAL) {
+	# Must come BEFORE the -f check so traversal paths for non-existent files are also rejected.
+	if($config_file && $config_file =~ $RE_PATH_TRAVERSAL) {
 		carp(__PACKAGE__, ': _reload_object_config: refusing path with traversal sequences: ',
 			$config_file);
 		return;
 	}
+
+	return unless $config_file && -f $config_file;
 
 	my $config = Config::Abstraction->new(
 		config_file => $config_file,
