@@ -4,7 +4,7 @@ Object::Configure - Runtime Configuration for an Object
 
 # VERSION
 
-0.23
+0.24
 
 # DESCRIPTION
 

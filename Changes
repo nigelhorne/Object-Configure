@@ -1,6 +1,6 @@
 Revision history for Object::Configure - Runtime Configuration for an Object
 
-0.24
+0.24	Thu Aug 20 02:41:40 PM EDT 2026
 	[ Enhancements ]
 	- configure() now validates the class name against /\A[A-Za-z_]\w*(?:::\w+)*\z/
 	  and croaks on invalid input, preventing taint-mode failures and injection
