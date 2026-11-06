@@ -4,7 +4,7 @@ Object::Configure - Runtime Configuration for an Object
 
 ## Version
 
-0.24
+0.25
 
 ## Description
 
@@ -590,7 +590,7 @@ on mtime change.
 
 #### Error Messages
 
-- `Object::Configure: fork failed: OS-ERROR` -- `fork()` returned `undef`.
+- `Failed to fork config watcher: OS-ERROR` -- `fork()` returned `undef`.
 Check system resource limits (`ulimit -u`).
 
 #### Usage Example
@@ -1166,6 +1166,10 @@ You will be notified automatically of progress on your report.
 ```
 perldoc Object::Configure
 ```
+
+## Author
+
+Nigel Horne, `<njh at nigelhorne.com>`
 
 ## Licence and Copyright
 
