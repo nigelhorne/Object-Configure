@@ -1,6 +1,6 @@
 Revision history for Object::Configure - Runtime Configuration for an Object
 
-0.25
+0.25	Fri Nov  6 10:41:14 AM EST 2026
 	[ Bug Fixes ]
 	- Remove hard-coded path
 

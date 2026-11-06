@@ -559,7 +559,7 @@ Fork a background watcher that sends SIGUSR1 to the parent whenever a tracked
 configuration file changes on disk.  Objects registered via `register_object()`
 then have their configuration reloaded automatically.
 
-**Unix only.**  On Windows this function is a silent no-op (SIGUSR1 does not exist).
+**UNIX only.**  On Windows this function is a silent no-op (SIGUSR1 does not exist).
 
 #### Arguments
 
@@ -754,7 +754,7 @@ Nothing (void).
 
 - Pushes a weak reference to `$obj` onto `$_object_registry{$class}`.
 - On the first call ever (for any class): saves the current `$SIG{USR1}`
-and installs Object::Configure's handler.  On Unix, the handler calls
+and installs Object::Configure's handler.  On UNIX, the handler calls
 `reload_config()` then chains to the prior handler.  On Windows, signal
 installation is skipped but `$_original_usr1_handler` is still set.
 
@@ -827,7 +827,7 @@ Nothing (void).
 
 #### Side Effects
 
-- Sets `$SIG{USR1}` back to its saved value (Unix only).
+- Sets `$SIG{USR1}` back to its saved value (UNIX only).
 - Sets `$_original_usr1_handler` to `undef`.
 
 #### API Specification
@@ -917,7 +917,7 @@ process share one hot-reload registry and one SIGUSR1 handler.  There is no
 instance-level isolation.  A proper fix would wrap state in an object and allow
 multiple independent `Object::Configure` instances, but that would break the
 existing constructor-call API (`configure($class, \%params)`).
-- **Hot reload is Unix-only.** SIGUSR1 does not exist on Windows.
+- **Hot reload is UNIX-only.** SIGUSR1 does not exist on Windows.
 All signal-related paths are guarded with `$^O ne 'MSWin32'`, so the module
 loads on Windows but silently skips hot-reload registration.
 - **configure() is a God function.** At ~120 lines it handles arg validation,

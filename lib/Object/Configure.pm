@@ -694,7 +694,7 @@ sub configure {
 		my $merged_config = {};
 
 		# Iterate base-first so that each more-specific class overrides the more
-		# general one: UNIVERSAL → GrandParent → Parent → Child.
+		# general one: UNIVERSAL => GrandParent → Parent → Child.
 		foreach my $ancestor_class (@inheritance_chain) {
 			my $section_name = $ancestor_class;
 			$section_name =~ s/::/__/g;
@@ -737,7 +737,7 @@ sub configure {
 	}
 
 	my $croak_on_error = exists($params->{'croak_on_error'}) ? $params->{'croak_on_error'} : 1;
-	my $carp_on_warn   = exists($params->{'carp_on_warn'})   ? $params->{'carp_on_warn'}   : 0;
+	my $carp_on_warn = exists($params->{'carp_on_warn'}) ? $params->{'carp_on_warn'}   : 0;
 
 	# User-supplied logger always wins over config-file logger.
 	# $array_logger is defined when the caller passed an arrayref; it was deleted from
@@ -875,7 +875,7 @@ Fork a background watcher that sends SIGUSR1 to the parent whenever a tracked
 configuration file changes on disk.  Objects registered via C<register_object()>
 then have their configuration reloaded automatically.
 
-B<Unix only.>  On Windows this function is a silent no-op (SIGUSR1 does not exist).
+B<UNIX only.>  On Windows this function is a silent no-op (SIGUSR1 does not exist).
 
 =head3 Arguments
 
@@ -1184,7 +1184,7 @@ Nothing (void).
 =item * Pushes a weak reference to C<$obj> onto C<$_object_registry{$class}>.
 
 =item * On the first call ever (for any class): saves the current C<$SIG{USR1}>
-and installs Object::Configure's handler.  On Unix, the handler calls
+and installs Object::Configure's handler.  On UNIX, the handler calls
 C<reload_config()> then chains to the prior handler.  On Windows, signal
 installation is skipped but C<$_original_usr1_handler> is still set.
 
@@ -1307,7 +1307,7 @@ Nothing (void).
 
 =over 4
 
-=item * Sets C<$SIG{USR1}> back to its saved value (Unix only).
+=item * Sets C<$SIG{USR1}> back to its saved value (UNIX only).
 
 =item * Sets C<$_original_usr1_handler> to C<undef>.
 
@@ -1742,7 +1742,7 @@ instance-level isolation.  A proper fix would wrap state in an object and allow
 multiple independent C<Object::Configure> instances, but that would break the
 existing constructor-call API (C<configure($class, \%params)>).
 
-=item * B<Hot reload is Unix-only.> SIGUSR1 does not exist on Windows.
+=item * B<Hot reload is UNIX-only.> SIGUSR1 does not exist on Windows.
 All signal-related paths are guarded with C<$^O ne 'MSWin32'>, so the module
 loads on Windows but silently skips hot-reload registration.
 
