@@ -4,562 +4,562 @@
          "OS" : "linux",
          "abstract" : "Runtime Configuration for an Object",
          "dir" : "/home/runner/work/Object-Configure/Object-Configure",
-         "finish" : 1793979246.20611,
+         "finish" : 1794854858.53224,
          "name" : "Object-Configure",
          "perl" : "5.40.5",
          "run" : "-e",
-         "start" : 1793979222.07661,
-         "version" : 0.24
+         "start" : 1794854839.34524,
+         "version" : 0.25
       },
       {
          "OS" : "linux",
          "abstract" : "Runtime Configuration for an Object",
          "dir" : "/home/runner/work/Object-Configure/Object-Configure",
-         "finish" : 1793979222.19421,
+         "finish" : 1794854839.43649,
          "name" : "Object-Configure",
          "perl" : "5.40.5",
          "run" : "-e",
-         "start" : 1793979222.19407,
-         "version" : 0.24
+         "start" : 1794854839.43639,
+         "version" : 0.25
       },
       {
          "OS" : "linux",
          "abstract" : "Runtime Configuration for an Object",
          "dir" : "/home/runner/work/Object-Configure/Object-Configure",
-         "finish" : 1793979222.48697,
+         "finish" : 1794854839.66278,
          "name" : "Object-Configure",
          "perl" : "5.40.5",
          "run" : "t/00-load.t",
-         "start" : 1793979222.48571,
-         "version" : 0.24
+         "start" : 1794854839.66164,
+         "version" : 0.25
       },
       {
          "OS" : "linux",
          "abstract" : "Runtime Configuration for an Object",
          "dir" : "/home/runner/work/Object-Configure/Object-Configure",
-         "finish" : 1793979222.7147,
+         "finish" : 1794854839.84271,
          "name" : "Object-Configure",
          "perl" : "5.40.5",
          "run" : "t/10-compile.t",
-         "start" : 1793979222.71464,
-         "version" : 0.24
+         "start" : 1794854839.84267,
+         "version" : 0.25
       },
       {
          "OS" : "linux",
          "abstract" : "Runtime Configuration for an Object",
          "dir" : "/home/runner/work/Object-Configure/Object-Configure",
-         "finish" : 1793979223.01805,
+         "finish" : 1794854840.07365,
          "name" : "Object-Configure",
          "perl" : "5.40.5",
          "run" : "t/20-construct.t",
-         "start" : 1793979222.99671,
-         "version" : 0.24
+         "start" : 1794854840.05654,
+         "version" : 0.25
       },
       {
          "OS" : "linux",
          "abstract" : "Runtime Configuration for an Object",
          "dir" : "/home/runner/work/Object-Configure/Object-Configure",
-         "finish" : 1793979223.40262,
+         "finish" : 1794854840.39298,
          "name" : "Object-Configure",
          "perl" : "5.40.5",
          "run" : "t/30-basics.t",
-         "start" : 1793979223.39177,
-         "version" : 0.24
+         "start" : 1794854840.38516,
+         "version" : 0.25
       },
       {
          "OS" : "linux",
          "abstract" : "Runtime Configuration for an Object",
          "dir" : "/home/runner/work/Object-Configure/Object-Configure",
-         "finish" : 1793979223.89032,
+         "finish" : 1794854840.75796,
          "name" : "Object-Configure",
          "perl" : "5.40.5",
          "run" : "t/cgi_security.t",
-         "start" : 1793979223.77762,
-         "version" : 0.24
+         "start" : 1794854840.67106,
+         "version" : 0.25
       },
       {
          "OS" : "linux",
          "abstract" : "Runtime Configuration for an Object",
          "dir" : "/home/runner/work/Object-Configure/Object-Configure",
-         "finish" : 1793979224.32463,
+         "finish" : 1794854841.13173,
          "name" : "Object-Configure",
          "perl" : "5.40.5",
          "run" : "t/coderef.t",
-         "start" : 1793979224.29564,
-         "version" : 0.24
+         "start" : 1794854841.10998,
+         "version" : 0.25
       },
       {
          "OS" : "linux",
          "abstract" : "Runtime Configuration for an Object",
          "dir" : "/home/runner/work/Object-Configure/Object-Configure",
-         "finish" : 1793979224.71734,
+         "finish" : 1794854841.42726,
          "name" : "Object-Configure",
          "perl" : "5.40.5",
          "run" : "t/complex.t",
-         "start" : 1793979224.69724,
-         "version" : 0.24
+         "start" : 1794854841.41234,
+         "version" : 0.25
       },
       {
          "OS" : "linux",
          "abstract" : "Runtime Configuration for an Object",
          "dir" : "/home/runner/work/Object-Configure/Object-Configure",
-         "finish" : 1793979225.18465,
+         "finish" : 1794854841.7805,
          "name" : "Object-Configure",
          "perl" : "5.40.5",
          "run" : "t/data-flow.t",
-         "start" : 1793979225.09546,
-         "version" : 0.24
+         "start" : 1794854841.71325,
+         "version" : 0.25
       },
       {
          "OS" : "linux",
          "abstract" : "Runtime Configuration for an Object",
          "dir" : "/home/runner/work/Object-Configure/Object-Configure",
-         "finish" : 1793979225.7294,
+         "finish" : 1794854843.00928,
          "name" : "Object-Configure",
          "perl" : "5.40.5",
          "run" : "t/domain.t",
-         "start" : 1793979225.5966,
-         "version" : 0.24
+         "start" : 1794854842.09337,
+         "version" : 0.25
       },
       {
          "OS" : "linux",
          "abstract" : "Runtime Configuration for an Object",
          "dir" : "/home/runner/work/Object-Configure/Object-Configure",
-         "finish" : 1793979227.35647,
+         "finish" : 1794854843.4171,
          "name" : "Object-Configure",
          "perl" : "5.40.5",
          "run" : "t/domain.t",
-         "start" : 1793979225.5966,
-         "version" : 0.24
+         "start" : 1794854842.09337,
+         "version" : 0.25
       },
       {
          "OS" : "linux",
          "abstract" : "Runtime Configuration for an Object",
          "dir" : "/home/runner/work/Object-Configure/Object-Configure",
-         "finish" : 1793979226.74619,
+         "finish" : 1794854842.19289,
          "name" : "Object-Configure",
          "perl" : "5.40.5",
          "run" : "t/domain.t",
-         "start" : 1793979225.5966,
-         "version" : 0.24
+         "start" : 1794854842.09337,
+         "version" : 0.25
       },
       {
          "OS" : "linux",
          "abstract" : "Runtime Configuration for an Object",
          "dir" : "/home/runner/work/Object-Configure/Object-Configure",
-         "finish" : 1793979226.4408,
+         "finish" : 1794854842.60078,
          "name" : "Object-Configure",
          "perl" : "5.40.5",
          "run" : "t/domain.t",
-         "start" : 1793979225.5966,
-         "version" : 0.24
+         "start" : 1794854842.09337,
+         "version" : 0.25
       },
       {
          "OS" : "linux",
          "abstract" : "Runtime Configuration for an Object",
          "dir" : "/home/runner/work/Object-Configure/Object-Configure",
-         "finish" : 1793979227.05132,
+         "finish" : 1794854843.63919,
          "name" : "Object-Configure",
          "perl" : "5.40.5",
          "run" : "t/domain.t",
-         "start" : 1793979225.5966,
-         "version" : 0.24
+         "start" : 1794854842.09337,
+         "version" : 0.25
       },
       {
          "OS" : "linux",
          "abstract" : "Runtime Configuration for an Object",
          "dir" : "/home/runner/work/Object-Configure/Object-Configure",
-         "finish" : 1793979226.13563,
+         "finish" : 1794854843.21319,
          "name" : "Object-Configure",
          "perl" : "5.40.5",
          "run" : "t/domain.t",
-         "start" : 1793979225.5966,
-         "version" : 0.24
+         "start" : 1794854842.09337,
+         "version" : 0.25
       },
       {
          "OS" : "linux",
          "abstract" : "Runtime Configuration for an Object",
          "dir" : "/home/runner/work/Object-Configure/Object-Configure",
-         "finish" : 1793979227.99124,
+         "finish" : 1794854842.3968,
          "name" : "Object-Configure",
          "perl" : "5.40.5",
          "run" : "t/domain.t",
-         "start" : 1793979225.5966,
-         "version" : 0.24
+         "start" : 1794854842.09337,
+         "version" : 0.25
       },
       {
          "OS" : "linux",
          "abstract" : "Runtime Configuration for an Object",
          "dir" : "/home/runner/work/Object-Configure/Object-Configure",
-         "finish" : 1793979227.66208,
+         "finish" : 1794854842.80507,
          "name" : "Object-Configure",
          "perl" : "5.40.5",
          "run" : "t/domain.t",
-         "start" : 1793979225.5966,
-         "version" : 0.24
+         "start" : 1794854842.09337,
+         "version" : 0.25
       },
       {
          "OS" : "linux",
          "abstract" : "Runtime Configuration for an Object",
          "dir" : "/home/runner/work/Object-Configure/Object-Configure",
-         "finish" : 1793979229.2574,
+         "finish" : 1794854844.78498,
          "name" : "Object-Configure",
          "perl" : "5.40.5",
          "run" : "t/edge_cases.t",
-         "start" : 1793979228.44775,
-         "version" : 0.24
+         "start" : 1794854844.01127,
+         "version" : 0.25
       },
       {
          "OS" : "linux",
          "abstract" : "Runtime Configuration for an Object",
          "dir" : "/home/runner/work/Object-Configure/Object-Configure",
-         "finish" : 1793979228.64785,
+         "finish" : 1794854844.36046,
          "name" : "Object-Configure",
          "perl" : "5.40.5",
          "run" : "t/edge_cases.t",
-         "start" : 1793979228.44775,
-         "version" : 0.24
+         "start" : 1794854844.01127,
+         "version" : 0.25
       },
       {
          "OS" : "linux",
          "abstract" : "Runtime Configuration for an Object",
          "dir" : "/home/runner/work/Object-Configure/Object-Configure",
-         "finish" : 1793979229.58353,
+         "finish" : 1794854844.56493,
          "name" : "Object-Configure",
          "perl" : "5.40.5",
          "run" : "t/edge_cases.t",
-         "start" : 1793979228.44775,
-         "version" : 0.24
+         "start" : 1794854844.01127,
+         "version" : 0.25
       },
       {
          "OS" : "linux",
          "abstract" : "Runtime Configuration for an Object",
          "dir" : "/home/runner/work/Object-Configure/Object-Configure",
-         "finish" : 1793979228.95185,
+         "finish" : 1794854844.15723,
          "name" : "Object-Configure",
          "perl" : "5.40.5",
          "run" : "t/edge_cases.t",
-         "start" : 1793979228.44775,
-         "version" : 0.24
+         "start" : 1794854844.01127,
+         "version" : 0.25
       },
       {
          "OS" : "linux",
          "abstract" : "Runtime Configuration for an Object",
          "dir" : "/home/runner/work/Object-Configure/Object-Configure",
-         "finish" : 1793979230.07844,
+         "finish" : 1794854845.16109,
          "name" : "Object-Configure",
          "perl" : "5.40.5",
          "run" : "t/env.t",
-         "start" : 1793979230.05833,
-         "version" : 0.24
+         "start" : 1794854845.14545,
+         "version" : 0.25
       },
       {
          "OS" : "linux",
          "abstract" : "Runtime Configuration for an Object",
          "dir" : "/home/runner/work/Object-Configure/Object-Configure",
-         "finish" : 1793979230.35121,
+         "finish" : 1794854845.37388,
          "name" : "Object-Configure",
          "perl" : "5.40.5",
          "run" : "t/eof.t",
-         "start" : 1793979230.35092,
-         "version" : 0.24
+         "start" : 1794854845.37368,
+         "version" : 0.25
       },
       {
          "OS" : "linux",
          "abstract" : "Runtime Configuration for an Object",
          "dir" : "/home/runner/work/Object-Configure/Object-Configure",
-         "finish" : 1793979230.53954,
+         "finish" : 1794854845.51748,
          "name" : "Object-Configure",
          "perl" : "5.40.5",
          "run" : "t/eol.t",
-         "start" : 1793979230.53923,
-         "version" : 0.24
+         "start" : 1794854845.51731,
+         "version" : 0.25
       },
       {
          "OS" : "linux",
          "abstract" : "Runtime Configuration for an Object",
          "dir" : "/home/runner/work/Object-Configure/Object-Configure",
-         "finish" : 1793979231.29992,
+         "finish" : 1794854846.41987,
          "name" : "Object-Configure",
          "perl" : "5.40.5",
          "run" : "t/extended_tests.t",
-         "start" : 1793979230.73827,
-         "version" : 0.24
+         "start" : 1794854845.66221,
+         "version" : 0.25
       },
       {
          "OS" : "linux",
          "abstract" : "Runtime Configuration for an Object",
          "dir" : "/home/runner/work/Object-Configure/Object-Configure",
-         "finish" : 1793979230.99384,
+         "finish" : 1794854846.08708,
          "name" : "Object-Configure",
          "perl" : "5.40.5",
          "run" : "t/extended_tests.t",
-         "start" : 1793979230.73827,
-         "version" : 0.24
+         "start" : 1794854845.66221,
+         "version" : 0.25
       },
       {
          "OS" : "linux",
          "abstract" : "Runtime Configuration for an Object",
          "dir" : "/home/runner/work/Object-Configure/Object-Configure",
-         "finish" : 1793979231.74771,
+         "finish" : 1794854845.88208,
          "name" : "Object-Configure",
          "perl" : "5.40.5",
          "run" : "t/extended_tests.t",
-         "start" : 1793979230.73827,
-         "version" : 0.24
+         "start" : 1794854845.66221,
+         "version" : 0.25
       },
       {
          "OS" : "linux",
          "abstract" : "Runtime Configuration for an Object",
          "dir" : "/home/runner/work/Object-Configure/Object-Configure",
-         "finish" : 1793979232.35357,
+         "finish" : 1794854846.86221,
          "name" : "Object-Configure",
          "perl" : "5.40.5",
          "run" : "t/function.t",
-         "start" : 1793979232.22561,
-         "version" : 0.24
+         "start" : 1794854846.77261,
+         "version" : 0.25
       },
       {
          "OS" : "linux",
          "abstract" : "Runtime Configuration for an Object",
          "dir" : "/home/runner/work/Object-Configure/Object-Configure",
-         "finish" : 1793979232.85622,
+         "finish" : 1794854847.23237,
          "name" : "Object-Configure",
          "perl" : "5.40.5",
          "run" : "t/inheritance.t",
-         "start" : 1793979232.80955,
-         "version" : 0.24
+         "start" : 1794854847.19812,
+         "version" : 0.25
       },
       {
          "OS" : "linux",
          "abstract" : "Runtime Configuration for an Object",
          "dir" : "/home/runner/work/Object-Configure/Object-Configure",
-         "finish" : 1793979233.32602,
+         "finish" : 1794854847.57304,
          "name" : "Object-Configure",
          "perl" : "5.40.5",
          "run" : "t/instantiate.t",
-         "start" : 1793979233.25029,
-         "version" : 0.24
+         "start" : 1794854847.51859,
+         "version" : 0.25
       },
       {
          "OS" : "linux",
          "abstract" : "Runtime Configuration for an Object",
          "dir" : "/home/runner/work/Object-Configure/Object-Configure",
-         "finish" : 1793979234.23817,
+         "finish" : 1794854848.3442,
          "name" : "Object-Configure",
          "perl" : "5.40.5",
          "run" : "t/integration.t",
-         "start" : 1793979233.72106,
-         "version" : 0.24
+         "start" : 1794854847.86183,
+         "version" : 0.25
       },
       {
          "OS" : "linux",
          "abstract" : "Runtime Configuration for an Object",
          "dir" : "/home/runner/work/Object-Configure/Object-Configure",
-         "finish" : 1793979234.71613,
+         "finish" : 1794854848.73996,
          "name" : "Object-Configure",
          "perl" : "5.40.5",
          "run" : "t/locales.t",
-         "start" : 1793979234.69194,
-         "version" : 0.24
+         "start" : 1794854848.72325,
+         "version" : 0.25
       },
       {
          "OS" : "linux",
          "abstract" : "Runtime Configuration for an Object",
          "dir" : "/home/runner/work/Object-Configure/Object-Configure",
-         "finish" : 1793979235.02085,
+         "finish" : 1794854848.9419,
          "name" : "Object-Configure",
          "perl" : "5.40.5",
          "run" : "t/manifest.t",
-         "start" : 1793979235.02046,
-         "version" : 0.24
+         "start" : 1794854848.94178,
+         "version" : 0.25
       },
       {
          "OS" : "linux",
          "abstract" : "Runtime Configuration for an Object",
          "dir" : "/home/runner/work/Object-Configure/Object-Configure",
-         "finish" : 1793979237.92364,
+         "finish" : 1794854851.72145,
          "name" : "Object-Configure",
          "perl" : "5.40.5",
          "run" : "t/mutant_killer.t",
-         "start" : 1793979235.33534,
-         "version" : 0.24
+         "start" : 1794854849.15948,
+         "version" : 0.25
       },
       {
          "OS" : "linux",
          "abstract" : "Runtime Configuration for an Object",
          "dir" : "/home/runner/work/Object-Configure/Object-Configure",
-         "finish" : 1793979238.87163,
+         "finish" : 1794854852.36705,
          "name" : "Object-Configure",
          "perl" : "5.40.5",
          "run" : "t/path.t",
-         "start" : 1793979238.36145,
-         "version" : 0.24
+         "start" : 1794854852.03247,
+         "version" : 0.25
       },
       {
          "OS" : "linux",
          "abstract" : "Runtime Configuration for an Object",
          "dir" : "/home/runner/work/Object-Configure/Object-Configure",
-         "finish" : 1793979238.5424,
+         "finish" : 1794854852.1481,
          "name" : "Object-Configure",
          "perl" : "5.40.5",
          "run" : "t/path.t",
-         "start" : 1793979238.36145,
-         "version" : 0.24
+         "start" : 1794854852.03247,
+         "version" : 0.25
       },
       {
          "OS" : "linux",
          "abstract" : "Runtime Configuration for an Object",
          "dir" : "/home/runner/work/Object-Configure/Object-Configure",
-         "finish" : 1793979239.2699,
+         "finish" : 1794854852.64263,
          "name" : "Object-Configure",
          "perl" : "5.40.5",
          "run" : "t/pod-cm.t",
-         "start" : 1793979239.26949,
-         "version" : 0.24
+         "start" : 1794854852.6425,
+         "version" : 0.25
       },
       {
          "OS" : "linux",
          "abstract" : "Runtime Configuration for an Object",
          "dir" : "/home/runner/work/Object-Configure/Object-Configure",
-         "finish" : 1793979239.47186,
+         "finish" : 1794854852.77726,
          "name" : "Object-Configure",
          "perl" : "5.40.5",
          "run" : "t/pod-synopsis.t",
-         "start" : 1793979239.47146,
-         "version" : 0.24
+         "start" : 1794854852.77713,
+         "version" : 0.25
       },
       {
          "OS" : "linux",
          "abstract" : "Runtime Configuration for an Object",
          "dir" : "/home/runner/work/Object-Configure/Object-Configure",
-         "finish" : 1793979239.6697,
+         "finish" : 1794854852.91258,
          "name" : "Object-Configure",
          "perl" : "5.40.5",
          "run" : "t/pod.t",
-         "start" : 1793979239.66927,
-         "version" : 0.24
+         "start" : 1794854852.91244,
+         "version" : 0.25
       },
       {
          "OS" : "linux",
          "abstract" : "Runtime Configuration for an Object",
          "dir" : "/home/runner/work/Object-Configure/Object-Configure",
-         "finish" : 1793979239.87325,
+         "finish" : 1794854853.04711,
          "name" : "Object-Configure",
          "perl" : "5.40.5",
          "run" : "t/prereq.t",
-         "start" : 1793979239.87281,
-         "version" : 0.24
+         "start" : 1794854853.04697,
+         "version" : 0.25
       },
       {
          "OS" : "linux",
          "abstract" : "Runtime Configuration for an Object",
          "dir" : "/home/runner/work/Object-Configure/Object-Configure",
-         "finish" : 1793979243.22953,
+         "finish" : 1794854855.48131,
          "name" : "Object-Configure",
          "perl" : "5.40.5",
          "run" : "t/reload.t",
-         "start" : 1793979240.17447,
-         "version" : 0.24
+         "start" : 1794854853.25775,
+         "version" : 0.25
       },
       {
          "OS" : "linux",
          "abstract" : "Runtime Configuration for an Object",
          "dir" : "/home/runner/work/Object-Configure/Object-Configure",
-         "finish" : 1793979242.4293,
+         "finish" : 1794854856.26958,
          "name" : "Object-Configure",
          "perl" : "5.40.5",
          "run" : "t/reload.t",
-         "start" : 1793979240.17447,
-         "version" : 0.24
+         "start" : 1794854853.25775,
+         "version" : 0.25
       },
       {
          "OS" : "linux",
          "abstract" : "Runtime Configuration for an Object",
          "dir" : "/home/runner/work/Object-Configure/Object-Configure",
-         "finish" : 1793979243.67994,
+         "finish" : 1794854856.58624,
          "name" : "Object-Configure",
          "perl" : "5.40.5",
          "run" : "t/simple.t",
-         "start" : 1793979243.65563,
-         "version" : 0.24
+         "start" : 1794854856.57006,
+         "version" : 0.25
       },
       {
          "OS" : "linux",
          "abstract" : "Runtime Configuration for an Object",
          "dir" : "/home/runner/work/Object-Configure/Object-Configure",
-         "finish" : 1793979243.97487,
+         "finish" : 1794854856.78374,
          "name" : "Object-Configure",
          "perl" : "5.40.5",
          "run" : "t/strict.t",
-         "start" : 1793979243.97448,
-         "version" : 0.24
+         "start" : 1794854856.7836,
+         "version" : 0.25
       },
       {
          "OS" : "linux",
          "abstract" : "Runtime Configuration for an Object",
          "dir" : "/home/runner/work/Object-Configure/Object-Configure",
-         "finish" : 1793979244.34087,
+         "finish" : 1794854857.58994,
          "name" : "Object-Configure",
          "perl" : "5.40.5",
          "run" : "t/transaction.t",
-         "start" : 1793979244.27464,
-         "version" : 0.24
+         "start" : 1794854857.03253,
+         "version" : 0.25
       },
       {
          "OS" : "linux",
          "abstract" : "Runtime Configuration for an Object",
          "dir" : "/home/runner/work/Object-Configure/Object-Configure",
-         "finish" : 1793979244.54769,
+         "finish" : 1794854857.28221,
          "name" : "Object-Configure",
          "perl" : "5.40.5",
          "run" : "t/transaction.t",
-         "start" : 1793979244.27464,
-         "version" : 0.24
+         "start" : 1794854857.03253,
+         "version" : 0.25
       },
       {
          "OS" : "linux",
          "abstract" : "Runtime Configuration for an Object",
          "dir" : "/home/runner/work/Object-Configure/Object-Configure",
-         "finish" : 1793979244.8556,
+         "finish" : 1794854857.07756,
          "name" : "Object-Configure",
          "perl" : "5.40.5",
          "run" : "t/transaction.t",
-         "start" : 1793979244.27464,
-         "version" : 0.24
+         "start" : 1794854857.03253,
+         "version" : 0.25
       },
       {
          "OS" : "linux",
          "abstract" : "Runtime Configuration for an Object",
          "dir" : "/home/runner/work/Object-Configure/Object-Configure",
-         "finish" : 1793979245.40369,
+         "finish" : 1794854857.97413,
          "name" : "Object-Configure",
          "perl" : "5.40.5",
          "run" : "t/unit.t",
-         "start" : 1793979245.291,
-         "version" : 0.24
+         "start" : 1794854857.89663,
+         "version" : 0.25
       },
       {
          "OS" : "linux",
          "abstract" : "Runtime Configuration for an Object",
          "dir" : "/home/runner/work/Object-Configure/Object-Configure",
-         "finish" : 1793979245.88093,
+         "finish" : 1794854858.30608,
          "name" : "Object-Configure",
          "perl" : "5.40.5",
          "run" : "t/universal.t",
-         "start" : 1793979245.85077,
-         "version" : 0.24
+         "start" : 1794854858.28465,
+         "version" : 0.25
       },
       {
          "OS" : "linux",
          "abstract" : "Runtime Configuration for an Object",
          "dir" : "/home/runner/work/Object-Configure/Object-Configure",
-         "finish" : 1793979246.17017,
+         "finish" : 1794854858.50737,
          "name" : "Object-Configure",
          "perl" : "5.40.5",
          "run" : "t/version.t",
-         "start" : 1793979246.16987,
-         "version" : 0.24
+         "start" : 1794854858.50724,
+         "version" : 0.25
       }
    ],
    "summary" : {
@@ -579,22 +579,22 @@
             "uncoverable" : 0
          },
          "statement" : {
-            "covered" : 305,
+            "covered" : 317,
             "error" : 7,
-            "percentage" : 97.7564102564103,
-            "total" : 312
+            "percentage" : 97.8395061728395,
+            "total" : 324
          },
          "subroutine" : {
-            "covered" : 34,
+            "covered" : 38,
             "error" : 1,
-            "percentage" : 97.1428571428571,
-            "total" : 35
+            "percentage" : 97.4358974358974,
+            "total" : 39
          },
          "total" : {
-            "covered" : 584,
+            "covered" : 600,
             "error" : 41,
-            "percentage" : 93.44,
-            "total" : 625,
+            "percentage" : 93.603744149766,
+            "total" : 641,
             "uncoverable" : 0
          }
       },
@@ -614,22 +614,22 @@
             "uncoverable" : 0
          },
          "statement" : {
-            "covered" : 305,
+            "covered" : 317,
             "error" : 7,
-            "percentage" : 97.7564102564103,
-            "total" : 312
+            "percentage" : 97.8395061728395,
+            "total" : 324
          },
          "subroutine" : {
-            "covered" : 34,
+            "covered" : 38,
             "error" : 1,
-            "percentage" : 97.1428571428571,
-            "total" : 35
+            "percentage" : 97.4358974358974,
+            "total" : 39
          },
          "total" : {
-            "covered" : 584,
+            "covered" : 600,
             "error" : 41,
-            "percentage" : 93.44,
-            "total" : 625,
+            "percentage" : 93.603744149766,
+            "total" : 641,
             "uncoverable" : 0
          }
       }
