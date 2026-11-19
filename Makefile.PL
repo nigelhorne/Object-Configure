@@ -37,7 +37,7 @@ WriteMakefile(
 		'File::stat' => 0,
 		'IPC::System::Simple' => 0,	# Needed by autodie's :system (via :all)
 		'List::Util' => 1.33,	# any()
-		'Log::Abstraction' => 0.26,
+		'Log::Abstraction' => 0.41,
 		'mro' => 0,
 		'Params::Get' => 0.13,
 		'POSIX' => 0,

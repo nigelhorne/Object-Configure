@@ -8,7 +8,7 @@ requires 'File::Spec';
 requires 'File::stat';
 requires 'IPC::System::Simple';   # Needed by autodie's :system (via :all)
 requires 'List::Util', '1.33';   # any()
-requires 'Log::Abstraction', '0.26';
+requires 'Log::Abstraction', '0.41';
 requires 'POSIX';
 requires 'Params::Get', '0.13';
 requires 'Readonly';
