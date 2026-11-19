@@ -1,6 +1,15 @@
 Revision history for Object::Configure - Runtime Configuration for an Object
 
-0.26
+0.26	Thu Nov 19 09:11:33 AM EST 2026
+	[ Enhancements ]
+	- Perl 5.26 is now the minimum.  Log::Abstraction 0.40 and later,
+	  and Params::Validate::Strict 0.40 and later (needed by
+	  Config::Abstraction), require 5.26, so on older perls the
+	  dependencies could not be installed and installing
+	  Object::Configure failed anyway.  Makefile.PL now says so, so
+	  older perls get a clear "needs 5.26" message (and CPAN Testers
+	  reports NA rather than FAIL).
+
 	[ Bug Fixes ]
 	- Object::Configure now needs Log::Abstraction 0.41.  Earlier versions
 	  set Sub::Private's mode to enforce for the whole process when they

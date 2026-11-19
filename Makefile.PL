@@ -87,5 +87,5 @@ WriteMakefile(
 			}
 		},
 	},
-	MIN_PERL_VERSION => '5.010'	# The // operator needs 5.10
+	MIN_PERL_VERSION => '5.026'	# Log::Abstraction and Params::Validate::Strict need 5.26
 );
