@@ -67,6 +67,7 @@ WriteMakefile(
 			test => {
 				recommends => {
 					'Test::Memory::Cycle' => 0,	# t/function.t skips without it
+					'Test::Permissions' => 0,	# t/edge_cases.t skips one subtest without it
 				},
 			},
 		},

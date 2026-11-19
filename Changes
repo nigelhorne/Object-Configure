@@ -9,6 +9,13 @@ Revision history for Object::Configure - Runtime Configuration for an Object
 	  removed, and code reading the mode saw "enforce").  Object::Configure
 	  itself never set it.  If you cannot upgrade Log::Abstraction, that
 	  is the version to ask for.
+	- t/edge_cases.t no longer fails on Cygwin when run by a user in
+	  the Administrators group (or anywhere chmod 0000 still leaves a
+	  file readable).  The "unreadable config file" test now uses the
+	  optional Test::Permissions to check whether chmod can really make
+	  a file unreadable, and skips if it can't or if Test::Permissions
+	  isn't installed.
+	  Fixes https://matrix.perl-magpie.org/results/702aec9c-d9ff-11f1-a265-ec4270818d2b
 
 0.25	Fri Nov  6 10:54:40 AM EST 2026
 	[ Bug Fixes ]

@@ -37,6 +37,7 @@ on 'test' => sub {
 	requires 'Test::Without::Module';
 	requires 'YAML::XS';
 	recommends 'Test::Memory::Cycle';   # t/function.t skips without it
+	recommends 'Test::Permissions';   # t/edge_cases.t skips one subtest without it
 };
 
 on 'develop' => sub {
